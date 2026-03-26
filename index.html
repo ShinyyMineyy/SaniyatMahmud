@@ -157,6 +157,21 @@
             100% { background-position: 100% 100%; }
         }
 
+        /* Discord Typing Animation */
+        @keyframes typingBounce {
+            0%, 100% { transform: translateY(0); opacity: 0.5; }
+            50% { transform: translateY(-3px); opacity: 1; }
+        }
+        .typing-dot { animation: typingBounce 1.4s infinite ease-in-out both; }
+        .typing-dot:nth-child(1) { animation-delay: -0.32s; }
+        .typing-dot:nth-child(2) { animation-delay: -0.16s; }
+
+        /* Discord Custom Scrollbar */
+        .discord-scrollbar::-webkit-scrollbar { width: 8px; }
+        .discord-scrollbar::-webkit-scrollbar-track { background: #2b2d31; border-radius: 4px; }
+        .discord-scrollbar::-webkit-scrollbar-thumb { background: #1a1b1e; border-radius: 4px; }
+        .discord-scrollbar::-webkit-scrollbar-thumb:hover { background: #111214; }
+
     </style>
 </head>
 <body class="min-h-screen flex flex-col items-center selection:bg-white/20 selection:text-white">
@@ -193,7 +208,7 @@
                     <div class="w-56 h-72 md:w-64 md:h-80 rounded-[2.5rem] border border-white/20 overflow-hidden relative shadow-2xl backdrop-blur-xl group-hover:scale-105 transition-transform duration-700">
                         <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent z-10"></div>
                         <!-- Profile Image: SANIYAT.png (Not flipping anymore) -->
-                        <img src="SANIYAT.png" alt="Saniyat Mahmud" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000 grayscale group-hover:grayscale-0">
+                        <img src="SANIYAT.png" alt="Saniyat Mahmud" class="w-full h-full object-cover group-hover:scale-110 transition-all duration-1000 grayscale group-hover:grayscale-0">
                         <div class="absolute top-0 left-0 w-full h-full border-t border-l border-white/30 rounded-[2.5rem] z-20 pointer-events-none"></div>
                     </div>
                 </div>
@@ -231,7 +246,7 @@
                     
                     <div class="mt-12 flex flex-wrap gap-4 relative z-10 translate-z-20">
                         <div class="magnetic-wrap" data-strength="40">
-                            <button onclick="openContactModal()" class="px-10 py-4 bg-white text-black font-display font-black tracking-wide uppercase rounded-xl hover:bg-gray-300 transition-colors flex items-center gap-3 shadow-[0_0_30px_rgba(255,255,255,0.2)] w-full h-full cursor-pointer">
+                            <button id="lets-talk-btn" onclick="openContactModal()" class="px-10 py-4 bg-white text-black font-display font-black tracking-wide uppercase rounded-xl hover:bg-gray-300 transition-colors flex items-center gap-3 shadow-[0_0_30px_rgba(255,255,255,0.2)] w-full h-full cursor-pointer relative z-10">
                                 Let's Talk <i class="fas fa-arrow-right"></i>
                             </button>
                         </div>
@@ -265,50 +280,75 @@
         </div>
 
         <!-- ================= 2. THE MASTERY VOID ================= -->
-        <div class="w-full flex flex-col md:flex-row justify-between items-center md:items-start gap-16 md:gap-4 px-4 lg:px-8 gs-reveal">
+        <div class="w-full text-center mb-6 gs-reveal mt-10">
+            <h2 class="font-display text-4xl md:text-5xl lg:text-6xl font-extrabold text-white tracking-tighter drop-shadow-lg">What I have for you</h2>
+        </div>
+        <div class="w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-12 lg:gap-8 px-4 lg:px-8 gs-reveal">
             
             <!-- Left: Video Editor -->
-            <div class="w-full md:w-1/3 flex flex-col items-center md:items-end text-center md:text-right relative group">
-                <i class="fas fa-film absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 md:left-auto md:right-0 md:translate-x-1/4 text-[12rem] text-red-500/5 group-hover:text-red-500/10 transition-colors duration-700 -z-10"></i>
-                <div class="text-red-400 text-xs font-bold tracking-widest uppercase mb-4 flex items-center gap-2">
+            <div id="tab-video" onclick="switchTab('video')" class="w-full flex flex-col items-center text-center relative group cursor-pointer opacity-50 hover:opacity-100 transition-opacity duration-500">
+                <i class="fas fa-film absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-[10rem] text-red-500/5 group-hover:text-red-500/10 transition-colors duration-700 -z-10"></i>
+                <div class="text-red-400 text-xs font-bold tracking-widest uppercase mb-4 flex items-center justify-center gap-2">
                     <span class="w-2 h-2 rounded-full bg-red-400 animate-pulse"></span> Cinematic Edits
                 </div>
-                <h3 class="font-display text-4xl md:text-5xl lg:text-6xl font-black text-white tracking-tighter leading-[0.9] mb-6 drop-shadow-2xl">
+                <h3 class="font-display text-4xl md:text-5xl font-black text-white tracking-tighter leading-[0.9] mb-6 drop-shadow-2xl">
                     Video<br><span class="text-red-400">Editor.</span>
                 </h3>
-                <p class="text-gray-400 text-base lg:text-lg font-light leading-relaxed max-w-[260px] md:ml-auto">High-retention, documentary-style editing with flawless 3D motion graphics and sound design.</p>
+                <p class="text-gray-400 text-sm md:text-base font-light leading-relaxed max-w-[240px] mx-auto">High-retention, documentary-style editing with flawless motion graphics and sound design.</p>
             </div>
 
-            <!-- Glowing Divider 1 -->
-            <div class="hidden md:block w-[1px] h-48 bg-gradient-to-b from-transparent via-white/20 to-transparent shadow-[0_0_20px_rgba(255,255,255,0.5)] mt-10"></div>
+            <!-- Mid-Left: Minecraft Animation -->
+            <div id="tab-minecraft" onclick="switchTab('minecraft')" class="w-full flex flex-col items-center text-center relative group cursor-pointer opacity-50 hover:opacity-100 transition-opacity duration-500">
+                <i class="fas fa-cubes absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-[10rem] text-cyan-500/5 group-hover:text-cyan-500/10 transition-colors duration-700 -z-10"></i>
+                <div class="text-cyan-400 text-xs font-bold tracking-widest uppercase mb-4 flex items-center justify-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></span> Voxel Cinematics
+                </div>
+                <h3 class="font-display text-4xl md:text-5xl font-black text-white tracking-tighter leading-[0.9] mb-6 drop-shadow-2xl">
+                    Minecraft<br><span class="text-cyan-400">Animator.</span>
+                </h3>
+                <p class="text-gray-400 text-sm md:text-base font-light leading-relaxed max-w-[240px] mx-auto">Custom Minecraft animations, dynamic camera rigs, and immersive blocky storytelling.</p>
+            </div>
 
-            <!-- Middle: Full Stack Web -->
-            <div class="w-full md:w-1/3 flex flex-col items-center text-center relative group">
-                <i class="fas fa-layer-group absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-[12rem] text-emerald-500/5 group-hover:text-emerald-500/10 transition-colors duration-700 -z-10"></i>
+            <!-- Mid-Right: Full Stack Web -->
+            <div id="tab-fullstack" onclick="switchTab('fullstack')" class="w-full flex flex-col items-center text-center relative group cursor-pointer opacity-100 transition-opacity duration-500">
+                <i class="fas fa-layer-group absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-[10rem] text-emerald-500/5 group-hover:text-emerald-500/10 transition-colors duration-700 -z-10"></i>
                 <div class="text-emerald-400 text-xs font-bold tracking-widest uppercase mb-4 flex items-center justify-center gap-2">
                     <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> Web Architecture
                 </div>
-                <h3 class="font-display text-4xl md:text-5xl lg:text-6xl font-black text-white tracking-tighter leading-[0.9] mb-6 drop-shadow-2xl">
+                <h3 class="font-display text-4xl md:text-5xl font-black text-white tracking-tighter leading-[0.9] mb-6 drop-shadow-2xl">
                     Full Stack<br><span class="text-emerald-400">Engineer.</span>
                 </h3>
-                <p class="text-gray-400 text-base lg:text-lg font-light leading-relaxed max-w-[260px] mx-auto">End-to-end web ecosystems. High-conversion frontends to massively scalable backends.</p>
+                <p class="text-gray-400 text-sm md:text-base font-light leading-relaxed max-w-[240px] mx-auto">End-to-end web ecosystems. High-conversion frontends to massively scalable backends.</p>
             </div>
-
-            <!-- Glowing Divider 2 -->
-            <div class="hidden md:block w-[1px] h-48 bg-gradient-to-b from-transparent via-white/20 to-transparent shadow-[0_0_20px_rgba(255,255,255,0.5)] mt-10"></div>
 
             <!-- Right: Discord -->
-            <div class="w-full md:w-1/3 flex flex-col items-center md:items-start text-center md:text-left relative group">
-                <i class="fab fa-discord absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 md:left-0 md:-translate-x-1/4 text-[12rem] text-[#5865F2]/5 group-hover:text-[#5865F2]/10 transition-colors duration-700 -z-10"></i>
-                <div class="text-[#5865F2] text-xs font-bold tracking-widest uppercase mb-4 flex items-center gap-2">
+            <div id="tab-discord" onclick="switchTab('discord')" class="w-full flex flex-col items-center text-center relative group cursor-pointer opacity-50 hover:opacity-100 transition-opacity duration-500">
+                <i class="fab fa-discord absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-[10rem] text-[#5865F2]/5 group-hover:text-[#5865F2]/10 transition-colors duration-700 -z-10"></i>
+                <div class="text-[#5865F2] text-xs font-bold tracking-widest uppercase mb-4 flex items-center justify-center gap-2">
                     Automation Mastery <span class="w-2 h-2 rounded-full bg-[#5865F2] animate-pulse"></span>
                 </div>
-                <h3 class="font-display text-4xl md:text-5xl lg:text-6xl font-black text-white tracking-tighter leading-[0.9] mb-6 drop-shadow-2xl">
+                <h3 class="font-display text-4xl md:text-5xl font-black text-white tracking-tighter leading-[0.9] mb-6 drop-shadow-2xl">
                     Discord Bot<br><span class="text-[#5865F2]">Systems.</span>
                 </h3>
-                <p class="text-gray-400 text-base lg:text-lg font-light leading-relaxed max-w-[260px]">Intensely complex automation. Custom economies, AI moderation logic, and seamless APIs.</p>
+                <p class="text-gray-400 text-sm md:text-base font-light leading-relaxed max-w-[240px] mx-auto">Intensely complex automation. Custom economies, AI moderation logic, and seamless APIs.</p>
+            </div>
+
+            <!-- Far Right: Audio Engineer -->
+            <div id="tab-audio" onclick="switchTab('audio')" class="w-full flex flex-col items-center text-center relative group cursor-pointer opacity-50 hover:opacity-100 transition-opacity duration-500">
+                <i class="fas fa-headphones absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-[10rem] text-orange-500/5 group-hover:text-orange-500/10 transition-colors duration-700 -z-10"></i>
+                <div class="text-orange-400 text-xs font-bold tracking-widest uppercase mb-4 flex items-center justify-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-orange-400 animate-pulse"></span> Sound Design
+                </div>
+                <h3 class="font-display text-4xl md:text-5xl font-black text-white tracking-tighter leading-[0.9] mb-6 drop-shadow-2xl">
+                    Audio<br><span class="text-orange-400">Engineer.</span>
+                </h3>
+                <p class="text-gray-400 text-sm md:text-base font-light leading-relaxed max-w-[240px] mx-auto">Immersive soundscapes, professional mixing, mastering, and custom track production.</p>
             </div>
         </div>
+
+        <div id="portfolio-container" class="w-full relative">
+            <!-- FULL STACK PORTFOLIO CONTENT -->
+            <div id="content-fullstack" class="portfolio-section w-full flex flex-col gap-24">
 
         <!-- ================= 3. CONSTELLATION TECH STACK ================= -->
         <div class="w-full flex flex-col justify-center items-center min-h-[400px] relative gs-reveal perspective-[1000px] hover-3d transform-style-3d group mt-16">
@@ -473,7 +513,497 @@
                     <i class="fas fa-layer-group text-fuchsia-400"></i> View AI Capabilities
                 </div>
             </div>
+            <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[80%] h-[80%] bg-fuchsia-600/10 filter blur-[100px] pointer-events-none z-0"></div>
         </div>
+
+            </div> <!-- End Full Stack Content -->
+
+            <!-- MINECRAFT ANIMATION PORTFOLIO CONTENT -->
+            <div id="content-minecraft" class="portfolio-section w-full hidden flex-col gap-20 mt-10">
+                
+                <!-- Long Videos -->
+                <div class="w-full flex flex-col gap-6">
+                    <h2 class="font-display text-4xl lg:text-5xl text-white font-bold tracking-tight drop-shadow-md px-4 mb-4">Minecraft Cinematics</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 w-full">
+                        
+                        <!-- MC Video Placeholder 1 -->
+                        <div class="w-full aspect-video rounded-[2.5rem] border border-white/10 bg-black/40 shadow-2xl overflow-hidden relative group cursor-pointer hover-3d transform-style-3d">
+                            <div class="absolute inset-0 bg-gradient-to-br from-cyan-500/20 to-black z-0 mix-blend-overlay"></div>
+                            
+                            <!-- Camera UI Overlays -->
+                            <div class="absolute top-6 left-6 z-20 translate-z-20 flex items-center gap-2">
+                                <div class="w-3 h-3 rounded-full bg-cyan-400 animate-pulse shadow-[0_0_10px_rgba(34,211,238,0.8)]"></div>
+                                <span class="text-cyan-400 text-xs font-bold font-mono tracking-widest uppercase">RENDER</span>
+                            </div>
+
+                            <!-- Play Button -->
+                            <div class="absolute inset-0 flex items-center justify-center translate-z-30 z-10">
+                                <div class="w-20 h-20 rounded-full bg-cyan-500/20 border border-cyan-500/50 flex items-center justify-center text-cyan-400 backdrop-blur-md group-hover:scale-110 group-hover:bg-cyan-500 group-hover:text-white transition-all duration-500 shadow-[0_0_30px_rgba(34,211,238,0.3)]">
+                                    <i class="fas fa-play text-2xl ml-1"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- MC Video Placeholder 2 -->
+                        <div class="w-full aspect-video rounded-[2.5rem] border border-white/10 bg-black/40 shadow-2xl overflow-hidden relative group cursor-pointer hover-3d transform-style-3d">
+                            <div class="absolute inset-0 bg-gradient-to-bl from-cyan-600/20 to-black z-0 mix-blend-overlay"></div>
+                            
+                            <!-- Camera UI Overlays -->
+                            <div class="absolute top-6 left-6 z-20 translate-z-20 flex items-center gap-2">
+                                <div class="w-3 h-3 rounded-full bg-cyan-400 animate-pulse shadow-[0_0_10px_rgba(34,211,238,0.8)]"></div>
+                                <span class="text-cyan-400 text-xs font-bold font-mono tracking-widest uppercase">RENDER</span>
+                            </div>
+
+                            <!-- Play Button -->
+                            <div class="absolute inset-0 flex items-center justify-center translate-z-30 z-10">
+                                <div class="w-20 h-20 rounded-full bg-cyan-500/20 border border-cyan-500/50 flex items-center justify-center text-cyan-400 backdrop-blur-md group-hover:scale-110 group-hover:bg-cyan-500 group-hover:text-white transition-all duration-500 shadow-[0_0_30px_rgba(34,211,238,0.3)]">
+                                    <i class="fas fa-play text-2xl ml-1"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+                
+                <!-- Minecraft Shorts -->
+                <div class="w-full flex flex-col gap-6 mt-10">
+                    <h2 class="font-display text-4xl lg:text-5xl text-white font-bold tracking-tight drop-shadow-md px-4 mb-4">Animated Shorts</h2>
+                    <div class="grid grid-cols-2 lg:grid-cols-4 gap-6 w-full">
+                        
+                        <!-- MC Short 1 -->
+                        <div class="w-full aspect-[9/16] rounded-[2rem] border border-white/10 bg-black/40 shadow-xl overflow-hidden relative group cursor-pointer transform-style-3d hover-3d">
+                            <div class="absolute inset-0 bg-gradient-to-t from-cyan-500/20 to-transparent z-0 opacity-50 group-hover:opacity-100 transition-opacity"></div>
+                            <div class="absolute inset-0 flex items-center justify-center z-10 translate-z-30">
+                                <i class="fas fa-play text-4xl text-white/30 group-hover:text-white transition-colors duration-300"></i>
+                            </div>
+                        </div>
+
+                        <!-- MC Short 2 -->
+                        <div class="w-full aspect-[9/16] rounded-[2rem] border border-white/10 bg-black/40 shadow-xl overflow-hidden relative group cursor-pointer transform-style-3d hover-3d">
+                            <div class="absolute inset-0 bg-gradient-to-t from-cyan-500/20 to-transparent z-0 opacity-50 group-hover:opacity-100 transition-opacity"></div>
+                            <div class="absolute inset-0 flex items-center justify-center z-10 translate-z-30">
+                                <i class="fas fa-play text-4xl text-white/30 group-hover:text-white transition-colors duration-300"></i>
+                            </div>
+                        </div>
+
+                        <!-- MC Short 3 -->
+                        <div class="w-full aspect-[9/16] rounded-[2rem] border border-white/10 bg-black/40 shadow-xl overflow-hidden relative group cursor-pointer transform-style-3d hover-3d">
+                            <div class="absolute inset-0 bg-gradient-to-t from-cyan-500/20 to-transparent z-0 opacity-50 group-hover:opacity-100 transition-opacity"></div>
+                            <div class="absolute inset-0 flex items-center justify-center z-10 translate-z-30">
+                                <i class="fas fa-play text-4xl text-white/30 group-hover:text-white transition-colors duration-300"></i>
+                            </div>
+                        </div>
+
+                        <!-- MC Short 4 -->
+                        <div class="w-full aspect-[9/16] rounded-[2rem] border border-white/10 bg-black/40 shadow-xl overflow-hidden relative group cursor-pointer transform-style-3d hover-3d">
+                            <div class="absolute inset-0 bg-gradient-to-t from-cyan-500/20 to-transparent z-0 opacity-50 group-hover:opacity-100 transition-opacity"></div>
+                            <div class="absolute inset-0 flex items-center justify-center z-10 translate-z-30">
+                                <i class="fas fa-play text-4xl text-white/30 group-hover:text-white transition-colors duration-300"></i>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div> <!-- End Minecraft Content -->
+
+            <!-- VIDEO EDITOR PORTFOLIO CONTENT -->
+            <div id="content-video" class="portfolio-section w-full hidden flex-col gap-20 mt-10">
+                
+                <!-- Long Videos -->
+                <div class="w-full flex flex-col gap-6">
+                    <h2 class="font-display text-4xl lg:text-5xl text-white font-bold tracking-tight drop-shadow-md px-4 mb-4">Long Videos</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 w-full">
+                        
+                        <!-- Video Placeholder 1 -->
+                        <div class="w-full aspect-video rounded-[2.5rem] border border-white/10 bg-black/40 shadow-2xl overflow-hidden relative group cursor-pointer hover-3d transform-style-3d">
+                            <div class="absolute inset-0 bg-gradient-to-br from-red-500/20 to-black z-0 mix-blend-overlay"></div>
+                            
+                            <!-- Camera UI Overlays -->
+                            <div class="absolute top-6 left-6 z-20 translate-z-20 flex items-center gap-2">
+                                <div class="w-3 h-3 rounded-full bg-red-500 animate-pulse shadow-[0_0_10px_rgba(239,68,68,0.8)]"></div>
+                                <span class="text-red-500 text-xs font-bold font-mono tracking-widest uppercase">REC</span>
+                            </div>
+                            <div class="absolute top-6 right-6 z-20 translate-z-20 text-white/70 font-mono text-xs tracking-wider">
+                                00:04:23:12
+                            </div>
+
+                            <div class="absolute inset-0 flex items-center justify-center translate-z-30 z-10">
+                                <div class="w-20 h-20 rounded-full bg-red-500/20 border border-red-500/50 flex items-center justify-center text-red-500 backdrop-blur-md group-hover:scale-110 group-hover:bg-red-500 group-hover:text-white transition-all duration-500 shadow-[0_0_30px_rgba(239,68,68,0.3)]">
+                                    <i class="fas fa-play text-2xl ml-1"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Video Placeholder 2 -->
+                        <div class="w-full aspect-video rounded-[2.5rem] border border-white/10 bg-black/40 shadow-2xl overflow-hidden relative group cursor-pointer hover-3d transform-style-3d">
+                            <div class="absolute inset-0 bg-gradient-to-bl from-red-600/20 to-black z-0 mix-blend-overlay"></div>
+                            
+                            <!-- Camera UI Overlays -->
+                            <div class="absolute top-6 left-6 z-20 translate-z-20 flex items-center gap-2">
+                                <div class="w-3 h-3 rounded-full bg-red-500 animate-pulse shadow-[0_0_10px_rgba(239,68,68,0.8)]"></div>
+                                <span class="text-red-500 text-xs font-bold font-mono tracking-widest uppercase">REC</span>
+                            </div>
+                            <div class="absolute top-6 right-6 z-20 translate-z-20 text-white/70 font-mono text-xs tracking-wider">
+                                00:01:15:08
+                            </div>
+
+                            <div class="absolute inset-0 flex items-center justify-center translate-z-30 z-10">
+                                <div class="w-20 h-20 rounded-full bg-red-500/20 border border-red-500/50 flex items-center justify-center text-red-500 backdrop-blur-md group-hover:scale-110 group-hover:bg-red-500 group-hover:text-white transition-all duration-500 shadow-[0_0_30px_rgba(239,68,68,0.3)]">
+                                    <i class="fas fa-play text-2xl ml-1"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- High-Retention Shorts -->
+                <div class="w-full flex flex-col gap-6 mt-10">
+                    <h2 class="font-display text-4xl lg:text-5xl text-white font-bold tracking-tight drop-shadow-md px-4 mb-4">High-Retention Shorts</h2>
+                    <div class="grid grid-cols-2 lg:grid-cols-4 gap-6 w-full">
+                        
+                        <!-- Short Placeholder 1 -->
+                        <div class="w-full aspect-[9/16] rounded-[2rem] border border-white/10 bg-black/40 shadow-xl overflow-hidden relative group cursor-pointer">
+                            <div class="absolute inset-0 bg-gradient-to-t from-red-500/20 to-transparent z-0 opacity-50 group-hover:opacity-100 transition-opacity"></div>
+                            
+                            <!-- Social Action Icons (Right Side) -->
+                            <div class="absolute right-4 bottom-24 flex flex-col gap-4 translate-z-20 z-20 items-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                <div class="flex flex-col items-center gap-1"><div class="w-10 h-10 rounded-full bg-black/40 backdrop-blur-md flex items-center justify-center text-white hover:text-red-500 transition-colors"><i class="fas fa-heart text-lg"></i></div></div>
+                                <div class="flex flex-col items-center gap-1"><div class="w-10 h-10 rounded-full bg-black/40 backdrop-blur-md flex items-center justify-center text-white hover:text-white transition-colors"><i class="fas fa-comment-dots text-lg"></i></div></div>
+                                <div class="flex flex-col items-center gap-1"><div class="w-10 h-10 rounded-full bg-black/40 backdrop-blur-md flex items-center justify-center text-white hover:text-white transition-colors"><i class="fas fa-share text-lg"></i></div></div>
+                            </div>
+
+                            <div class="absolute inset-0 flex items-center justify-center z-10">
+                                <i class="fas fa-play text-4xl text-white/30 group-hover:text-white transition-colors duration-300"></i>
+                            </div>
+                        </div>
+
+                        <!-- Short Placeholder 2 -->
+                        <div class="w-full aspect-[9/16] rounded-[2rem] border border-white/10 bg-black/40 shadow-xl overflow-hidden relative group cursor-pointer">
+                            <div class="absolute inset-0 bg-gradient-to-t from-red-500/20 to-transparent z-0 opacity-50 group-hover:opacity-100 transition-opacity"></div>
+                            
+                            <!-- Social Action Icons (Right Side) -->
+                            <div class="absolute right-4 bottom-24 flex flex-col gap-4 translate-z-20 z-20 items-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                <div class="flex flex-col items-center gap-1"><div class="w-10 h-10 rounded-full bg-black/40 backdrop-blur-md flex items-center justify-center text-white hover:text-red-500 transition-colors"><i class="fas fa-heart text-lg"></i></div></div>
+                                <div class="flex flex-col items-center gap-1"><div class="w-10 h-10 rounded-full bg-black/40 backdrop-blur-md flex items-center justify-center text-white hover:text-white transition-colors"><i class="fas fa-comment-dots text-lg"></i></div></div>
+                                <div class="flex flex-col items-center gap-1"><div class="w-10 h-10 rounded-full bg-black/40 backdrop-blur-md flex items-center justify-center text-white hover:text-white transition-colors"><i class="fas fa-share text-lg"></i></div></div>
+                            </div>
+
+                            <div class="absolute inset-0 flex items-center justify-center z-10">
+                                <i class="fas fa-play text-4xl text-white/30 group-hover:text-white transition-colors duration-300"></i>
+                            </div>
+                        </div>
+
+                        <!-- Short Placeholder 3 -->
+                        <div class="w-full aspect-[9/16] rounded-[2rem] border border-white/10 bg-black/40 shadow-xl overflow-hidden relative group cursor-pointer">
+                            <div class="absolute inset-0 bg-gradient-to-t from-red-500/20 to-transparent z-0 opacity-50 group-hover:opacity-100 transition-opacity"></div>
+                            
+                            <!-- Social Action Icons (Right Side) -->
+                            <div class="absolute right-4 bottom-24 flex flex-col gap-4 translate-z-20 z-20 items-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                <div class="flex flex-col items-center gap-1"><div class="w-10 h-10 rounded-full bg-black/40 backdrop-blur-md flex items-center justify-center text-white hover:text-red-500 transition-colors"><i class="fas fa-heart text-lg"></i></div></div>
+                                <div class="flex flex-col items-center gap-1"><div class="w-10 h-10 rounded-full bg-black/40 backdrop-blur-md flex items-center justify-center text-white hover:text-white transition-colors"><i class="fas fa-comment-dots text-lg"></i></div></div>
+                                <div class="flex flex-col items-center gap-1"><div class="w-10 h-10 rounded-full bg-black/40 backdrop-blur-md flex items-center justify-center text-white hover:text-white transition-colors"><i class="fas fa-share text-lg"></i></div></div>
+                            </div>
+
+                            <div class="absolute inset-0 flex items-center justify-center z-10">
+                                <i class="fas fa-play text-4xl text-white/30 group-hover:text-white transition-colors duration-300"></i>
+                            </div>
+                        </div>
+
+                        <!-- Short Placeholder 4 -->
+                        <div class="w-full aspect-[9/16] rounded-[2rem] border border-white/10 bg-black/40 shadow-xl overflow-hidden relative group cursor-pointer">
+                            <div class="absolute inset-0 bg-gradient-to-t from-red-500/20 to-transparent z-0 opacity-50 group-hover:opacity-100 transition-opacity"></div>
+                            
+                            <!-- Social Action Icons (Right Side) -->
+                            <div class="absolute right-4 bottom-24 flex flex-col gap-4 translate-z-20 z-20 items-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                <div class="flex flex-col items-center gap-1"><div class="w-10 h-10 rounded-full bg-black/40 backdrop-blur-md flex items-center justify-center text-white hover:text-red-500 transition-colors"><i class="fas fa-heart text-lg"></i></div></div>
+                                <div class="flex flex-col items-center gap-1"><div class="w-10 h-10 rounded-full bg-black/40 backdrop-blur-md flex items-center justify-center text-white hover:text-white transition-colors"><i class="fas fa-comment-dots text-lg"></i></div></div>
+                                <div class="flex flex-col items-center gap-1"><div class="w-10 h-10 rounded-full bg-black/40 backdrop-blur-md flex items-center justify-center text-white hover:text-white transition-colors"><i class="fas fa-share text-lg"></i></div></div>
+                            </div>
+
+                            <div class="absolute inset-0 flex items-center justify-center z-10">
+                                <i class="fas fa-play text-4xl text-white/30 group-hover:text-white transition-colors duration-300"></i>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div> <!-- End Video Content -->
+
+            <!-- DISCORD BOT PORTFOLIO CONTENT -->
+            <div id="content-discord" class="portfolio-section w-full hidden flex-col gap-10 mt-10">
+                <div class="w-full min-h-[500px] flex flex-col items-center justify-center text-center bg-white/5 border border-white/10 rounded-[3rem] p-6 md:p-10 relative overflow-hidden shadow-2xl">
+                    <div class="absolute inset-0 bg-gradient-to-b from-[#5865F2]/10 to-transparent z-0"></div>
+                    <i class="fab fa-discord text-7xl text-[#5865F2] mb-8 animate-pulse relative z-10 drop-shadow-[0_0_30px_rgba(88,101,242,0.5)]"></i>
+                    <h2 class="font-display text-4xl md:text-5xl lg:text-6xl font-black text-white tracking-tighter mb-6 relative z-10 drop-shadow-lg">Discord Systems Architecture</h2>
+                    <p class="text-gray-400 text-lg md:text-xl font-light max-w-3xl mx-auto relative z-10">I engineer enterprise-grade Discord applications. From global RPG economies and automated web stores, to integrating advanced AI generation models and Web3 crypto exchanges directly into your servers.</p>
+                    
+                    <!-- Advanced Capabilities Grid -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full max-w-6xl mt-16 relative z-10 text-left">
+                        
+                        <!-- AI Integration -->
+                        <div class="p-6 rounded-2xl bg-[#0a0a0c]/80 border border-fuchsia-500/20 backdrop-blur-md hover:border-fuchsia-500/50 hover:bg-[#121215] transition-all duration-300 group shadow-lg hover:shadow-[0_0_30px_rgba(217,70,239,0.15)] hover:-translate-y-1">
+                            <div class="w-12 h-12 rounded-xl bg-fuchsia-500/10 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                                <i class="fas fa-brain text-2xl text-fuchsia-400"></i>
+                            </div>
+                            <h3 class="font-bold text-white mb-2 text-lg">AI & Generation Models</h3>
+                            <p class="text-sm text-gray-400 leading-relaxed">Connecting LLMs, AI image/video generators directly to Discord. Build your own Midjourney or ChatGPT clone inside your server.</p>
+                        </div>
+
+                        <!-- RPG & Economy -->
+                        <div class="p-6 rounded-2xl bg-[#0a0a0c]/80 border border-yellow-500/20 backdrop-blur-md hover:border-yellow-500/50 hover:bg-[#121215] transition-all duration-300 group shadow-lg hover:shadow-[0_0_30px_rgba(234,179,8,0.15)] hover:-translate-y-1">
+                            <div class="w-12 h-12 rounded-xl bg-yellow-500/10 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                                <i class="fas fa-coins text-2xl text-yellow-400"></i>
+                            </div>
+                            <h3 class="font-bold text-white mb-2 text-lg">Global RPG Economies</h3>
+                            <p class="text-sm text-gray-400 leading-relaxed">Massive, complex economy bots (like Dank Memer/OwO). Inventories, trading, gambling, leveling systems, and cross-server syncing.</p>
+                        </div>
+
+                        <!-- Digital Store -->
+                        <div class="p-6 rounded-2xl bg-[#0a0a0c]/80 border border-emerald-500/20 backdrop-blur-md hover:border-emerald-500/50 hover:bg-[#121215] transition-all duration-300 group shadow-lg hover:shadow-[0_0_30px_rgba(16,185,129,0.15)] hover:-translate-y-1">
+                            <div class="w-12 h-12 rounded-xl bg-emerald-500/10 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                                <i class="fas fa-shopping-cart text-2xl text-emerald-400"></i>
+                            </div>
+                            <h3 class="font-bold text-white mb-2 text-lg">Automated Storefronts</h3>
+                            <p class="text-sm text-gray-400 leading-relaxed">Fully working digital goods stores. Automated payment gateways, instant product delivery via DMs, and invoice generation.</p>
+                        </div>
+
+                        <!-- Web3 & Crypto -->
+                        <div class="p-6 rounded-2xl bg-[#0a0a0c]/80 border border-blue-500/20 backdrop-blur-md hover:border-blue-500/50 hover:bg-[#121215] transition-all duration-300 group shadow-lg hover:shadow-[0_0_30px_rgba(59,130,246,0.15)] hover:-translate-y-1">
+                            <div class="w-12 h-12 rounded-xl bg-blue-500/10 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                                <i class="fab fa-ethereum text-2xl text-blue-400"></i>
+                            </div>
+                            <h3 class="font-bold text-white mb-2 text-lg">Crypto & Web3 Tracking</h3>
+                            <p class="text-sm text-gray-400 leading-relaxed">Live crypto exchange rates, wallet tracking, automated swap executing bots, and NFT verification systems.</p>
+                        </div>
+
+                        <!-- Advanced Moderation -->
+                        <div class="p-6 rounded-2xl bg-[#0a0a0c]/80 border border-red-500/20 backdrop-blur-md hover:border-red-500/50 hover:bg-[#121215] transition-all duration-300 group shadow-lg hover:shadow-[0_0_30px_rgba(239,68,68,0.15)] hover:-translate-y-1">
+                            <div class="w-12 h-12 rounded-xl bg-red-500/10 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                                <i class="fas fa-shield-alt text-2xl text-red-400"></i>
+                            </div>
+                            <h3 class="font-bold text-white mb-2 text-lg">Enterprise Security</h3>
+                            <p class="text-sm text-gray-400 leading-relaxed">Unbreakable anti-raid mechanisms, AI-driven chat moderation, automated ticketing systems, and advanced logging.</p>
+                        </div>
+
+                        <!-- Web & API Bridging -->
+                        <div class="p-6 rounded-2xl bg-[#0a0a0c]/80 border border-[#5865F2]/20 backdrop-blur-md hover:border-[#5865F2]/50 hover:bg-[#121215] transition-all duration-300 group shadow-lg hover:shadow-[0_0_30px_rgba(88,101,242,0.15)] hover:-translate-y-1">
+                            <div class="w-12 h-12 rounded-xl bg-[#5865F2]/10 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                                <i class="fas fa-project-diagram text-2xl text-[#5865F2]"></i>
+                            </div>
+                            <h3 class="font-bold text-white mb-2 text-lg">API & Web Dashboards</h3>
+                            <p class="text-sm text-gray-400 leading-relaxed">Bridging external web apps, massive databases, and games to Discord. Control your bot entirely from a custom React dashboard.</p>
+                        </div>
+
+                    </div>
+
+                    <!-- DISCORD SIMULATION PANEL -->
+                    <div class="w-full max-w-6xl mt-16 border border-[#1e1f22] rounded-2xl overflow-hidden flex flex-col md:flex-row h-[500px] lg:h-[700px] relative z-10 shadow-[0_0_50px_rgba(0,0,0,0.8)] text-left font-sans bg-[#313338]">
+                        
+                        <!-- Main Chat Area -->
+                        <div class="flex-1 flex flex-col h-full relative border-r border-[#1e1f22]">
+                            <!-- Header -->
+                            <div class="h-14 border-b border-[#1e1f22] flex items-center px-4 shrink-0 bg-[#313338] shadow-sm z-10">
+                                <i class="fas fa-hashtag text-gray-400 mr-2 text-lg"></i>
+                                <span class="text-white font-bold text-md tracking-wide">bot-testing</span>
+                                <div class="hidden sm:block ml-4 border-l border-gray-600 pl-4">
+                                    <span class="text-gray-400 text-sm font-medium">Interactive Multi-System Architecture Simulation</span>
+                                </div>
+                            </div>
+                            
+                            <!-- Messages Container -->
+                            <div id="discord-messages" class="flex-1 overflow-y-auto p-4 space-y-2 discord-scrollbar flex flex-col justify-start">
+                                <!-- Welcome Header -->
+                                <div class="mt-4 mb-6 px-2">
+                                    <div class="w-16 h-16 rounded-full bg-[#4752c4] flex items-center justify-center mb-4 shadow-lg shadow-[#4752c4]/20">
+                                        <i class="fas fa-hashtag text-4xl text-white"></i>
+                                    </div>
+                                    <h1 class="text-3xl font-bold text-white mb-2 tracking-tight">Welcome to #bot-testing!</h1>
+                                    <p class="text-gray-400 text-[15px]">This is the start of the #bot-testing channel. Try typing <span class="text-indigo-400 bg-indigo-500/10 px-1 rounded cursor-pointer hover:underline" onclick="document.getElementById('discord-input').value='/'; document.getElementById('discord-input').focus(); updateSlashCommands();">/</span> to explore custom commands.</p>
+                                </div>
+                                <div class="flex items-center my-4 px-2">
+                                    <div class="flex-1 h-[1px] bg-[#3f4147]"></div>
+                                    <span class="px-3 text-[11px] font-bold text-gray-500 mt-[-1px]">Today</span>
+                                    <div class="flex-1 h-[1px] bg-[#3f4147]"></div>
+                                </div>
+                                <!-- Messages will be dynamically inserted here -->
+                            </div>
+                            
+                            <!-- Input Area -->
+                            <div class="p-4 shrink-0 bg-[#313338] relative">
+                                <!-- Slash Command Autocomplete -->
+                                <div id="discord-autocomplete" class="absolute bottom-[calc(100%-10px)] left-4 right-4 bg-[#2b2d31] border border-[#1e1f22] rounded-lg shadow-2xl flex-col hidden overflow-hidden z-20 transition-all duration-200 opacity-0 translate-y-2">
+                                    <div class="px-4 py-2 border-b border-[#1e1f22] bg-[#232428] text-xs font-bold text-gray-400 uppercase tracking-wider">
+                                        Matching Commands
+                                    </div>
+                                    <div id="autocomplete-list" class="max-h-56 overflow-y-auto discord-scrollbar p-2">
+                                        <!-- Commands injected via JS -->
+                                    </div>
+                                </div>
+
+                                <form id="discord-form" onsubmit="handleDiscordCommand(event)" class="relative">
+                                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                        <div class="w-6 h-6 rounded-full bg-gray-400 flex items-center justify-center text-[#383a40]">
+                                            <i class="fas fa-plus text-xs"></i>
+                                        </div>
+                                    </div>
+                                    <input type="text" id="discord-input" oninput="updateSlashCommands()" autocomplete="off" class="w-full bg-[#383a40] text-gray-200 rounded-lg pl-14 pr-4 py-3 focus:outline-none placeholder-gray-500 font-medium" placeholder="Message #bot-testing">
+                                </form>
+                            </div>
+                        </div>
+
+                        <!-- Right Sidebar (Members) -->
+                        <div class="w-60 bg-[#2b2d31] hidden md:flex flex-col flex-shrink-0 h-full">
+                            <div class="p-4 flex-1 overflow-y-auto discord-scrollbar">
+                                <h3 class="text-xs font-extrabold text-gray-400 uppercase tracking-wide mb-3">Online — 3</h3>
+                                
+                                <div class="flex items-center gap-3 mb-1 cursor-pointer hover:bg-[#35373c] p-2 -mx-2 rounded transition-colors group">
+                                    <div class="relative shrink-0">
+                                        <img src="SANIYAT.png" class="w-8 h-8 rounded-full object-cover grayscale-0 shadow-sm group-hover:scale-105 transition-transform">
+                                        <div class="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-[#23a559] border-2 border-[#2b2d31] rounded-full"></div>
+                                    </div>
+                                    <div class="flex flex-col text-left truncate">
+                                        <span class="text-white text-sm font-medium truncate" style="color: #f87171;">SHINYY</span>
+                                        <span class="text-[11px] text-gray-400 truncate">System Architect</span>
+                                    </div>
+                                </div>
+
+                                <div class="flex items-center gap-3 mb-1 cursor-pointer hover:bg-[#35373c] p-2 -mx-2 rounded transition-colors group">
+                                    <div class="relative shrink-0">
+                                        <div class="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-display font-black italic shadow-lg shadow-indigo-500/20 group-hover:scale-105 transition-transform">S</div>
+                                        <div class="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-[#23a559] border-2 border-[#2b2d31] rounded-full z-10"></div>
+                                    </div>
+                                    <div class="flex flex-col text-left truncate">
+                                        <span class="text-white text-sm font-medium flex items-center gap-1">SHINYY Bot <span class="bg-[#5865F2] text-[9px] px-1 rounded flex items-center gap-0.5"><i class="fas fa-check text-[7px]"></i> APP</span></span>
+                                        <span class="text-[11px] text-gray-400 truncate">Monitoring...</span>
+                                    </div>
+                                </div>
+
+                                <div class="flex items-center gap-3 mb-1 cursor-pointer hover:bg-[#35373c] p-2 -mx-2 rounded transition-colors group">
+                                    <div class="relative shrink-0">
+                                        <div class="w-8 h-8 rounded-full bg-[#f59e0b] flex items-center justify-center text-white shadow-sm group-hover:scale-105 transition-transform"><i class="fas fa-user text-xs"></i></div>
+                                        <div class="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-[#23a559] border-2 border-[#2b2d31] rounded-full"></div>
+                                    </div>
+                                    <div class="flex flex-col text-left truncate">
+                                        <span class="text-white text-sm font-medium truncate" style="color: #fbbf24;">Guest User</span>
+                                        <span class="text-[11px] text-gray-400 truncate">Testing Panel</span>
+                                    </div>
+                                </div>
+                                
+                                <h3 class="text-xs font-extrabold text-gray-500 uppercase tracking-wide mb-3 mt-4">Offline — 2</h3>
+                                <div class="flex items-center gap-3 mb-1 opacity-50 cursor-pointer hover:bg-[#35373c] p-2 -mx-2 rounded transition-colors">
+                                    <div class="relative shrink-0">
+                                        <div class="w-8 h-8 rounded-full bg-emerald-600 flex items-center justify-center text-white"><i class="fab fa-ethereum text-xs"></i></div>
+                                    </div>
+                                    <div class="flex flex-col text-left truncate">
+                                        <span class="text-gray-300 text-sm font-medium flex items-center gap-1">Crypto Node <span class="bg-[#5865F2] text-[9px] px-1 rounded flex items-center gap-0.5"><i class="fas fa-check text-[7px]"></i> APP</span></span>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-3 mb-1 opacity-50 cursor-pointer hover:bg-[#35373c] p-2 -mx-2 rounded transition-colors">
+                                    <div class="relative shrink-0">
+                                        <div class="w-8 h-8 rounded-full bg-fuchsia-600 flex items-center justify-center text-white"><i class="fas fa-brain text-xs"></i></div>
+                                    </div>
+                                    <div class="flex flex-col text-left truncate">
+                                        <span class="text-gray-300 text-sm font-medium flex items-center gap-1">AI Gen Engine <span class="bg-[#5865F2] text-[9px] px-1 rounded flex items-center gap-0.5"><i class="fas fa-check text-[7px]"></i> APP</span></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div> <!-- End Discord Content -->
+
+            <!-- AUDIO ENGINEER PORTFOLIO CONTENT -->
+            <div id="content-audio" class="portfolio-section w-full hidden flex-col gap-20 mt-10">
+                
+                <!-- Mastered Tracks -->
+                <div class="w-full flex flex-col gap-6">
+                    <h2 class="font-display text-4xl lg:text-5xl text-white font-bold tracking-tight drop-shadow-md px-4 mb-4">Mastered Tracks</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 w-full">
+                        
+                        <!-- Audio Placeholder 1 -->
+                        <div class="w-full aspect-video rounded-[2.5rem] border border-white/10 bg-black/40 shadow-2xl overflow-hidden relative group cursor-pointer hover-3d transform-style-3d">
+                            <div class="absolute inset-0 bg-gradient-to-br from-orange-500/20 to-black z-0 mix-blend-overlay"></div>
+                            
+                            <!-- Audio UI Overlays -->
+                            <div class="absolute top-6 left-6 z-20 translate-z-20 flex items-center gap-2">
+                                <div class="w-3 h-3 rounded-full bg-orange-400 animate-pulse shadow-[0_0_10px_rgba(249,115,22,0.8)]"></div>
+                                <span class="text-orange-400 text-xs font-bold font-mono tracking-widest uppercase">PLAYBACK</span>
+                            </div>
+
+                            <!-- Play Button -->
+                            <div class="absolute inset-0 flex items-center justify-center translate-z-30 z-10">
+                                <div class="w-20 h-20 rounded-full bg-orange-500/20 border border-orange-500/50 flex items-center justify-center text-orange-400 backdrop-blur-md group-hover:scale-110 group-hover:bg-orange-500 group-hover:text-white transition-all duration-500 shadow-[0_0_30px_rgba(249,115,22,0.3)]">
+                                    <i class="fas fa-play text-2xl ml-1"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Audio Placeholder 2 -->
+                        <div class="w-full aspect-video rounded-[2.5rem] border border-white/10 bg-black/40 shadow-2xl overflow-hidden relative group cursor-pointer hover-3d transform-style-3d">
+                            <div class="absolute inset-0 bg-gradient-to-bl from-orange-600/20 to-black z-0 mix-blend-overlay"></div>
+                            
+                            <!-- Audio UI Overlays -->
+                            <div class="absolute top-6 left-6 z-20 translate-z-20 flex items-center gap-2">
+                                <div class="w-3 h-3 rounded-full bg-orange-400 animate-pulse shadow-[0_0_10px_rgba(249,115,22,0.8)]"></div>
+                                <span class="text-orange-400 text-xs font-bold font-mono tracking-widest uppercase">PLAYBACK</span>
+                            </div>
+
+                            <!-- Play Button -->
+                            <div class="absolute inset-0 flex items-center justify-center translate-z-30 z-10">
+                                <div class="w-20 h-20 rounded-full bg-orange-500/20 border border-orange-500/50 flex items-center justify-center text-orange-400 backdrop-blur-md group-hover:scale-110 group-hover:bg-orange-500 group-hover:text-white transition-all duration-500 shadow-[0_0_30px_rgba(249,115,22,0.3)]">
+                                    <i class="fas fa-play text-2xl ml-1"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+                
+                <!-- Sound Design Snippets -->
+                <div class="w-full flex flex-col gap-6 mt-10">
+                    <h2 class="font-display text-4xl lg:text-5xl text-white font-bold tracking-tight drop-shadow-md px-4 mb-4">Sound Design Snippets</h2>
+                    <div class="grid grid-cols-2 lg:grid-cols-4 gap-6 w-full">
+                        
+                        <!-- Audio Short 1 -->
+                        <div class="w-full aspect-[9/16] rounded-[2rem] border border-white/10 bg-black/40 shadow-xl overflow-hidden relative group cursor-pointer transform-style-3d hover-3d">
+                            <div class="absolute inset-0 bg-gradient-to-t from-orange-500/20 to-transparent z-0 opacity-50 group-hover:opacity-100 transition-opacity"></div>
+                            <div class="absolute inset-0 flex items-center justify-center z-10 translate-z-30">
+                                <i class="fas fa-play text-4xl text-white/30 group-hover:text-white transition-colors duration-300"></i>
+                            </div>
+                        </div>
+
+                        <!-- Audio Short 2 -->
+                        <div class="w-full aspect-[9/16] rounded-[2rem] border border-white/10 bg-black/40 shadow-xl overflow-hidden relative group cursor-pointer transform-style-3d hover-3d">
+                            <div class="absolute inset-0 bg-gradient-to-t from-orange-500/20 to-transparent z-0 opacity-50 group-hover:opacity-100 transition-opacity"></div>
+                            <div class="absolute inset-0 flex items-center justify-center z-10 translate-z-30">
+                                <i class="fas fa-play text-4xl text-white/30 group-hover:text-white transition-colors duration-300"></i>
+                            </div>
+                        </div>
+
+                        <!-- Audio Short 3 -->
+                        <div class="w-full aspect-[9/16] rounded-[2rem] border border-white/10 bg-black/40 shadow-xl overflow-hidden relative group cursor-pointer transform-style-3d hover-3d">
+                            <div class="absolute inset-0 bg-gradient-to-t from-orange-500/20 to-transparent z-0 opacity-50 group-hover:opacity-100 transition-opacity"></div>
+                            <div class="absolute inset-0 flex items-center justify-center z-10 translate-z-30">
+                                <i class="fas fa-play text-4xl text-white/30 group-hover:text-white transition-colors duration-300"></i>
+                            </div>
+                        </div>
+
+                        <!-- Audio Short 4 -->
+                        <div class="w-full aspect-[9/16] rounded-[2rem] border border-white/10 bg-black/40 shadow-xl overflow-hidden relative group cursor-pointer transform-style-3d hover-3d">
+                            <div class="absolute inset-0 bg-gradient-to-t from-orange-500/20 to-transparent z-0 opacity-50 group-hover:opacity-100 transition-opacity"></div>
+                            <div class="absolute inset-0 flex items-center justify-center z-10 translate-z-30">
+                                <i class="fas fa-play text-4xl text-white/30 group-hover:text-white transition-colors duration-300"></i>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div> <!-- End Audio Content -->
+
+        </div> <!-- End Portfolio Container -->
 
         <!-- ================= 6. CONTACT FOOTER ================= -->
         <div class="w-full flex flex-col items-center justify-center text-center py-20 gs-reveal relative">
@@ -505,8 +1035,8 @@
                 </div>
 
                 <div class="magnetic-wrap" data-strength="40">
-                    <button onclick="copyEmailToClipboard()" class="px-10 py-5 bg-white text-black font-bold tracking-widest uppercase rounded-2xl transition-all duration-500 hover:bg-gray-200 hover:shadow-[0_0_40px_rgba(255,255,255,0.2)] cursor-pointer flex items-center gap-3">
-                        <i class="far fa-copy text-zinc-500 transition-colors text-xl"></i> saniyatmahmud11@gmail.com
+                    <button onclick="triggerHireMe()" class="px-12 py-5 bg-white text-black font-display font-black tracking-widest uppercase rounded-2xl transition-all duration-500 hover:bg-gray-200 hover:shadow-[0_0_40px_rgba(255,255,255,0.3)] cursor-pointer flex items-center gap-3 text-lg">
+                        Hire Me <i class="fas fa-rocket"></i>
                     </button>
                 </div>
             </div>
@@ -801,13 +1331,30 @@
                 modal.classList.add('hidden'); iframe.src = ''; 
             }});
         }
-        function copyEmailToClipboard() {
-            const email = "saniyatmahmud11@gmail.com";
-            navigator.clipboard.writeText(email).then(() => showToast("Email copied to clipboard!")).catch(() => {
-                const textArea = document.createElement("textarea"); textArea.value = email; document.body.appendChild(textArea); textArea.select();
-                try { document.execCommand('copy'); showToast("Email copied to clipboard!"); } catch (err) {}
-                document.body.removeChild(textArea);
-            });
+        function triggerHireMe() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            
+            // Wait for scroll, then animate the "Let's Talk" button
+            setTimeout(() => {
+                const btn = document.getElementById('lets-talk-btn');
+                if(btn) {
+                    // Smooth, fady pulse animation using GSAP
+                    gsap.timeline()
+                        .to(btn, { 
+                            scale: 1.08, 
+                            boxShadow: "0 0 60px rgba(56, 189, 248, 0.8)", 
+                            duration: 0.6, 
+                            ease: "power2.out" 
+                        })
+                        .to(btn, { 
+                            scale: 1, 
+                            boxShadow: "0 0 30px rgba(255, 255, 255, 0.2)", 
+                            duration: 1.2, 
+                            ease: "power2.inOut",
+                            clearProps: "boxShadow" // Clears inline shadow to let Tailwind take over again
+                        });
+                }
+            }, 800);
         }
         function showToast(message) {
             const container = document.getElementById('toast-container');
@@ -872,6 +1419,467 @@
             }
             setTimeout(playGlitch, 3000);
         });
+
+        // Portfolio Tab Switching Logic
+        window.switchTab = function(tabId) {
+            const tabs = ['video', 'minecraft', 'fullstack', 'discord', 'audio'];
+            
+            tabs.forEach(t => {
+                const tabEl = document.getElementById(`tab-${t}`);
+                const contentEl = document.getElementById(`content-${t}`);
+                
+                if (!tabEl || !contentEl) return;
+
+                if (t === tabId) {
+                    // Activate Tab
+                    tabEl.classList.remove('opacity-50', 'hover:opacity-100');
+                    tabEl.classList.add('opacity-100');
+                    
+                    // Show Content
+                    contentEl.classList.remove('hidden');
+                    contentEl.classList.add('flex');
+                    
+                    // Animate In
+                    gsap.fromTo(contentEl, 
+                        { opacity: 0, y: 30 }, 
+                        { opacity: 1, y: 0, duration: 0.8, ease: "power3.out" }
+                    );
+                    
+                    // Refresh ScrollTrigger as heights change
+                    if (typeof ScrollTrigger !== 'undefined') {
+                        setTimeout(() => ScrollTrigger.refresh(), 100);
+                    }
+                } else {
+                    // Deactivate Tab
+                    tabEl.classList.add('opacity-50', 'hover:opacity-100');
+                    tabEl.classList.remove('opacity-100');
+                    
+                    // Hide Content
+                    contentEl.classList.add('hidden');
+                    contentEl.classList.remove('flex');
+                }
+            });
+        };
+
+        // --- Discord Simulation Logic ---
+        const discordMessagesEl = document.getElementById('discord-messages');
+        const discordInputEl = document.getElementById('discord-input');
+        const autocompleteEl = document.getElementById('discord-autocomplete');
+        const autocompleteListEl = document.getElementById('autocomplete-list');
+
+        const availableCommands = [
+            { cmd: "/imagine", desc: "Generate a cinematic image via AI model", icon: "fa-paint-brush", color: "text-fuchsia-400" },
+            { cmd: "/ask_ai", desc: "Query the LLM neural network chatbot", icon: "fa-brain", color: "text-purple-400" },
+            { cmd: "/shop", desc: "Browse the automated digital store", icon: "fa-shopping-cart", color: "text-emerald-400" },
+            { cmd: "/swap", desc: "Execute a mock Web3 crypto exchange", icon: "fa-exchange-alt", color: "text-blue-400" },
+            { cmd: "/rank", desc: "Check your global RPG XP & level", icon: "fa-star", color: "text-yellow-400" },
+            { cmd: "/work", desc: "Triggers the economy reward system", icon: "fa-briefcase", color: "text-green-500" },
+            { cmd: "/gamble", desc: "Risk your simulated balance for a 2x payout", icon: "fa-dice", color: "text-red-400" },
+            { cmd: "/help", desc: "View all interactive commands", icon: "fa-question-circle", color: "text-gray-400" }
+        ];
+
+        window.updateSlashCommands = function() {
+            const val = discordInputEl.value.toLowerCase();
+            if (val.startsWith('/')) {
+                const matches = availableCommands.filter(c => c.cmd.startsWith(val));
+                if (matches.length > 0) {
+                    autocompleteListEl.innerHTML = matches.map(c => `
+                        <div onclick="selectCommand('${c.cmd}')" class="flex items-center gap-3 p-2 rounded hover:bg-[#35373c] cursor-pointer group transition-colors">
+                            <div class="w-8 h-8 rounded bg-[#1e1f22] flex items-center justify-center ${c.color} group-hover:scale-110 transition-transform"><i class="fas ${c.icon}"></i></div>
+                            <div class="flex flex-col">
+                                <span class="text-white font-bold text-sm">${c.cmd}</span>
+                                <span class="text-gray-400 text-[11px]">${c.desc}</span>
+                            </div>
+                        </div>
+                    `).join('');
+                    autocompleteEl.classList.remove('hidden');
+                    // Small delay to allow display:block to apply before animating opacity
+                    setTimeout(() => {
+                        autocompleteEl.classList.remove('opacity-0', 'translate-y-2');
+                        autocompleteEl.classList.add('opacity-100', 'translate-y-0');
+                    }, 10);
+                } else {
+                    hideAutocomplete();
+                }
+            } else {
+                hideAutocomplete();
+            }
+        };
+
+        function hideAutocomplete() {
+            autocompleteEl.classList.add('opacity-0', 'translate-y-2');
+            autocompleteEl.classList.remove('opacity-100', 'translate-y-0');
+            setTimeout(() => autocompleteEl.classList.add('hidden'), 200);
+        }
+
+        window.selectCommand = function(cmd) {
+            discordInputEl.value = cmd + ' ';
+            discordInputEl.focus();
+            hideAutocomplete();
+        };
+
+        function appendDiscordMessage(msg) {
+            if(!discordMessagesEl) return;
+            
+            let embedHtml = '';
+            if (msg.embed) {
+                embedHtml = `
+                    <div class="mt-2 border-l-[4px] rounded bg-[#2b2d31] p-4 max-w-lg w-full shadow-md flex flex-col gap-3" style="border-color: ${msg.embed.color || '#5865F2'}">
+                        ${msg.embed.author ? `
+                            <div class="flex items-center gap-2 mb-1">
+                                <img src="${msg.embed.author.icon}" class="w-6 h-6 rounded-full object-cover">
+                                <span class="text-white text-sm font-bold">${msg.embed.author.name}</span>
+                            </div>
+                        ` : ''}
+                        
+                        <div>
+                            ${msg.embed.title ? `<div class="font-bold text-white mb-1.5 text-[15px]">${msg.embed.title}</div>` : ''}
+                            ${msg.embed.description ? `<div class="text-[14px] text-gray-300 leading-snug">${msg.embed.description}</div>` : ''}
+                        </div>
+                        
+                        ${msg.embed.customHtml ? `<div>${msg.embed.customHtml}</div>` : ''}
+                        
+                        ${msg.embed.fields ? `<div class="grid grid-cols-2 gap-4">
+                            ${msg.embed.fields.map(f => `
+                                <div>
+                                    <div class="text-xs font-bold text-gray-400 uppercase tracking-wide">${f.name}</div>
+                                    <div class="text-[14px] text-gray-200 mt-0.5">${f.value}</div>
+                                </div>
+                            `).join('')}
+                        </div>` : ''}
+                        
+                        ${msg.embed.image ? `
+                            <div class="mt-2 rounded-lg overflow-hidden border border-[#1e1f22]">
+                                <img src="${msg.embed.image}" class="w-full h-auto object-cover max-h-64">
+                            </div>
+                        ` : ''}
+                        
+                        ${msg.embed.footer ? `
+                            <div class="flex items-center gap-2 mt-2 pt-2 border-t border-[#1e1f22]/50">
+                                <span class="text-[11px] text-gray-400 font-medium">${msg.embed.footer}</span>
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+            }
+
+            let buttonsHtml = '';
+            if (msg.buttons) {
+                buttonsHtml = `<div class="mt-2.5 flex flex-wrap gap-2">
+                    ${msg.buttons.map(btn => `
+                        <button type="button" onclick="handleDiscordButton(this, '${btn.action}')" class="${btn.styleClass} px-4 py-1.5 rounded text-[14px] font-medium transition-all active:scale-95 cursor-pointer flex items-center gap-2 outline-none shadow-sm hover:shadow-md">
+                            ${btn.icon ? `<i class="${btn.icon}"></i>` : ''} <span>${btn.label}</span>
+                        </button>
+                    `).join('')}
+                </div>`;
+            }
+
+            let avatarHtml = '';
+            if (msg.avatarType === 'image') {
+                avatarHtml = `<img src="${msg.avatar}" class="w-10 h-10 rounded-full mt-0.5 object-cover shrink-0 hover:cursor-pointer grayscale-0 shadow-sm" alt="avatar">`;
+            } else if (msg.avatarType === 'text') {
+                avatarHtml = `<div class="w-10 h-10 rounded-full mt-0.5 shrink-0 ${msg.avatarBg} flex items-center justify-center text-white font-display font-black italic text-xl hover:cursor-pointer shadow-lg">${msg.avatarText}</div>`;
+            } else {
+                avatarHtml = `<div class="w-10 h-10 rounded-full mt-0.5 shrink-0 ${msg.avatarBg || 'bg-[#5865F2]'} flex items-center justify-center text-white hover:cursor-pointer shadow-sm"><i class="fas ${msg.avatar} text-lg"></i></div>`;
+            }
+
+            const msgHtml = `
+                <div class="flex gap-4 hover:bg-[#2e3035] py-1 px-4 -mx-2 rounded transition-colors text-left group animate-[slideInUp_0.3s_ease-out]">
+                    ${avatarHtml}
+                    <div class="flex-1 min-w-0">
+                        <div class="flex items-baseline gap-2 flex-wrap">
+                            <span class="font-medium text-[15px] ${msg.usernameColor || 'text-white'} hover:underline cursor-pointer">${msg.username}</span>
+                            ${msg.isBot ? `<span class="bg-[#5865F2] text-white text-[10px] px-1.5 py-0.5 rounded flex items-center gap-1 font-bold shadow-sm"><i class="fas fa-check text-[8px]"></i> APP</span>` : ''}
+                            <span class="text-xs text-gray-400 shrink-0">Today at ${new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })}</span>
+                        </div>
+                        ${msg.content ? `<div class="text-gray-200 text-[15px] mt-0.5 whitespace-pre-wrap leading-relaxed">${msg.content}</div>` : ''}
+                        ${embedHtml}
+                        ${buttonsHtml}
+                    </div>
+                </div>
+            `;
+
+            discordMessagesEl.insertAdjacentHTML('beforeend', msgHtml);
+            discordMessagesEl.scrollTop = discordMessagesEl.scrollHeight;
+        }
+
+        function showTypingIndicator(duration, callback) {
+            const typingId = 'typing-' + Date.now();
+            const typingHtml = `
+                <div id="${typingId}" class="flex gap-4 hover:bg-[#2e3035] py-2 px-4 -mx-2 rounded transition-colors items-center animate-[slideInUp_0.3s_ease-out]">
+                    <div class="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white shrink-0 font-display font-black italic shadow-lg shadow-indigo-500/20">S</div>
+                    <div class="flex gap-1.5 bg-[#2b2d31] px-3 py-2.5 rounded-2xl items-center h-8 w-fit border border-[#1e1f22]">
+                        <div class="w-2 h-2 bg-gray-400 rounded-full typing-dot"></div>
+                        <div class="w-2 h-2 bg-gray-400 rounded-full typing-dot"></div>
+                        <div class="w-2 h-2 bg-gray-400 rounded-full typing-dot"></div>
+                    </div>
+                </div>
+            `;
+            discordMessagesEl.insertAdjacentHTML('beforeend', typingHtml);
+            discordMessagesEl.scrollTop = discordMessagesEl.scrollHeight;
+
+            setTimeout(() => {
+                const el = document.getElementById(typingId);
+                if(el) el.remove();
+                if(callback) callback();
+            }, duration);
+        }
+
+        window.handleDiscordCommand = function(e) {
+            e.preventDefault();
+            const val = discordInputEl.value.trim();
+            if(!val) return;
+            
+            hideAutocomplete();
+
+            // Add user message
+            appendDiscordMessage({
+                username: "Guest User",
+                avatarType: "icon",
+                avatar: "fa-user",
+                avatarBg: "bg-[#f59e0b]", 
+                isBot: false,
+                content: val,
+                usernameColor: "text-[#fbbf24]"
+            });
+
+            discordInputEl.value = '';
+
+            // Calculate delay based on command type (AI commands take longer)
+            let typingDuration = Math.random() * 800 + 600; // 600ms to 1400ms default
+            if(val.toLowerCase().startsWith('/imagine') || val.toLowerCase().startsWith('/ask_ai')) {
+                typingDuration = 2500; // 2.5 seconds for AI gen feel
+            }
+
+            showTypingIndicator(typingDuration, () => {
+                processDiscordCommand(val.toLowerCase());
+            });
+        }
+
+        function processDiscordCommand(cmd) {
+            const botMsg = {
+                username: "SHINYY Bot",
+                avatarType: "text",
+                avatarText: "S",
+                avatarBg: "bg-gradient-to-br from-indigo-500 to-purple-600",
+                isBot: true,
+                usernameColor: "text-indigo-400"
+            };
+
+            const parsedCmd = cmd.trim();
+
+            if (parsedCmd.startsWith('/imagine')) {
+                const promptArgs = parsedCmd.replace('/imagine', '').trim() || "A futuristic cyberpunk city, neon lights, 8k resolution, unreal engine 5";
+                botMsg.embed = {
+                    color: '#d946ef',
+                    title: "✨ Image Generation Complete",
+                    description: `**Prompt:** *${promptArgs}*`,
+                    image: "https://images.unsplash.com/photo-1605810230434-7631ac76ec81?w=800&q=80",
+                    footer: "Generated by SHINYY AI Vision Model V4"
+                };
+                botMsg.buttons = [
+                    { label: "Upscale (U1)", action: "upscale", styleClass: "bg-[#4e5058] hover:bg-[#3b3d42] text-white" },
+                    { label: "Variations (V1)", action: "vary", styleClass: "bg-[#4e5058] hover:bg-[#3b3d42] text-white" }
+                ];
+            } else if (parsedCmd.startsWith('/ask_ai')) {
+                botMsg.embed = {
+                    color: '#a855f7',
+                    author: { name: "Neural Chat Engine", icon: "https://cdn-icons-png.flaticon.com/512/4712/4712139.png" },
+                    description: "Based on the provided parameters, the server architecture can support up to **50,000 concurrent websocket connections** without experiencing latency degradation. I recommend implementing Redis for session caching."
+                };
+            } else if (parsedCmd.startsWith('/shop')) {
+                botMsg.embed = {
+                    color: '#10b981',
+                    title: "🛒 Automated Digital Store",
+                    description: "Welcome to the premium software marketplace. Purchases are instantly delivered via DM.",
+                    customHtml: `
+                        <div class="mt-3 flex flex-col gap-2">
+                            <div class="bg-[#1e1f22] p-3 rounded border border-[#2b2d31] flex justify-between items-center">
+                                <div>
+                                    <span class="text-white font-bold text-sm block">Vanguard Anti-Nuke Script</span>
+                                    <span class="text-gray-400 text-xs">Protects servers from mass bans.</span>
+                                </div>
+                                <span class="bg-[#248046]/20 text-[#248046] px-2 py-1 rounded text-xs font-bold">$15.00</span>
+                            </div>
+                            <div class="bg-[#1e1f22] p-3 rounded border border-[#2b2d31] flex justify-between items-center">
+                                <div>
+                                    <span class="text-white font-bold text-sm block">Economy API Template</span>
+                                    <span class="text-gray-400 text-xs">Full MongoDB economy backend.</span>
+                                </div>
+                                <span class="bg-[#248046]/20 text-[#248046] px-2 py-1 rounded text-xs font-bold">$25.00</span>
+                            </div>
+                        </div>
+                    `
+                };
+                botMsg.buttons = [
+                    { label: "Purchase Anti-Nuke", action: "buy_item", styleClass: "bg-[#10b981] hover:bg-[#059669] text-white", icon: "fas fa-shopping-cart" }
+                ];
+            } else if (parsedCmd.startsWith('/swap')) {
+                botMsg.embed = {
+                    color: '#3b82f6',
+                    title: "💱 Web3 Crypto Swap Terminal",
+                    description: "Live Rate: **1 ETH = 3,420.50 USDC**",
+                    fields: [
+                        { name: "From", value: "1.5 ETH" },
+                        { name: "To", value: "5,130.75 USDC" },
+                        { name: "Estimated Gas", value: "$4.20 (Fastest)" }
+                    ],
+                    footer: "Powered by Uniswap V3 Routing"
+                };
+                botMsg.buttons = [
+                    { label: "Confirm Swap", action: "confirm_swap", styleClass: "bg-[#3b82f6] hover:bg-[#2563eb] text-white", icon: "fas fa-check" },
+                    { label: "Cancel", action: "cancel", styleClass: "bg-[#4e5058] hover:bg-[#3b3d42] text-white" }
+                ];
+            } else if (parsedCmd.startsWith('/rank')) {
+                botMsg.embed = {
+                    color: '#eab308',
+                    title: "🌟 Global RPG Rank Card",
+                    description: "**Guest User** is currently **Level 42** in the global database.",
+                    customHtml: `
+                        <div class="mt-4 bg-[#1e1f22] p-4 rounded-lg border border-[#2b2d31]">
+                            <div class="flex justify-between text-sm mb-1.5">
+                                <span class="text-white font-bold tracking-wider uppercase text-xs">XP Progress</span>
+                                <span class="text-gray-400 text-xs font-bold">8,450 / 10,000 XP</span>
+                            </div>
+                            <div class="w-full bg-[#313338] rounded-full h-3 border border-[#111214] overflow-hidden">
+                                <div class="bg-gradient-to-r from-yellow-500 to-orange-500 h-full rounded-full relative" style="width: 84.5%">
+                                    <div class="absolute inset-0 bg-white/20 animate-pulse"></div>
+                                </div>
+                            </div>
+                            <p class="text-[10px] text-gray-500 mt-2 text-right">1,550 XP to next level</p>
+                        </div>
+                    `
+                };
+            } else if (parsedCmd.startsWith('/help')) {
+                botMsg.content = "Here are the advanced interactive commands available for testing:";
+                botMsg.embed = {
+                    color: '#5865F2',
+                    title: "Simulation Commands",
+                    fields: [
+                        { name: "/imagine [prompt]", value: "Generate AI images" },
+                        { name: "/ask_ai [query]", value: "Talk to the LLM model" },
+                        { name: "/shop", value: "Browse automated digital store" },
+                        { name: "/swap", value: "Execute crypto DEX swaps" },
+                        { name: "/rank", value: "View global leveling progress" },
+                        { name: "/work", value: "Trigger economy reward system" },
+                        { name: "/gamble", value: "Risk balance for a 2x payout" }
+                    ]
+                };
+            } else if (parsedCmd.startsWith('/work')) {
+                botMsg.embed = {
+                    color: '#248046',
+                    title: "💼 Shift Completed",
+                    description: "You successfully deployed the latest database schema updates. Click below to claim your developer salary."
+                };
+                botMsg.buttons = [
+                    { label: "Claim Salary", action: "claim_salary", styleClass: "bg-[#248046] hover:bg-[#1a6334] text-white", icon: "fas fa-coins" }
+                ];
+            } else if (parsedCmd.startsWith('/gamble')) {
+                botMsg.embed = {
+                    color: '#da373c',
+                    title: "🎲 Casino Royále",
+                    description: "You are about to gamble **$500**. Are you feeling lucky? You have a 50% chance to double it."
+                };
+                botMsg.buttons = [
+                    { label: "Roll the Dice ($500)", action: "gamble_roll", styleClass: "bg-[#da373c] hover:bg-[#a1282c] text-white", icon: "fas fa-dice" }
+                ];
+            } else {
+                botMsg.content = `Unknown command \`${parsedCmd}\`. Type \`/help\` to see valid interactions.`;
+            }
+
+            appendDiscordMessage(botMsg);
+        }
+
+        window.handleDiscordButton = function(btn, action) {
+            btn.disabled = true;
+            btn.classList.add('opacity-50', 'cursor-not-allowed', 'scale-95');
+            const originalHtml = btn.innerHTML;
+            btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> <span>Processing...</span>`;
+
+            setTimeout(() => {
+                // Change button state based on action
+                if (action === 'claim_salary') {
+                    btn.innerHTML = `<i class="fas fa-check"></i> <span>Claimed</span>`;
+                    btn.classList.replace('bg-[#248046]', 'bg-[#1a6334]');
+                } else if (action === 'gamble_roll') {
+                    btn.innerHTML = `<i class="fas fa-dice"></i> <span>Rolled</span>`;
+                    btn.classList.replace('bg-[#da373c]', 'bg-[#4e5058]');
+                } else if (action === 'upscale') {
+                    btn.innerHTML = `<i class="fas fa-search-plus"></i> <span>Upscaled</span>`;
+                } else if (action === 'vary') {
+                    btn.innerHTML = `<i class="fas fa-layer-group"></i> <span>Varying...</span>`;
+                } else if (action === 'buy_item') {
+                    btn.innerHTML = `<i class="fas fa-check"></i> <span>Purchased</span>`;
+                    btn.classList.replace('bg-[#10b981]', 'bg-[#059669]');
+                } else if (action === 'confirm_swap') {
+                    btn.innerHTML = `<i class="fas fa-check-circle"></i> <span>Swapped</span>`;
+                    btn.classList.replace('bg-[#3b82f6]', 'bg-[#2563eb]');
+                } else if (action === 'cancel') {
+                    btn.innerHTML = `<i class="fas fa-times"></i> <span>Cancelled</span>`;
+                }
+
+                btn.classList.remove('scale-95');
+
+                if(action === 'cancel') return;
+
+                // Follow up bot message
+                showTypingIndicator(800, () => {
+                    let followUp = {
+                        username: "SHINYY Bot",
+                        avatarType: "text",
+                        avatarText: "S",
+                        avatarBg: "bg-gradient-to-br from-indigo-500 to-purple-600",
+                        isBot: true,
+                        usernameColor: "text-indigo-400"
+                    };
+
+                    if (action === 'claim_salary') {
+                        followUp.embed = { color: '#eab308', title: "💰 Transaction Success", description: "**Guest User**'s balance has been credited with **$2,500**. Database sync complete." };
+                    } else if (action === 'gamble_roll') {
+                        const won = Math.random() > 0.5;
+                        if (won) {
+                            followUp.embed = { color: '#248046', title: "🎰 Jackpot!", description: "The dice rolled a **7**! You won **$1,000**. Your new balance is **$5,250**." };
+                        } else {
+                            followUp.embed = { color: '#da373c', title: "💥 Bust!", description: "The dice rolled a **2**. You lost **$500**. Better luck next time!" };
+                        }
+                    } else if (action === 'upscale') {
+                        followUp.content = "⬆️ Upscaling image to 4K resolution... This may take a moment.";
+                    } else if (action === 'vary') {
+                        followUp.content = "🎨 Generating 4 new variations based on your selection...";
+                    } else if (action === 'buy_item') {
+                        followUp.embed = { color: '#10b981', title: "🛍️ Order Complete", description: "Payment verified. The **Vanguard Anti-Nuke Script** has been sent to your DMs." };
+                    } else if (action === 'confirm_swap') {
+                        followUp.embed = { color: '#3b82f6', title: "✅ Swap Executed", description: "Successfully swapped **1.5 ETH** for **5,130.75 USDC**.\n\n[View Transaction on Etherscan](#)" };
+                    }
+
+                    if(followUp.content || followUp.embed) {
+                        appendDiscordMessage(followUp);
+                    }
+                });
+
+            }, 800);
+        };
+
+        // Initialize Discord panel greetings on load
+        setTimeout(() => {
+            showTypingIndicator(1500, () => {
+                appendDiscordMessage({
+                    username: "SHINYY Bot",
+                    avatarType: "text",
+                    avatarText: "S",
+                    avatarBg: "bg-gradient-to-br from-indigo-500 to-purple-600",
+                    isBot: true,
+                    usernameColor: "text-indigo-400",
+                    content: "Welcome to the custom **Discord Architecture Sandbox**! \nI handle everything from automated Web3 swaps to AI generative pipelines and global RPG economies.",
+                    embed: {
+                        color: '#5865F2',
+                        title: "System Online",
+                        description: "Type `/` or use the command bar below to trigger multi-system simulations."
+                    }
+                });
+            });
+        }, 1500);
+
     </script>
 </body>
 </html>
