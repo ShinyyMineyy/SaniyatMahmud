@@ -1,0 +1,1214 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nexus Enterprise | Cloud Dashboard</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- GSAP for Animations -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        zinc: {
+                            850: '#202022',
+                            900: '#18181b',
+                            950: '#09090b',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background-color: #09090b; /* zinc-950 */
+            color: #fafafa;
+            overflow: hidden; /* Prevent body scroll, handle internally */
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #3f3f46; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #06b6d4; } /* cyan-500 */
+
+        /* Glass Cards & Panels */
+        .glass-panel {
+            background: rgba(24, 24, 27, 0.5);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.3s ease;
+        }
+        .glass-panel:hover {
+            border-color: rgba(6, 182, 212, 0.2); /* cyan-500/20 */
+            box-shadow: 0 10px 30px -10px rgba(6, 182, 212, 0.05);
+        }
+
+        /* Sidebar Item Hover */
+        .side-item {
+            transition: all 0.3s ease;
+            border-left: 2px solid transparent;
+        }
+        .side-item:hover, .side-item.active {
+            background: linear-gradient(90deg, rgba(6, 182, 212, 0.1) 0%, transparent 100%);
+            color: #22d3ee; /* cyan-400 */
+            border-left-color: #06b6d4; /* cyan-500 */
+        }
+
+        /* Ambient Glow */
+        .ambient-glow {
+            position: fixed;
+            top: -20%; left: -10%;
+            width: 70vw; height: 70vh;
+            background: radial-gradient(circle, rgba(6, 182, 212, 0.05) 0%, transparent 70%);
+            z-index: -1;
+            pointer-events: none;
+        }
+        .ambient-glow-2 {
+            position: fixed;
+            bottom: -20%; right: -10%;
+            width: 60vw; height: 60vh;
+            background: radial-gradient(circle, rgba(14, 165, 233, 0.03) 0%, transparent 70%); /* sky-500 */
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        /* Chart Bars Animation */
+        .chart-bar {
+            transform-origin: bottom;
+            transform: scaleY(0);
+            transition: opacity 0.3s ease;
+        }
+        .chart-bar:hover {
+            opacity: 0.8;
+            cursor: pointer;
+        }
+
+        /* Loader */
+        .loader {
+            border: 2px solid rgba(6, 182, 212, 0.2);
+            border-top: 2px solid #06b6d4;
+            border-radius: 50%;
+            width: 16px;
+            height: 16px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* Toast Animations */
+        .toast-enter { animation: slideInRight 0.3s forwards cubic-bezier(0.16, 1, 0.3, 1); }
+        .toast-leave { animation: fadeOutRight 0.3s forwards; }
+        @keyframes slideInRight { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        @keyframes fadeOutRight { from { transform: translateX(0); opacity: 1; } to { transform: translateX(20px); opacity: 0; } }
+    </style>
+</head>
+<body class="antialiased flex h-screen selection:bg-cyan-500 selection:text-white">
+
+    <div class="ambient-glow"></div>
+    <div class="ambient-glow-2"></div>
+
+    <!-- Toast Container -->
+    <div id="toast-container" class="fixed top-20 right-6 z-50 flex flex-col gap-3 pointer-events-none"></div>
+
+    <!-- Sidebar Navigation -->
+    <aside class="w-20 lg:w-64 h-full bg-zinc-950/80 backdrop-blur-xl border-r border-white/5 flex flex-col z-30 transition-all duration-300 shrink-0">
+
+        <!-- Logo -->
+        <div class="h-20 flex items-center gap-3 px-6 border-b border-white/5 cursor-pointer" onclick="navigateApp(document.querySelector('.side-item.active'), 'Dashboard Overview', 'Here is what is happening across your servers right now.', 'view-dashboard')">
+            <div class="w-8 h-8 rounded-lg bg-cyan-500 flex items-center justify-center text-zinc-950 font-bold shadow-[0_0_15px_rgba(6,182,212,0.4)] shrink-0">
+                <i class="fas fa-cloud text-sm"></i>
+            </div>
+            <div class="hidden lg:block">
+                <span class="font-extrabold tracking-tight text-white block leading-none">Nexus</span>
+                <span class="text-[10px] uppercase tracking-widest text-cyan-400 font-bold">Workspace</span>
+            </div>
+        </div>
+
+        <!-- Links -->
+        <nav class="flex-1 py-6 flex flex-col gap-1 overflow-y-auto custom-scrollbar" id="sidebar-nav">
+            <p class="hidden lg:block px-6 text-xs font-bold uppercase tracking-widest text-zinc-600 mb-2 mt-4">Overview</p>
+            <a href="#" onclick="navigateApp(this, 'Dashboard Overview', 'Here is what is happening across your servers right now.', 'view-dashboard')" class="side-item active flex items-center gap-4 px-6 py-3 text-zinc-400 text-sm font-medium">
+                <i class="fas fa-chart-pie w-5 text-center text-lg"></i>
+                <span class="hidden lg:block">Dashboard</span>
+            </a>
+            <a href="#" onclick="navigateApp(this, 'Live Traffic', 'See who is using the app and what they are doing.', 'view-traffic')" class="side-item flex items-center gap-4 px-6 py-3 text-zinc-400 text-sm font-medium">
+                <i class="fas fa-satellite-dish w-5 text-center text-lg"></i>
+                <span class="hidden lg:block">Live Traffic</span>
+            </a>
+            <a href="#" onclick="navigateApp(this, 'Servers & Hosting', 'Manage your containers, load balancers, and domains.', 'view-servers')" class="side-item flex items-center gap-4 px-6 py-3 text-zinc-400 text-sm font-medium relative">
+                <i class="fas fa-server w-5 text-center text-lg"></i>
+                <span class="hidden lg:block">Servers</span>
+                <span class="hidden lg:flex absolute right-6 w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)]"></span>
+            </a>
+
+            <p class="hidden lg:block px-6 text-xs font-bold uppercase tracking-widest text-zinc-600 mb-2 mt-6">Settings</p>
+            <a href="#" onclick="navigateApp(this, 'Team & Users', 'Manage team members and user sessions.', 'view-users')" class="side-item flex items-center gap-4 px-6 py-3 text-zinc-400 text-sm font-medium">
+                <i class="fas fa-users w-5 text-center text-lg"></i>
+                <span class="hidden lg:block">Team & Users</span>
+            </a>
+            <a href="#" onclick="navigateApp(this, 'Databases', 'View database health, backups, and storage limits.', 'view-databases')" class="side-item flex items-center gap-4 px-6 py-3 text-zinc-400 text-sm font-medium">
+                <i class="fas fa-database w-5 text-center text-lg"></i>
+                <span class="hidden lg:block">Databases</span>
+            </a>
+            <a href="#" onclick="navigateApp(this, 'Access Control', 'Manage API keys, roles, and firewall rules.', 'view-access')" class="side-item flex items-center gap-4 px-6 py-3 text-zinc-400 text-sm font-medium">
+                <i class="fas fa-shield-alt w-5 text-center text-lg"></i>
+                <span class="hidden lg:block">Access Control</span>
+            </a>
+        </nav>
+
+        <!-- User Profile (Bottom) -->
+        <div class="p-4 border-t border-white/5">
+            <div class="flex items-center gap-3 p-2 rounded-lg hover:bg-white/5 cursor-pointer transition-colors" onclick="showToast('Opened account settings')">
+                <img src="https://ui-avatars.com/api/?name=Shinyy&background=06b6d4&color=fff" class="w-10 h-10 rounded-lg shrink-0">
+                <div class="hidden lg:block flex-1 min-w-0">
+                    <p class="text-sm font-bold text-white truncate">Shinyy</p>
+                    <p class="text-xs text-zinc-500 truncate">Lead Engineer</p>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 flex flex-col h-full min-w-0 relative z-20">
+
+        <!-- Top Header -->
+        <header class="h-20 bg-zinc-950/50 backdrop-blur-md border-b border-white/5 flex items-center justify-between px-6 lg:px-10 shrink-0 z-10">
+            <!-- Search -->
+            <div class="relative w-full max-w-md group hidden sm:block">
+                <i class="fas fa-search absolute left-4 top-3 text-zinc-500 group-focus-within:text-cyan-400 transition-colors"></i>
+                <input type="text" id="global-search" onkeyup="filterLogs()" class="w-full bg-zinc-900 border border-white/5 rounded-full py-2.5 pl-11 pr-4 text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-cyan-500/50 transition-all shadow-inner" placeholder="Search logs, actions, or regions... (Press '/')">
+            </div>
+
+            <div class="sm:hidden text-lg font-bold">Dashboard</div>
+
+            <!-- Actions -->
+            <div class="flex items-center gap-4">
+                <button class="w-10 h-10 rounded-full hover:bg-white/5 flex items-center justify-center text-zinc-400 hover:text-cyan-400 transition-colors relative" onclick="showToast('No new alerts right now')">
+                    <i class="fas fa-bell"></i>
+                    <span class="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border border-zinc-950"></span>
+                </button>
+                <button class="w-10 h-10 rounded-full hover:bg-white/5 flex items-center justify-center text-zinc-400 hover:text-cyan-400 transition-colors" onclick="showToast('Opening help docs')">
+                    <i class="fas fa-question-circle"></i>
+                </button>
+                <button class="hidden sm:flex items-center gap-2 px-4 py-2 bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 text-xs font-bold uppercase tracking-widest rounded-lg hover:bg-cyan-500/20 transition-colors" onclick="showToast('Everything looks good!')">
+                    <span class="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse"></span>
+                    All Good
+                </button>
+            </div>
+        </header>
+
+        <!-- Scrollable Dashboard Content -->
+        <div class="flex-1 overflow-y-auto custom-scrollbar p-6 lg:p-10 pb-20" id="main-scroll-area">
+
+            <!-- Page Header & Controls -->
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8 gs-reveal">
+                <div>
+                    <h1 id="page-title" class="text-3xl font-bold text-white tracking-tight">Dashboard Overview</h1>
+                    <p id="page-subtitle" class="text-sm text-zinc-400 mt-1">Here is what is happening across your servers right now.</p>
+                </div>
+
+                <div class="flex items-center gap-3 w-full sm:w-auto">
+                    <div class="bg-zinc-900 border border-white/5 rounded-lg p-1 flex">
+                        <button onclick="setTimeRange(this, '24h')" class="time-btn active px-4 py-1.5 text-xs font-bold rounded-md bg-white/10 text-white shadow-sm transition-all">24h</button>
+                        <button onclick="setTimeRange(this, '7d')" class="time-btn px-4 py-1.5 text-xs font-bold rounded-md text-zinc-400 hover:text-white transition-all">7d</button>
+                        <button onclick="setTimeRange(this, '30d')" class="time-btn px-4 py-1.5 text-xs font-bold rounded-md text-zinc-400 hover:text-white transition-all">30d</button>
+                    </div>
+                    <button id="export-btn" onclick="generateReport()" class="px-4 py-2 bg-cyan-600 hover:bg-cyan-500 text-white text-sm font-bold rounded-lg shadow-[0_0_15px_rgba(6,182,212,0.3)] transition-all flex items-center gap-2">
+                        <i class="fas fa-download"></i> Export
+                    </button>
+                </div>
+            </div>
+
+            <!-- ================= VIEW 1: DASHBOARD ================= -->
+            <div id="view-dashboard" class="app-view block">
+                <!-- KPI Metrics Grid -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
+
+                    <div class="glass-panel rounded-2xl p-6 gs-reveal">
+                        <div class="flex justify-between items-start mb-4">
+                            <div class="w-10 h-10 rounded-lg bg-blue-500/10 text-blue-400 flex items-center justify-center text-lg">
+                                <i class="fas fa-network-wired"></i>
+                            </div>
+                            <span id="kpi-trend-1" class="flex items-center gap-1 text-xs font-bold text-emerald-400 bg-emerald-400/10 px-2 py-1 rounded-md transition-colors">
+                                <i class="fas fa-arrow-up"></i> 12.5%
+                            </span>
+                        </div>
+                        <p class="text-sm font-medium text-zinc-400 mb-1">Total Requests</p>
+                        <h3 id="kpi-requests" class="text-3xl font-bold text-white font-mono">1.24B</h3>
+                    </div>
+
+                    <div class="glass-panel rounded-2xl p-6 gs-reveal">
+                        <div class="flex justify-between items-start mb-4">
+                            <div class="w-10 h-10 rounded-lg bg-cyan-500/10 text-cyan-400 flex items-center justify-center text-lg">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <span id="kpi-trend-2" class="flex items-center gap-1 text-xs font-bold text-emerald-400 bg-emerald-400/10 px-2 py-1 rounded-md transition-colors">
+                                <i class="fas fa-arrow-up"></i> 8.2%
+                            </span>
+                        </div>
+                        <p class="text-sm font-medium text-zinc-400 mb-1">Active Users</p>
+                        <h3 id="kpi-sessions" class="text-3xl font-bold text-white font-mono">24,592</h3>
+                    </div>
+
+                    <div class="glass-panel rounded-2xl p-6 gs-reveal">
+                        <div class="flex justify-between items-start mb-4">
+                            <div class="w-10 h-10 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center text-lg">
+                                <i class="fas fa-server"></i>
+                            </div>
+                            <span class="flex items-center gap-1 text-xs font-bold text-zinc-400 bg-zinc-800 px-2 py-1 rounded-md">
+                                <i class="fas fa-minus"></i> 0.0%
+                            </span>
+                        </div>
+                        <p class="text-sm font-medium text-zinc-400 mb-1">Uptime</p>
+                        <h3 class="text-3xl font-bold text-white font-mono">99.99%</h3>
+                    </div>
+
+                    <div class="glass-panel rounded-2xl p-6 gs-reveal">
+                        <div class="flex justify-between items-start mb-4">
+                            <div class="w-10 h-10 rounded-lg bg-purple-500/10 text-purple-400 flex items-center justify-center text-lg">
+                                <i class="fas fa-bolt"></i>
+                            </div>
+                            <span id="kpi-trend-3" class="flex items-center gap-1 text-xs font-bold text-red-400 bg-red-400/10 px-2 py-1 rounded-md transition-colors">
+                                <i class="fas fa-arrow-up"></i> +12ms
+                            </span>
+                        </div>
+                        <p class="text-sm font-medium text-zinc-400 mb-1">Avg Response Time</p>
+                        <h3 id="kpi-time" class="text-3xl font-bold text-white font-mono">42ms</h3>
+                    </div>
+
+                </div>
+
+                <!-- Charts Section -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+
+                    <!-- Main Traffic Chart -->
+                    <div class="glass-panel rounded-2xl p-6 lg:col-span-2 gs-reveal flex flex-col">
+                        <div class="flex justify-between items-center mb-8">
+                            <div>
+                                <h3 class="text-lg font-bold text-white">Traffic Over Time</h3>
+                                <p class="text-xs text-zinc-400">Total API requests broken down by hour.</p>
+                            </div>
+                            <button class="text-zinc-500 hover:text-white" onclick="showToast('Opened chart settings')"><i class="fas fa-ellipsis-h"></i></button>
+                        </div>
+
+                        <!-- CSS Bar Chart -->
+                        <div class="flex-1 flex items-end gap-1 sm:gap-2 h-48 mt-auto border-b border-zinc-800 pb-2 relative group" id="main-chart">
+                            <!-- Horizontal Grid Lines -->
+                            <div class="absolute w-full border-t border-zinc-800/50 bottom-1/4 z-0 pointer-events-none"></div>
+                            <div class="absolute w-full border-t border-zinc-800/50 bottom-2/4 z-0 pointer-events-none"></div>
+                            <div class="absolute w-full border-t border-zinc-800/50 bottom-3/4 z-0 pointer-events-none"></div>
+
+                            <!-- Bars injected via JS to animate -->
+                        </div>
+                        <!-- X Axis Labels -->
+                        <div class="flex justify-between text-[10px] text-zinc-500 mt-2 font-mono">
+                            <span>12am</span>
+                            <span>4am</span>
+                            <span>8am</span>
+                            <span>12pm</span>
+                            <span>4pm</span>
+                            <span>8pm</span>
+                            <span>Now</span>
+                        </div>
+                    </div>
+
+                    <!-- Server Distribution -->
+                    <div class="glass-panel rounded-2xl p-6 gs-reveal flex flex-col">
+                        <h3 class="text-lg font-bold text-white mb-1">Server Load</h3>
+                        <p class="text-xs text-zinc-400 mb-6">How your traffic is distributed right now.</p>
+
+                        <div class="flex-1 flex flex-col justify-center gap-6">
+                            <!-- Progress Bar 1 -->
+                            <div>
+                                <div class="flex justify-between text-sm mb-2">
+                                    <span class="font-medium text-white flex items-center gap-2"><i class="fas fa-globe-americas text-cyan-500"></i> US-East</span>
+                                    <span id="dist-1" class="font-mono text-zinc-400">65%</span>
+                                </div>
+                                <div class="w-full bg-zinc-900 rounded-full h-2 border border-white/5">
+                                    <div id="dist-bar-1" class="bg-cyan-500 h-2 rounded-full shadow-[0_0_10px_rgba(6,182,212,0.5)] transition-all duration-1000 ease-out" style="width: 65%"></div>
+                                </div>
+                            </div>
+
+                            <!-- Progress Bar 2 -->
+                            <div>
+                                <div class="flex justify-between text-sm mb-2">
+                                    <span class="font-medium text-white flex items-center gap-2"><i class="fas fa-globe-europe text-sky-500"></i> EU-Central</span>
+                                    <span id="dist-2" class="font-mono text-zinc-400">42%</span>
+                                </div>
+                                <div class="w-full bg-zinc-900 rounded-full h-2 border border-white/5">
+                                    <div id="dist-bar-2" class="bg-sky-500 h-2 rounded-full transition-all duration-1000 ease-out" style="width: 42%"></div>
+                                </div>
+                            </div>
+
+                            <!-- Progress Bar 3 -->
+                            <div>
+                                <div class="flex justify-between text-sm mb-2">
+                                    <span class="font-medium text-white flex items-center gap-2"><i class="fas fa-globe-asia text-emerald-500"></i> Asia-Pacific</span>
+                                    <span id="dist-3" class="font-mono text-zinc-400">88%</span>
+                                </div>
+                                <div class="w-full bg-zinc-900 rounded-full h-2 border border-white/5">
+                                    <div id="dist-bar-3" class="bg-emerald-500 h-2 rounded-full shadow-[0_0_10px_rgba(16,185,129,0.5)] transition-all duration-1000 ease-out" style="width: 88%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Recent Logs Table -->
+                <div class="glass-panel rounded-2xl gs-reveal overflow-hidden">
+                    <div class="p-6 border-b border-white/5 flex justify-between items-center">
+                        <div>
+                            <h3 class="text-lg font-bold text-white">Recent Activity</h3>
+                            <p class="text-xs text-zinc-400">Click any row to see what happened.</p>
+                        </div>
+                        <button id="load-more-btn" onclick="loadMoreLogs()" class="text-sm font-medium text-cyan-400 hover:text-cyan-300 transition-colors flex items-center gap-1">
+                            Load More <i class="fas fa-chevron-down text-xs"></i>
+                        </button>
+                    </div>
+
+                    <div class="overflow-x-auto custom-scrollbar">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-zinc-900/50 text-xs uppercase tracking-widest text-zinc-500 border-b border-white/5">
+                                    <th class="p-4 font-semibold">Instance ID</th>
+                                    <th class="p-4 font-semibold">Status</th>
+                                    <th class="p-4 font-semibold">Action</th>
+                                    <th class="p-4 font-semibold">Region</th>
+                                    <th class="p-4 font-semibold text-right">Time</th>
+                                </tr>
+                            </thead>
+                            <tbody id="log-table" class="text-sm text-zinc-300 divide-y divide-white/5">
+                                <!-- Rows injected via JS -->
+                            </tbody>
+                        </table>
+
+                        <!-- Search Empty State -->
+                        <div id="table-empty-state" class="hidden p-10 text-center flex flex-col items-center">
+                            <i class="fas fa-search text-4xl text-zinc-600 mb-3"></i>
+                            <p class="text-zinc-400">Couldn't find any logs matching your search.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ================= VIEW 2: LIVE TRAFFIC ================= -->
+            <div id="view-traffic" class="app-view hidden">
+                <div class="glass-panel p-8 rounded-2xl flex flex-col items-center justify-center min-h-[500px] gs-reveal">
+                    <div class="relative w-48 h-48 flex items-center justify-center mb-8">
+                        <div class="absolute inset-0 rounded-full border-2 border-cyan-500/20 animate-ping" style="animation-duration: 2s;"></div>
+                        <div class="absolute inset-4 rounded-full border-2 border-cyan-500/40 animate-ping" style="animation-duration: 2s; animation-delay: 0.5s"></div>
+                        <div class="absolute inset-8 rounded-full border-2 border-cyan-500/80 animate-ping" style="animation-duration: 2s; animation-delay: 1s"></div>
+                        <i class="fas fa-satellite-dish text-6xl text-cyan-400"></i>
+                    </div>
+                    <h3 class="text-3xl font-bold text-white mb-3">Live Node Tracking Active</h3>
+                    <p class="text-zinc-400 max-w-md text-center">Successfully monitoring global WebSocket connections and API streaming in real-time.</p>
+                    <div class="mt-8 flex gap-6 text-center">
+                        <div>
+                            <p class="text-xs text-zinc-500 uppercase tracking-widest mb-1">Ping</p>
+                            <p class="text-xl font-mono text-emerald-400">12ms</p>
+                        </div>
+                        <div class="border-l border-white/10 pl-6">
+                            <p class="text-xs text-zinc-500 uppercase tracking-widest mb-1">Active Nodes</p>
+                            <p class="text-xl font-mono text-cyan-400">1,024</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ================= VIEW 3: SERVERS ================= -->
+            <div id="view-servers" class="app-view hidden">
+                <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+
+                    <!-- Server 1 -->
+                    <div class="glass-panel p-6 rounded-2xl gs-reveal flex flex-col">
+                        <div class="flex justify-between items-start mb-6">
+                            <div class="flex items-center gap-4">
+                                <div class="w-12 h-12 rounded-xl bg-cyan-500/10 text-cyan-400 flex items-center justify-center text-xl">
+                                    <i class="fas fa-server"></i>
+                                </div>
+                                <div>
+                                    <h3 class="text-white font-bold text-lg leading-tight">nexus-prod-01</h3>
+                                    <p class="text-xs text-zinc-400 flex items-center gap-1"><i class="fas fa-globe-americas"></i> US-East</p>
+                                </div>
+                            </div>
+                            <!-- Toggle (Online) -->
+                            <div class="relative inline-block w-12 h-6 rounded-full bg-emerald-500 transition-colors duration-300 cursor-pointer shrink-0" onclick="toggleServer(this, 'nexus-prod-01')">
+                                <div class="absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform duration-300 translate-x-6 shadow-sm"></div>
+                            </div>
+                        </div>
+                        <div class="mt-auto grid grid-cols-3 gap-2 border-t border-white/5 pt-4">
+                            <div class="text-center">
+                                <p class="text-[10px] text-zinc-500 uppercase tracking-widest mb-1">CPU</p>
+                                <p class="text-sm font-mono text-white">16 Cores</p>
+                            </div>
+                            <div class="text-center border-l border-white/5">
+                                <p class="text-[10px] text-zinc-500 uppercase tracking-widest mb-1">RAM</p>
+                                <p class="text-sm font-mono text-white">64 GB</p>
+                            </div>
+                            <div class="text-center border-l border-white/5">
+                                <p class="text-[10px] text-zinc-500 uppercase tracking-widest mb-1">Load</p>
+                                <p class="text-sm font-mono text-emerald-400">24%</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Server 2 -->
+                    <div class="glass-panel p-6 rounded-2xl gs-reveal flex flex-col">
+                        <div class="flex justify-between items-start mb-6">
+                            <div class="flex items-center gap-4">
+                                <div class="w-12 h-12 rounded-xl bg-cyan-500/10 text-cyan-400 flex items-center justify-center text-xl">
+                                    <i class="fas fa-server"></i>
+                                </div>
+                                <div>
+                                    <h3 class="text-white font-bold text-lg leading-tight">nexus-prod-02</h3>
+                                    <p class="text-xs text-zinc-400 flex items-center gap-1"><i class="fas fa-globe-europe"></i> EU-Central</p>
+                                </div>
+                            </div>
+                            <!-- Toggle (Online) -->
+                            <div class="relative inline-block w-12 h-6 rounded-full bg-emerald-500 transition-colors duration-300 cursor-pointer shrink-0" onclick="toggleServer(this, 'nexus-prod-02')">
+                                <div class="absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform duration-300 translate-x-6 shadow-sm"></div>
+                            </div>
+                        </div>
+                        <div class="mt-auto grid grid-cols-3 gap-2 border-t border-white/5 pt-4">
+                            <div class="text-center">
+                                <p class="text-[10px] text-zinc-500 uppercase tracking-widest mb-1">CPU</p>
+                                <p class="text-sm font-mono text-white">16 Cores</p>
+                            </div>
+                            <div class="text-center border-l border-white/5">
+                                <p class="text-[10px] text-zinc-500 uppercase tracking-widest mb-1">RAM</p>
+                                <p class="text-sm font-mono text-white">64 GB</p>
+                            </div>
+                            <div class="text-center border-l border-white/5">
+                                <p class="text-[10px] text-zinc-500 uppercase tracking-widest mb-1">Load</p>
+                                <p class="text-sm font-mono text-yellow-400">82%</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Server 3 -->
+                    <div class="glass-panel p-6 rounded-2xl gs-reveal flex flex-col">
+                        <div class="flex justify-between items-start mb-6">
+                            <div class="flex items-center gap-4">
+                                <div class="w-12 h-12 rounded-xl bg-zinc-800 text-zinc-500 flex items-center justify-center text-xl">
+                                    <i class="fas fa-server"></i>
+                                </div>
+                                <div>
+                                    <h3 class="text-zinc-500 font-bold text-lg leading-tight">nexus-dev-01</h3>
+                                    <p class="text-xs text-zinc-600 flex items-center gap-1"><i class="fas fa-globe-asia"></i> AP-South</p>
+                                </div>
+                            </div>
+                            <!-- Toggle (Offline) -->
+                            <div class="relative inline-block w-12 h-6 rounded-full bg-zinc-600 transition-colors duration-300 cursor-pointer shrink-0" onclick="toggleServer(this, 'nexus-dev-01')">
+                                <div class="absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform duration-300 translate-x-0 shadow-sm"></div>
+                            </div>
+                        </div>
+                        <div class="mt-auto grid grid-cols-3 gap-2 border-t border-white/5 pt-4 opacity-50">
+                            <div class="text-center">
+                                <p class="text-[10px] text-zinc-500 uppercase tracking-widest mb-1">CPU</p>
+                                <p class="text-sm font-mono text-white">4 Cores</p>
+                            </div>
+                            <div class="text-center border-l border-white/5">
+                                <p class="text-[10px] text-zinc-500 uppercase tracking-widest mb-1">RAM</p>
+                                <p class="text-sm font-mono text-white">16 GB</p>
+                            </div>
+                            <div class="text-center border-l border-white/5">
+                                <p class="text-[10px] text-zinc-500 uppercase tracking-widest mb-1">Load</p>
+                                <p class="text-sm font-mono text-zinc-500">0%</p>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- ================= VIEW 4: TEAM & USERS ================= -->
+            <div id="view-users" class="app-view hidden">
+                <div class="glass-panel rounded-2xl overflow-hidden gs-reveal">
+                    <div class="p-6 border-b border-white/5 flex justify-between items-center">
+                        <h3 class="text-lg font-bold text-white">Team Roster</h3>
+                        <button onclick="showToast('Invitation link copied to clipboard!', 'success')" class="px-4 py-2 bg-white/5 hover:bg-white/10 text-white text-sm font-bold rounded-lg transition-colors flex items-center gap-2">
+                            <i class="fas fa-plus"></i> Invite User
+                        </button>
+                    </div>
+                    <div class="overflow-x-auto custom-scrollbar">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-zinc-900/50 text-xs uppercase tracking-widest text-zinc-500 border-b border-white/5">
+                                    <th class="p-4 font-semibold">User</th>
+                                    <th class="p-4 font-semibold">Role</th>
+                                    <th class="p-4 font-semibold">Status</th>
+                                    <th class="p-4 font-semibold">Last Active</th>
+                                </tr>
+                            </thead>
+                            <tbody class="text-sm text-zinc-300 divide-y divide-white/5">
+                                <tr class="hover:bg-white/5 transition-colors cursor-pointer" onclick="showToast('Viewing Shinyy profile')">
+                                    <td class="p-4 flex items-center gap-3">
+                                        <img src="https://ui-avatars.com/api/?name=Shinyy&background=06b6d4&color=fff" class="w-8 h-8 rounded-full">
+                                        <span class="font-medium text-white">Shinyy</span>
+                                    </td>
+                                    <td class="p-4"><span class="px-2 py-1 bg-purple-500/10 text-purple-400 text-xs font-bold rounded">Owner</span></td>
+                                    <td class="p-4"><span class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.8)]"></span> Online</span></td>
+                                    <td class="p-4 text-zinc-500">Right now</td>
+                                </tr>
+                                <tr class="hover:bg-white/5 transition-colors cursor-pointer" onclick="showToast('Viewing John profile')">
+                                    <td class="p-4 flex items-center gap-3">
+                                        <img src="https://ui-avatars.com/api/?name=John+Doe&background=3b82f6&color=fff" class="w-8 h-8 rounded-full">
+                                        <span class="font-medium text-white">John Doe</span>
+                                    </td>
+                                    <td class="p-4"><span class="px-2 py-1 bg-cyan-500/10 text-cyan-400 text-xs font-bold rounded">Admin</span></td>
+                                    <td class="p-4"><span class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-zinc-600"></span> Offline</span></td>
+                                    <td class="p-4 text-zinc-500">2 hours ago</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ================= VIEW 5: DATABASES ================= -->
+            <div id="view-databases" class="app-view hidden">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="glass-panel p-6 rounded-2xl gs-reveal border-t-4 border-t-emerald-500">
+                        <div class="flex justify-between items-start mb-4">
+                            <div>
+                                <h3 class="text-white font-bold text-lg">Production DB</h3>
+                                <p class="text-xs text-zinc-400">PostgreSQL 14.2</p>
+                            </div>
+                            <div class="w-10 h-10 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center text-lg"><i class="fas fa-database"></i></div>
+                        </div>
+                        <div class="space-y-3 mt-6">
+                            <div class="flex justify-between text-sm"><span class="text-zinc-400">Storage</span><span class="text-white font-mono">412 GB / 1 TB</span></div>
+                            <div class="w-full bg-zinc-900 rounded-full h-1.5"><div class="bg-emerald-500 h-1.5 rounded-full" style="width: 41%"></div></div>
+                        </div>
+                    </div>
+                    <div class="glass-panel p-6 rounded-2xl gs-reveal border-t-4 border-t-yellow-500">
+                        <div class="flex justify-between items-start mb-4">
+                            <div>
+                                <h3 class="text-white font-bold text-lg">Redis Cache</h3>
+                                <p class="text-xs text-zinc-400">Redis 6.x</p>
+                            </div>
+                            <div class="w-10 h-10 rounded-lg bg-yellow-500/10 text-yellow-400 flex items-center justify-center text-lg"><i class="fas fa-memory"></i></div>
+                        </div>
+                        <div class="space-y-3 mt-6">
+                            <div class="flex justify-between text-sm"><span class="text-zinc-400">Memory Usage</span><span class="text-white font-mono">14.2 GB / 16 GB</span></div>
+                            <div class="w-full bg-zinc-900 rounded-full h-1.5"><div class="bg-yellow-500 h-1.5 rounded-full" style="width: 88%"></div></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ================= VIEW 6: ACCESS CONTROL ================= -->
+            <div id="view-access" class="app-view hidden">
+                <div class="glass-panel rounded-2xl overflow-hidden gs-reveal">
+                    <div class="p-6 border-b border-white/5">
+                        <h3 class="text-lg font-bold text-white">Pending Access Requests</h3>
+                        <p class="text-xs text-zinc-400 mt-1">Review and approve connections to secure endpoints.</p>
+                    </div>
+
+                    <div class="p-2 flex flex-col gap-2">
+
+                        <!-- Request 1 -->
+                        <div id="access-req-1" class="p-4 hover:bg-white/5 transition-colors rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-4 border border-transparent hover:border-white/5">
+                            <div class="flex items-start sm:items-center gap-4">
+                                <div class="w-10 h-10 rounded-full bg-orange-500/10 text-orange-400 flex items-center justify-center shrink-0">
+                                    <i class="fas fa-user-shield"></i>
+                                </div>
+                                <div>
+                                    <h4 class="text-white font-bold text-sm">Deployment Pipeline Service</h4>
+                                    <p class="text-xs text-zinc-400 mt-0.5">Requesting: <span class="text-cyan-400 font-mono">write:production-db</span></p>
+                                    <p class="text-xs text-zinc-500 mt-1.5 flex items-center gap-1">
+                                        <i class="fas fa-map-marker-alt"></i> 103.112.45.92 • Dhaka, BD <span class="text-orange-400">(Suspicious IP)</span>
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="flex gap-2 shrink-0">
+                                <button onclick="resolveAccess('access-req-1', 'reject', this)" class="px-4 py-2 rounded-lg bg-red-500/10 text-red-400 hover:bg-red-500 hover:text-white text-sm font-medium transition-colors flex items-center justify-center w-24">Reject</button>
+                                <button onclick="resolveAccess('access-req-1', 'accept', this)" class="px-4 py-2 rounded-lg bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500 hover:text-white text-sm font-medium transition-colors flex items-center justify-center w-24">Approve</button>
+                            </div>
+                        </div>
+
+                        <!-- Request 2 -->
+                        <div id="access-req-2" class="p-4 hover:bg-white/5 transition-colors rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-4 border border-transparent hover:border-white/5">
+                            <div class="flex items-start sm:items-center gap-4">
+                                <div class="w-10 h-10 rounded-full bg-blue-500/10 text-blue-400 flex items-center justify-center shrink-0">
+                                    <i class="fas fa-robot"></i>
+                                </div>
+                                <div>
+                                    <h4 class="text-white font-bold text-sm">Discord Analytics Bot</h4>
+                                    <p class="text-xs text-zinc-400 mt-0.5">Requesting: <span class="text-cyan-400 font-mono">read:user-metrics</span></p>
+                                    <p class="text-xs text-zinc-500 mt-1.5 flex items-center gap-1">
+                                        <i class="fas fa-map-marker-alt"></i> 34.201.12.8 • N. Virginia, US
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="flex gap-2 shrink-0">
+                                <button onclick="resolveAccess('access-req-2', 'reject', this)" class="px-4 py-2 rounded-lg bg-red-500/10 text-red-400 hover:bg-red-500 hover:text-white text-sm font-medium transition-colors flex items-center justify-center w-24">Reject</button>
+                                <button onclick="resolveAccess('access-req-2', 'accept', this)" class="px-4 py-2 rounded-lg bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500 hover:text-white text-sm font-medium transition-colors flex items-center justify-center w-24">Approve</button>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Log Details Modal -->
+    <div id="log-modal" class="fixed inset-0 z-50 flex items-center justify-center hidden">
+        <div class="absolute inset-0 bg-black/80 backdrop-blur-sm cursor-pointer" onclick="closeLogModal()"></div>
+
+        <div id="log-modal-content" class="relative w-full max-w-2xl bg-zinc-950 border border-white/10 rounded-2xl shadow-2xl p-6 md:p-8 m-4 opacity-0 scale-95 transform flex flex-col max-h-[90vh]">
+
+            <div class="flex justify-between items-start mb-6 shrink-0">
+                <div>
+                    <div class="flex items-center gap-3 mb-1">
+                        <h2 class="text-2xl font-bold text-white tracking-tight" id="modal-id">i-0a1b2c3d</h2>
+                        <span id="modal-status-badge" class="px-2.5 py-0.5 rounded text-xs font-bold uppercase tracking-widest"></span>
+                    </div>
+                    <p class="text-zinc-500 text-sm">Task details and system logs.</p>
+                </div>
+                <button onclick="closeLogModal()" class="w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 text-zinc-400 hover:text-white flex items-center justify-center transition-colors">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <!-- Key-Value Details -->
+            <div class="grid grid-cols-2 gap-4 mb-6 shrink-0">
+                <div class="bg-zinc-900/50 p-4 rounded-xl border border-white/5">
+                    <p class="text-xs text-zinc-500 mb-1 uppercase tracking-widest">Action</p>
+                    <p class="font-medium text-white" id="modal-action">Database Migration</p>
+                </div>
+                <div class="bg-zinc-900/50 p-4 rounded-xl border border-white/5">
+                    <p class="text-xs text-zinc-500 mb-1 uppercase tracking-widest">Region</p>
+                    <p class="font-medium text-white" id="modal-region">us-east-1</p>
+                </div>
+                <div class="bg-zinc-900/50 p-4 rounded-xl border border-white/5">
+                    <p class="text-xs text-zinc-500 mb-1 uppercase tracking-widest">Duration</p>
+                    <p class="font-medium text-white font-mono" id="modal-time">142ms</p>
+                </div>
+                <div class="bg-zinc-900/50 p-4 rounded-xl border border-white/5">
+                    <p class="text-xs text-zinc-500 mb-1 uppercase tracking-widest">Triggered By</p>
+                    <p class="font-medium text-white">Automated Deploy</p>
+                </div>
+            </div>
+
+            <!-- Terminal Output -->
+            <div class="flex-1 min-h-[200px] bg-[#0d0d0d] border border-white/10 rounded-xl p-4 overflow-y-auto font-mono text-xs text-zinc-400 custom-scrollbar" id="terminal-output">
+                <div class="flex items-center gap-2 mb-3 border-b border-white/5 pb-2">
+                    <div class="flex gap-1.5">
+                        <div class="w-2.5 h-2.5 rounded-full bg-red-500"></div>
+                        <div class="w-2.5 h-2.5 rounded-full bg-yellow-500"></div>
+                        <div class="w-2.5 h-2.5 rounded-full bg-green-500"></div>
+                    </div>
+                    <span class="text-zinc-600">Server Console</span>
+                </div>
+                <div id="terminal-lines">
+                    <p class="text-cyan-400">> Starting job...</p>
+                    <p>> Connecting to database: <span class="text-green-400">OK</span></p>
+                    <p>> Applying changes to target node...</p>
+                    <p>> Finished with 0 errors.</p>
+                </div>
+                <p class="animate-pulse mt-1" id="terminal-cursor">_</p>
+            </div>
+
+            <div class="mt-6 flex justify-end gap-3 shrink-0">
+                <button onclick="closeLogModal()" class="px-5 py-2.5 rounded-lg text-sm font-medium text-zinc-400 hover:text-white bg-white/5 hover:bg-white/10 transition-colors">Close</button>
+                <button id="rerun-task-btn" onclick="rerunTask()" class="px-5 py-2.5 rounded-lg text-sm font-bold bg-cyan-600 hover:bg-cyan-500 text-white transition-colors flex items-center gap-2 shadow-[0_0_15px_rgba(6,182,212,0.2)]">
+                    <i class="fas fa-redo"></i> Run Again
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script Logic -->
+    <script>
+        // --- 1. Sidebar Navigation Simulation ---
+        function navigateApp(element, title, subtitle, viewId = 'view-dashboard') {
+            if(!element) return;
+
+            // Update Active State
+            document.querySelectorAll('.side-item').forEach(el => el.classList.remove('active'));
+            if(element.classList.contains('side-item')) element.classList.add('active');
+
+            // Update Headers
+            const titleEl = document.getElementById('page-title');
+            const subEl = document.getElementById('page-subtitle');
+            if(titleEl) titleEl.textContent = title;
+            if(subEl) subEl.textContent = subtitle;
+
+            // Handle View Switching
+            document.querySelectorAll('.app-view').forEach(view => {
+                view.classList.add('hidden');
+                view.classList.remove('block');
+            });
+            const activeView = document.getElementById(viewId);
+            if(activeView) {
+                activeView.classList.remove('hidden');
+                activeView.classList.add('block');
+            }
+
+            // Scroll to top
+            const scrollArea = document.getElementById('main-scroll-area');
+            if(scrollArea) scrollArea.scrollTo({top: 0, behavior: 'smooth'});
+
+            // Re-trigger entrance animations
+            gsap.fromTo(".gs-reveal",
+                { y: 20, opacity: 0 },
+                { y: 0, opacity: 1, duration: 0.5, stagger: 0.05, ease: "power2.out", overwrite: true }
+            );
+
+            // Generate chart data only if dashboard is visible
+            if (viewId === 'view-dashboard') {
+                randomizeKPIs();
+                renderChartBars();
+            }
+        }
+
+        // --- 2. Generate Chart Bars dynamically ---
+        function renderChartBars() {
+            const chartContainer = document.getElementById('main-chart');
+            if (!chartContainer) return; // Strict safety check
+
+            const numBars = 24;
+
+            chartContainer.innerHTML = `
+                <!-- Horizontal Grid Lines -->
+                <div class="absolute w-full border-t border-zinc-800/50 bottom-1/4 z-0 pointer-events-none"></div>
+                <div class="absolute w-full border-t border-zinc-800/50 bottom-2/4 z-0 pointer-events-none"></div>
+                <div class="absolute w-full border-t border-zinc-800/50 bottom-3/4 z-0 pointer-events-none"></div>
+            `;
+
+            for (let i = 0; i < numBars; i++) {
+                const height = Math.floor(Math.random() * 80) + 20;
+                const trend = Math.sin(i / 3) * 20;
+                const finalHeight = Math.max(10, Math.min(100, height + trend));
+
+                let colorClass = 'bg-cyan-500';
+                if (finalHeight > 85) colorClass = 'bg-sky-400 shadow-[0_0_10px_rgba(56,189,248,0.5)]';
+                if (finalHeight < 30) colorClass = 'bg-cyan-800';
+
+                const bar = document.createElement('div');
+                bar.className = `flex-1 ${colorClass} rounded-t-sm relative z-10 chart-bar`;
+                bar.dataset.height = finalHeight / 100;
+
+                bar.innerHTML = `<div class="absolute -top-8 left-1/2 -translate-x-1/2 bg-zinc-800 text-white text-[10px] py-1 px-2 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-20">${Math.floor(finalHeight * 12)}k</div>`;
+                chartContainer.appendChild(bar);
+            }
+
+            // Animate
+            const bars = document.querySelectorAll('.chart-bar');
+            bars.forEach((bar, index) => {
+                const targetScale = bar.dataset.height;
+                gsap.to(bar, {
+                    scaleY: targetScale,
+                    duration: 1,
+                    delay: (index * 0.02),
+                    ease: "elastic.out(1, 0.7)"
+                });
+            });
+        }
+
+        // --- 3. Time Range Filters ---
+        function setTimeRange(btn, range) {
+            // Update Active Buttons
+            document.querySelectorAll('.time-btn').forEach(b => {
+                b.classList.remove('bg-white/10', 'text-white', 'shadow-sm', 'active');
+                b.classList.add('text-zinc-400');
+            });
+            btn.classList.add('bg-white/10', 'text-white', 'shadow-sm', 'active');
+            btn.classList.remove('text-zinc-400');
+
+            // Randomize Data
+            randomizeKPIs(range);
+            renderChartBars();
+
+            showToast(`Showing data for the last ${range}`);
+        }
+
+        function randomizeKPIs(range = '24h') {
+            let mult = range === '24h' ? 1 : (range === '7d' ? 7 : 30);
+
+            // Strict safety checks before setting innerText
+            const elReq = document.getElementById('kpi-requests');
+            if(elReq) elReq.innerText = (Math.random() * 5 * mult + 1).toFixed(2) + (mult > 1 ? 'T' : 'B');
+
+            const elSes = document.getElementById('kpi-sessions');
+            if(elSes) elSes.innerText = Math.floor(Math.random() * 50000 + 10000).toLocaleString();
+
+            const elTime = document.getElementById('kpi-time');
+            if(elTime) elTime.innerText = Math.floor(Math.random() * 60 + 20) + 'ms';
+
+            const distBar1 = document.getElementById('dist-bar-1');
+            const dist1 = document.getElementById('dist-1');
+            if(distBar1 && dist1) {
+                distBar1.style.width = Math.floor(Math.random() * 30 + 40) + "%";
+                dist1.innerText = distBar1.style.width;
+            }
+
+            const distBar2 = document.getElementById('dist-bar-2');
+            const dist2 = document.getElementById('dist-2');
+            if(distBar2 && dist2) {
+                distBar2.style.width = Math.floor(Math.random() * 30 + 20) + "%";
+                dist2.innerText = distBar2.style.width;
+            }
+
+            const distBar3 = document.getElementById('dist-bar-3');
+            const dist3 = document.getElementById('dist-3');
+            if(distBar3 && dist3) {
+                distBar3.style.width = Math.floor(Math.random() * 20 + 70) + "%";
+                dist3.innerText = distBar3.style.width;
+            }
+        }
+
+        // --- 4. Table Data & Live Search ---
+        let logs = [
+            { id: "inst-8f92a1", status: "Success", action: "Deploy Frontend", region: "us-east-1", time: "2 mins ago" },
+            { id: "db-cluster-2", status: "Warning", action: "Scale Resources", region: "eu-central-1", time: "15 mins ago" },
+            { id: "api-gw-09x", status: "Success", action: "Update Routing", region: "ap-southeast", time: "1 hour ago" },
+            { id: "inst-3b4c5d", status: "Failed", action: "Patch Kernel", region: "us-west-2", time: "3 hours ago" },
+            { id: "cache-redis-1", status: "Success", action: "Clear Cache", region: "global", time: "5 hours ago" },
+        ];
+
+        const actionsList = ["Restart Server", "Database Sync", "Deploy Backend", "Update SSL", "Scale Up Nodes"];
+        const regionsList = ["us-east-1", "eu-central-1", "ap-southeast", "us-west-2", "sa-east-1"];
+
+        function renderTableRows(logsToRender, prepend = false) {
+            const tableBody = document.getElementById('log-table');
+            if(!tableBody) return;
+
+            if(!prepend) tableBody.innerHTML = '';
+
+            logsToRender.forEach(log => {
+                let statusColor = "text-emerald-400 bg-emerald-400/10";
+                let statusDot = "bg-emerald-400";
+                if(log.status === "Warning") { statusColor = "text-yellow-400 bg-yellow-400/10"; statusDot = "bg-yellow-400"; }
+                if(log.status === "Failed") { statusColor = "text-red-400 bg-red-400/10"; statusDot = "bg-red-400"; }
+
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-white/5 transition-colors cursor-pointer group gs-table-row";
+                tr.onclick = () => openLogModal(log, statusColor);
+
+                tr.innerHTML = `
+                    <td class="p-4 font-mono text-cyan-400 group-hover:text-cyan-300 transition-colors log-search-text">${log.id}</td>
+                    <td class="p-4 log-search-text">
+                        <span class="inline-flex items-center gap-1.5 px-2 py-1 rounded text-xs font-bold ${statusColor}">
+                            <span class="w-1.5 h-1.5 rounded-full ${statusDot}"></span> ${log.status}
+                        </span>
+                    </td>
+                    <td class="p-4 font-medium text-white log-search-text">${log.action}</td>
+                    <td class="p-4 font-mono text-xs log-search-text">${log.region}</td>
+                    <td class="p-4 text-right text-zinc-500">${log.time}</td>
+                `;
+
+                if(prepend) {
+                    tableBody.insertBefore(tr, tableBody.firstChild);
+                } else {
+                    tableBody.appendChild(tr);
+                }
+            });
+        }
+
+        function filterLogs() {
+            const searchEl = document.getElementById('global-search');
+            if(!searchEl) return;
+
+            const query = searchEl.value.toLowerCase();
+            const rows = document.querySelectorAll('#log-table tr');
+            let hasVisible = false;
+
+            rows.forEach(row => {
+                // Combine text from searchable cells
+                const text = Array.from(row.querySelectorAll('.log-search-text')).map(td => td.innerText).join(' ').toLowerCase();
+                if(text.includes(query)) {
+                    row.style.display = '';
+                    hasVisible = true;
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+
+            const emptyState = document.getElementById('table-empty-state');
+            if(emptyState) {
+                if(!hasVisible) {
+                    emptyState.classList.remove('hidden');
+                    emptyState.classList.add('flex');
+                } else {
+                    emptyState.classList.add('hidden');
+                    emptyState.classList.remove('flex');
+                }
+            }
+        }
+
+        // Load More Logs Button
+        function loadMoreLogs() {
+            const btn = document.getElementById('load-more-btn');
+            if(!btn) return;
+
+            const originalHTML = btn.innerHTML;
+            btn.innerHTML = `<i class="fas fa-circle-notch fa-spin text-cyan-400"></i> Fetching...`;
+
+            setTimeout(() => {
+                // Generate 3 random logs
+                const newLogs = [];
+                for(let i=0; i<3; i++) {
+                    const statuses = ["Success", "Success", "Warning", "Failed"];
+                    newLogs.push({
+                        id: `inst-${Math.random().toString(36).substring(2,8)}`,
+                        status: statuses[Math.floor(Math.random() * statuses.length)],
+                        action: actionsList[Math.floor(Math.random() * actionsList.length)],
+                        region: regionsList[Math.floor(Math.random() * regionsList.length)],
+                        time: "Just now"
+                    });
+                }
+
+                // Add to array and render
+                logs = [...newLogs, ...logs];
+                renderTableRows(newLogs, true); // Prepend
+
+                // Animate new rows
+                gsap.fromTo(".gs-table-row",
+                    { backgroundColor: "rgba(6, 182, 212, 0.2)" },
+                    { backgroundColor: "transparent", duration: 1 }
+                );
+
+                btn.innerHTML = originalHTML;
+                showToast("3 new logs loaded.");
+
+                // Re-apply filter if active
+                filterLogs();
+            }, 800);
+        }
+
+
+        // --- 5. Interactivity Tools ---
+
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toast-container');
+            if(!container) return;
+
+            const toast = document.createElement('div');
+
+            let icon = '<i class="fas fa-info-circle text-cyan-400"></i>';
+            let border = 'border-l-cyan-500';
+
+            if(type === 'success') {
+                icon = '<i class="fas fa-check-circle text-emerald-400"></i>';
+                border = 'border-l-emerald-500';
+            }
+
+            toast.className = `bg-zinc-900 border border-white/10 text-white px-4 py-3 rounded-lg shadow-2xl flex items-center gap-3 text-sm font-medium toast-enter pointer-events-auto border-l-4 ${border}`;
+            toast.innerHTML = `${icon} <span>${message}</span>`;
+
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.classList.remove('toast-enter');
+                toast.classList.add('toast-leave');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        function generateReport() {
+            const btn = document.getElementById('export-btn');
+            if(!btn) return;
+
+            const originalContent = btn.innerHTML;
+
+            btn.innerHTML = `<div class="loader border-white/20 border-t-white"></div> <span class="ml-2">Getting ready...</span>`;
+            btn.disabled = true;
+            btn.classList.add('opacity-80', 'cursor-not-allowed');
+
+            setTimeout(() => {
+                btn.innerHTML = `<i class="fas fa-check"></i> <span class="ml-2">Done</span>`;
+                btn.classList.remove('bg-cyan-600', 'hover:bg-cyan-500');
+                btn.classList.add('bg-emerald-600', 'hover:bg-emerald-500');
+
+                showToast('Your report is ready to download.', 'success');
+
+                setTimeout(() => {
+                    btn.innerHTML = originalContent;
+                    btn.classList.add('bg-cyan-600', 'hover:bg-cyan-500');
+                    btn.classList.remove('bg-emerald-600', 'hover:bg-emerald-500', 'opacity-80', 'cursor-not-allowed');
+                    btn.disabled = false;
+                }, 2000);
+
+            }, 1500);
+        }
+
+        // --- 6. Log Modal & Server Actions ---
+        function openLogModal(log, statusColorClass) {
+            document.getElementById('modal-id').textContent = log.id;
+            document.getElementById('modal-action').textContent = log.action;
+            document.getElementById('modal-region').textContent = log.region;
+            document.getElementById('modal-time').textContent = Math.floor(Math.random() * 500 + 50) + "ms";
+
+            const badge = document.getElementById('modal-status-badge');
+            badge.textContent = log.status;
+            badge.className = `px-2.5 py-0.5 rounded text-xs font-bold uppercase tracking-widest ${statusColorClass}`;
+
+            // Reset Terminal
+            document.getElementById('terminal-lines').innerHTML = `
+                <p class="text-cyan-400">> Starting job...</p>
+                <p>> Connecting to database: <span class="text-green-400">OK</span></p>
+                <p>> Applying changes to target node...</p>
+                <p>> Finished with ${log.status === 'Failed' ? '1 error.' : '0 errors.'}</p>
+            `;
+
+            const modal = document.getElementById('log-modal');
+            const content = document.getElementById('log-modal-content');
+
+            modal.classList.remove('hidden');
+            gsap.to(content, { opacity: 1, scale: 1, duration: 0.4, ease: "back.out(1.1)" });
+        }
+
+        function closeLogModal() {
+            const modal = document.getElementById('log-modal');
+            const content = document.getElementById('log-modal-content');
+
+            gsap.to(content, { opacity: 0, scale: 0.95, duration: 0.2, ease: "power2.in", onComplete: () => modal.classList.add('hidden') });
+        }
+
+        function rerunTask() {
+            const btn = document.getElementById('rerun-task-btn');
+            const terminal = document.getElementById('terminal-lines');
+            if(!btn || !terminal) return;
+
+            const originalHTML = btn.innerHTML;
+
+            btn.innerHTML = `<i class="fas fa-circle-notch fa-spin"></i> Running...`;
+            btn.disabled = true;
+            btn.classList.add('opacity-80');
+
+            // Simulate terminal typing
+            terminal.innerHTML += `<p class="text-cyan-400 mt-4">> [STARTING AGAIN]</p>`;
+
+            setTimeout(() => { terminal.innerHTML += `<p>> Checking connection...</p>`; }, 600);
+            setTimeout(() => { terminal.innerHTML += `<p>> Processing...</p>`; }, 1200);
+            setTimeout(() => {
+                terminal.innerHTML += `<p class="text-emerald-400">> Job done! Everything looks good.</p>`;
+                btn.innerHTML = `<i class="fas fa-check"></i> Done`;
+                btn.classList.remove('bg-cyan-600', 'hover:bg-cyan-500');
+                btn.classList.add('bg-emerald-600', 'hover:bg-emerald-500');
+
+                showToast("The task ran successfully.", "success");
+
+                setTimeout(() => {
+                    closeLogModal();
+                    setTimeout(() => {
+                        btn.innerHTML = originalHTML;
+                        btn.disabled = false;
+                        btn.classList.remove('opacity-80', 'bg-emerald-600', 'hover:bg-emerald-500');
+                        btn.classList.add('bg-cyan-600', 'hover:bg-cyan-500');
+                    }, 500); // reset after hidden
+                }, 1500);
+            }, 2000);
+        }
+
+        // --- 7. Server Management Toggles ---
+        function toggleServer(element, serverName) {
+            const isOnline = element.classList.contains('bg-emerald-500');
+            const toggleDot = element.querySelector('div');
+            const serverIcon = element.closest('.glass-panel').querySelector('i.fa-server');
+            const loadStats = element.closest('.glass-panel').querySelector('.mt-auto');
+
+            // Set to loading state
+            element.classList.add('opacity-50', 'pointer-events-none');
+            showToast(`${isOnline ? 'Shutting down' : 'Booting up'} ${serverName}...`, 'info');
+
+            setTimeout(() => {
+                element.classList.remove('opacity-50', 'pointer-events-none');
+
+                if (isOnline) {
+                    // Turn off
+                    element.classList.remove('bg-emerald-500');
+                    element.classList.add('bg-zinc-600');
+                    toggleDot.classList.remove('translate-x-6');
+                    toggleDot.classList.add('translate-x-0');
+
+                    serverIcon.parentElement.classList.remove('bg-cyan-500/10', 'text-cyan-400');
+                    serverIcon.parentElement.classList.add('bg-zinc-800', 'text-zinc-500');
+                    loadStats.classList.add('opacity-50');
+
+                    showToast(`${serverName} successfully stopped.`, 'success');
+                } else {
+                    // Turn on
+                    element.classList.remove('bg-zinc-600');
+                    element.classList.add('bg-emerald-500');
+                    toggleDot.classList.remove('translate-x-0');
+                    toggleDot.classList.add('translate-x-6');
+
+                    serverIcon.parentElement.classList.remove('bg-zinc-800', 'text-zinc-500');
+                    serverIcon.parentElement.classList.add('bg-cyan-500/10', 'text-cyan-400');
+                    loadStats.classList.remove('opacity-50');
+
+                    showToast(`${serverName} is now online and accepting traffic.`, 'success');
+                }
+            }, 1500);
+        }
+
+        // --- 8. Access Control Logic ---
+        function resolveAccess(rowId, action, btn) {
+            const row = document.getElementById(rowId);
+            if(!row || !btn) return;
+
+            const originalHtml = btn.innerHTML;
+
+            // Loading state
+            btn.innerHTML = `<i class="fas fa-circle-notch fa-spin"></i>`;
+            btn.disabled = true;
+
+            // Disable the sibling button too
+            const siblingBtn = btn.nextElementSibling || btn.previousElementSibling;
+            if(siblingBtn) siblingBtn.disabled = true;
+
+            setTimeout(() => {
+                gsap.to(row, {
+                    opacity: 0,
+                    x: action === 'accept' ? 50 : -50,
+                    duration: 0.3,
+                    onComplete: () => {
+                        row.remove();
+                        if (action === 'accept') {
+                            showToast('Access granted and connection authenticated.', 'success');
+                        } else {
+                            showToast('Access request rejected and IP logged.', 'info');
+                        }
+                    }
+                });
+            }, 800);
+        }
+
+        // --- Initial Entry Animations ---
+        window.addEventListener("DOMContentLoaded", () => {
+            renderTableRows(logs);
+            renderChartBars();
+
+            gsap.fromTo(".gs-reveal",
+                { y: 20, opacity: 0 },
+                { y: 0, opacity: 1, duration: 0.8, stagger: 0.1, ease: "power2.out", delay: 0.1 }
+            );
+        });
+
+    </script>
+</body>
+</html>

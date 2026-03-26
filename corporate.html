@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aura | Premium Corporate Agency</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- GSAP for Animations -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif'],
+                    },
+                    colors: {
+                        zinc: {
+                            850: '#202022',
+                            900: '#18181b',
+                            950: '#09090b',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background-color: #09090b; /* zinc-950 */
+            color: #fafafa;
+            overflow-x: hidden;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #09090b; }
+        ::-webkit-scrollbar-thumb { background: #3f3f46; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #10b981; } /* emerald-500 */
+
+        /* Glass Cards */
+        .glass-card {
+            background: rgba(24, 24, 27, 0.4);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .glass-card:hover {
+            border-color: rgba(16, 185, 129, 0.3); /* emerald-500/30 */
+            background: rgba(24, 24, 27, 0.8);
+            transform: translateY(-6px);
+            box-shadow: 0 20px 40px -10px rgba(16, 185, 129, 0.1);
+        }
+
+        /* Infinite Marquee */
+        .marquee-container {
+            display: flex;
+            overflow: hidden;
+            user-select: none;
+            mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+            -webkit-mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+        }
+        .marquee-content {
+            display: flex;
+            flex-shrink: 0;
+            justify-content: space-around;
+            min-w-full;
+            animation: scroll 30s linear infinite;
+        }
+        @keyframes scroll {
+            from { transform: translateX(0); }
+            to { transform: translateX(-100%); }
+        }
+
+        /* Subtle Grid Background */
+        .bg-grid {
+            background-size: 40px 40px;
+            background-image: linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+                              linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+            mask-image: linear-gradient(to bottom, black 40%, transparent 100%);
+            -webkit-mask-image: linear-gradient(to bottom, black 40%, transparent 100%);
+        }
+
+        /* Glowing Orbs */
+        .orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.4;
+            z-index: -1;
+            pointer-events: none;
+        }
+        
+        /* Interactive Buttons */
+        .btn-primary {
+            background: #10b981;
+            color: #09090b;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .btn-primary::after {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%; width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: all 0.5s ease;
+        }
+        .btn-primary:hover::after {
+            left: 100%;
+        }
+        .btn-primary:hover {
+            background: #059669;
+            transform: scale(1.02);
+            box-shadow: 0 10px 25px -5px rgba(16, 185, 129, 0.4);
+        }
+
+        /* Loader */
+        .loader {
+            border: 2px solid rgba(9, 9, 11, 0.2);
+            border-top: 2px solid #09090b;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* Toast Notifications */
+        .toast-enter { animation: slideInUp 0.3s forwards cubic-bezier(0.16, 1, 0.3, 1); }
+        .toast-leave { animation: fadeOutDown 0.3s forwards; }
+        @keyframes slideInUp { from { transform: translateY(100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        @keyframes fadeOutDown { from { transform: translateY(0); opacity: 1; } to { transform: translateY(20px); opacity: 0; } }
+    </style>
+</head>
+<body class="antialiased selection:bg-emerald-500 selection:text-white relative">
+
+    <!-- Ambient Backgrounds -->
+    <div class="fixed inset-0 z-[-2] bg-zinc-950"></div>
+    <div class="fixed inset-0 z-[-1] bg-grid pointer-events-none h-[80vh]"></div>
+    <div class="orb bg-emerald-600 w-[500px] h-[500px] top-[-200px] right-[-100px] animate-[pulse_8s_ease-in-out_infinite]"></div>
+    <div class="orb bg-teal-800 w-[400px] h-[400px] top-[40%] left-[-150px] opacity-20"></div>
+
+    <!-- Toast Container -->
+    <div id="toast-container" class="fixed bottom-6 right-6 z-50 flex flex-col gap-3 pointer-events-none"></div>
+
+    <!-- Navigation -->
+    <nav class="fixed w-full z-40 bg-zinc-950/70 backdrop-blur-xl border-b border-white/5 transition-all duration-300" id="navbar">
+        <div class="max-w-7xl mx-auto px-6 md:px-12 h-24 flex justify-between items-center">
+            
+            <!-- Logo -->
+            <div class="flex items-center gap-3 cursor-pointer group" onclick="window.scrollTo(0,0)">
+                <div class="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-zinc-950 font-serif font-bold text-2xl group-hover:bg-emerald-500 group-hover:text-white transition-colors duration-300">
+                    A
+                </div>
+                <span class="font-serif font-bold tracking-wide text-2xl text-white">Aura.</span>
+            </div>
+            
+            <!-- Desktop Links -->
+            <div class="hidden lg:flex space-x-10 text-sm font-medium text-zinc-400">
+                <a href="#services" class="hover:text-white transition-colors">Expertise</a>
+                <a href="#work" class="hover:text-white transition-colors">Our Work</a>
+                <a href="#about" class="hover:text-white transition-colors">About Us</a>
+            </div>
+
+            <!-- CTA -->
+            <div class="flex items-center gap-6">
+                <button onclick="openModal()" class="hidden md:flex btn-primary px-6 py-2.5 rounded-full font-bold text-sm items-center gap-2">
+                    Let's Talk <i class="fas fa-arrow-right"></i>
+                </button>
+                <button class="lg:hidden text-white text-2xl" onclick="showToast('Mobile menu opened')"><i class="fas fa-bars"></i></button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main>
+        
+        <!-- Hero Section -->
+        <section class="relative pt-48 pb-20 md:pt-56 md:pb-32 px-6 md:px-12 max-w-7xl mx-auto flex flex-col items-center text-center">
+            <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-xs font-bold tracking-widest uppercase mb-8 text-emerald-400 hero-anim opacity-0 translate-y-4">
+                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> Premium Digital Agency
+            </div>
+            
+            <h1 class="font-serif text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight leading-[1.1] mb-8 text-white max-w-5xl hero-anim opacity-0 translate-y-8">
+                We build digital experiences that establish <span class="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-teal-200 italic">authority.</span>
+            </h1>
+            
+            <p class="text-lg md:text-xl text-zinc-400 mb-12 max-w-2xl hero-anim opacity-0 translate-y-4 leading-relaxed font-light">
+                Aura is a strategic design and engineering firm partnering with ambitious brands to craft high-conversion, flawlessly executed web platforms.
+            </p>
+            
+            <div class="flex flex-col sm:flex-row gap-4 hero-anim opacity-0 translate-y-4">
+                <button onclick="openModal()" class="btn-primary px-8 py-4 rounded-full font-bold text-base flex items-center justify-center gap-2">
+                    Book a Consultation <i class="fas fa-calendar-alt"></i>
+                </button>
+                <button onclick="document.getElementById('work').scrollIntoView()" class="px-8 py-4 rounded-full font-bold text-base bg-white/5 hover:bg-white/10 text-white border border-white/10 transition-colors flex items-center justify-center gap-2">
+                    View Case Studies
+                </button>
+            </div>
+        </section>
+
+        <!-- Trusted By Marquee -->
+        <section class="py-10 border-y border-white/5 bg-zinc-900/30 backdrop-blur-sm hero-anim opacity-0">
+            <p class="text-center text-xs font-bold uppercase tracking-widest text-zinc-500 mb-6">Trusted by industry leaders</p>
+            <div class="marquee-container max-w-7xl mx-auto px-6">
+                <!-- Group 1 -->
+                <div class="marquee-content gap-16 md:gap-32 items-center text-zinc-500 text-3xl md:text-4xl opacity-60">
+                    <i class="fab fa-aws hover:text-white transition-colors cursor-pointer" title="Amazon Web Services"></i>
+                    <i class="fab fa-stripe hover:text-white transition-colors cursor-pointer" title="Stripe"></i>
+                    <i class="fab fa-slack hover:text-white transition-colors cursor-pointer" title="Slack"></i>
+                    <i class="fab fa-figma hover:text-white transition-colors cursor-pointer" title="Figma"></i>
+                    <i class="fab fa-microsoft hover:text-white transition-colors cursor-pointer" title="Microsoft"></i>
+                    <i class="fab fa-google hover:text-white transition-colors cursor-pointer" title="Google"></i>
+                    <!-- Duplicates for seamless loop -->
+                    <i class="fab fa-aws hover:text-white transition-colors cursor-pointer"></i>
+                    <i class="fab fa-stripe hover:text-white transition-colors cursor-pointer"></i>
+                    <i class="fab fa-slack hover:text-white transition-colors cursor-pointer"></i>
+                </div>
+            </div>
+        </section>
+
+        <!-- Expertise / Services Section -->
+        <section id="services" class="py-24 md:py-32 max-w-7xl mx-auto px-6 md:px-12">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-16 gs-reveal">
+                <div class="max-w-2xl">
+                    <h2 class="font-serif text-4xl md:text-5xl font-bold text-white mb-4">Our Core Expertise</h2>
+                    <p class="text-zinc-400 text-lg font-light leading-relaxed">We don't just build websites; we architect comprehensive digital solutions designed to scale your business and outpace your competition.</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                
+                <!-- Service 1 -->
+                <div class="glass-card p-8 md:p-10 rounded-3xl flex flex-col group cursor-pointer gs-reveal" onclick="showToast('Learn more about Strategy')">
+                    <div class="w-14 h-14 rounded-2xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center text-2xl mb-8 group-hover:scale-110 group-hover:bg-emerald-500 group-hover:text-zinc-950 transition-all duration-300">
+                        <i class="fas fa-chess-knight"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold text-white mb-3 font-serif">Digital Strategy</h3>
+                    <p class="text-zinc-400 text-sm leading-relaxed mb-8 flex-1">Comprehensive market analysis, brand positioning, and technical roadmapping to ensure your digital presence drives measurable ROI.</p>
+                    <div class="flex items-center gap-2 text-sm font-bold text-emerald-400 group-hover:text-emerald-300 mt-auto">
+                        Explore Strategy <i class="fas fa-arrow-right transform group-hover:translate-x-2 transition-transform"></i>
+                    </div>
+                </div>
+
+                <!-- Service 2 -->
+                <div class="glass-card p-8 md:p-10 rounded-3xl flex flex-col group cursor-pointer gs-reveal" onclick="showToast('Learn more about Engineering')">
+                    <div class="w-14 h-14 rounded-2xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center text-2xl mb-8 group-hover:scale-110 group-hover:bg-emerald-500 group-hover:text-zinc-950 transition-all duration-300">
+                        <i class="fas fa-code"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold text-white mb-3 font-serif">Enterprise Engineering</h3>
+                    <p class="text-zinc-400 text-sm leading-relaxed mb-8 flex-1">Flawless, high-performance code architecture. We specialize in custom web applications, complex CMS integrations, and secure backend systems.</p>
+                    <div class="flex items-center gap-2 text-sm font-bold text-emerald-400 group-hover:text-emerald-300 mt-auto">
+                        Explore Engineering <i class="fas fa-arrow-right transform group-hover:translate-x-2 transition-transform"></i>
+                    </div>
+                </div>
+
+                <!-- Service 3 -->
+                <div class="glass-card p-8 md:p-10 rounded-3xl flex flex-col group cursor-pointer gs-reveal" onclick="showToast('Learn more about Design')">
+                    <div class="w-14 h-14 rounded-2xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center text-2xl mb-8 group-hover:scale-110 group-hover:bg-emerald-500 group-hover:text-zinc-950 transition-all duration-300">
+                        <i class="fas fa-pen-nib"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold text-white mb-3 font-serif">UI/UX Design</h3>
+                    <p class="text-zinc-400 text-sm leading-relaxed mb-8 flex-1">Stunning, user-centric interfaces that captivate your audience. We blend aesthetics with psychology to create frictionless user journeys.</p>
+                    <div class="flex items-center gap-2 text-sm font-bold text-emerald-400 group-hover:text-emerald-300 mt-auto">
+                        Explore Design <i class="fas fa-arrow-right transform group-hover:translate-x-2 transition-transform"></i>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- Stats Section -->
+        <section class="py-20 border-y border-white/5 bg-zinc-900/50 backdrop-blur-md relative overflow-hidden">
+            <div class="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(16,185,129,0.05)_0%,transparent_70%)] pointer-events-none"></div>
+            
+            <div class="max-w-7xl mx-auto px-6 md:px-12 grid grid-cols-1 md:grid-cols-3 gap-10 text-center relative z-10">
+                <div class="gs-reveal">
+                    <h3 class="text-5xl md:text-6xl font-bold text-white font-serif mb-2 flex justify-center items-center">
+                        <span class="counter" data-target="150">0</span>+
+                    </h3>
+                    <p class="text-sm font-bold uppercase tracking-widest text-emerald-400">Projects Delivered</p>
+                </div>
+                <div class="gs-reveal md:border-l md:border-white/10">
+                    <h3 class="text-5xl md:text-6xl font-bold text-white font-serif mb-2 flex justify-center items-center">
+                        $<span class="counter" data-target="45">0</span>M+
+                    </h3>
+                    <p class="text-sm font-bold uppercase tracking-widest text-emerald-400">Revenue Generated</p>
+                </div>
+                <div class="gs-reveal md:border-l md:border-white/10">
+                    <h3 class="text-5xl md:text-6xl font-bold text-white font-serif mb-2 flex justify-center items-center">
+                        <span class="counter" data-target="99">0</span>%
+                    </h3>
+                    <p class="text-sm font-bold uppercase tracking-widest text-emerald-400">Client Retention</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Selected Work / Real Case Studies -->
+        <section id="work" class="py-24 md:py-32 max-w-7xl mx-auto px-6 md:px-12">
+            <div class="text-center mb-16 gs-reveal">
+                <h2 class="font-serif text-4xl md:text-5xl font-bold text-white mb-4">Real Business Transformations</h2>
+                <p class="text-zinc-400 text-lg font-light max-w-2xl mx-auto">Read the actual stories of how we solved complex human frustrations and system bottlenecks for industry leaders.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                
+                <!-- Case Study 1 -->
+                <div class="group cursor-pointer gs-reveal" onclick="openCaseStudy('atlas')">
+                    <div class="w-full h-72 rounded-3xl bg-zinc-900 border border-white/10 overflow-hidden relative mb-6">
+                        <div class="absolute inset-0 bg-gradient-to-br from-emerald-900/40 to-zinc-950"></div>
+                        <div class="absolute inset-0 opacity-20 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI4IiBoZWlnaHQ9IjgiPgo8cmVjdCB3aWR0aD0iOCIgaGVpZ2h0PSI4IiBmaWxsPSIjZmZmIiBmaWxsLW9wYWNpdHk9IjAuMSI+PC9yZWN0Pgo8cGF0aCBkPSJNMCAwaDh2OEgweiIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMDAwIiBzdHJva2Utd2lkdGg9IjEiIG9wYWNpdHk9IjAuMSI+PC9wYXRoPgo8L3N2Zz4=')]"></div>
+                        
+                        <div class="absolute inset-0 flex items-center justify-center">
+                            <i class="fas fa-chart-pie text-6xl text-white/20 group-hover:scale-110 group-hover:text-emerald-400/50 transition-transform duration-700"></i>
+                        </div>
+
+                        <!-- Hover Overlay -->
+                        <div class="absolute inset-0 bg-zinc-950/80 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex flex-col items-center justify-center text-center p-6 border border-emerald-500/30 rounded-3xl">
+                            <span class="px-6 py-3 bg-emerald-500 text-zinc-950 font-bold rounded-full transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500">Read The Story</span>
+                        </div>
+                    </div>
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <h3 class="text-xl font-bold text-white font-serif mb-1 group-hover:text-emerald-400 transition-colors">Atlas Capital</h3>
+                            <p class="text-zinc-400 text-sm">Modernizing Wealth Management</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Case Study 2 -->
+                <div class="group cursor-pointer gs-reveal lg:translate-y-12" onclick="openCaseStudy('lumina')">
+                    <div class="w-full h-72 rounded-3xl bg-zinc-900 border border-white/10 overflow-hidden relative mb-6">
+                        <div class="absolute inset-0 bg-gradient-to-tr from-purple-900/40 to-zinc-950"></div>
+                        <div class="absolute inset-0 opacity-20 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI4IiBoZWlnaHQ9IjgiPgo8cmVjdCB3aWR0aD0iOCIgaGVpZ2h0PSI4IiBmaWxsPSIjZmZmIiBmaWxsLW9wYWNpdHk9IjAuMSI+PC9yZWN0Pgo8cGF0aCBkPSJNMCAwaDh2OEgweiIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMDAwIiBzdHJva2Utd2lkdGg9IjEiIG9wYWNpdHk9IjAuMSI+PC9wYXRoPgo8L3N2Zz4=')]"></div>
+                        
+                        <div class="absolute inset-0 flex items-center justify-center">
+                            <i class="fas fa-shopping-bag text-6xl text-white/20 group-hover:scale-110 group-hover:text-purple-400/50 transition-transform duration-700"></i>
+                        </div>
+
+                        <!-- Hover Overlay -->
+                        <div class="absolute inset-0 bg-zinc-950/80 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex flex-col items-center justify-center text-center p-6 border border-emerald-500/30 rounded-3xl">
+                            <span class="px-6 py-3 bg-emerald-500 text-zinc-950 font-bold rounded-full transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500">Read The Story</span>
+                        </div>
+                    </div>
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <h3 class="text-xl font-bold text-white font-serif mb-1 group-hover:text-emerald-400 transition-colors">Lumina Sustains</h3>
+                            <p class="text-zinc-400 text-sm">Saving Black Friday</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Case Study 3 -->
+                <div class="group cursor-pointer gs-reveal md:col-span-2 lg:col-span-1" onclick="openCaseStudy('oasis')">
+                    <div class="w-full h-72 rounded-3xl bg-zinc-900 border border-white/10 overflow-hidden relative mb-6">
+                        <div class="absolute inset-0 bg-gradient-to-bl from-blue-900/40 to-zinc-950"></div>
+                        <div class="absolute inset-0 opacity-20 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI4IiBoZWlnaHQ9IjgiPgo8cmVjdCB3aWR0aD0iOCIgaGVpZ2h0PSI4IiBmaWxsPSIjZmZmIiBmaWxsLW9wYWNpdHk9IjAuMSI+PC9yZWN0Pgo8cGF0aCBkPSJNMCAwaDh2OEgweiIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMDAwIiBzdHJva2Utd2lkdGg9IjEiIG9wYWNpdHk9IjAuMSI+PC9wYXRoPgo8L3N2Zz4=')]"></div>
+                        
+                        <div class="absolute inset-0 flex items-center justify-center">
+                            <i class="fas fa-heartbeat text-6xl text-white/20 group-hover:scale-110 group-hover:text-blue-400/50 transition-transform duration-700"></i>
+                        </div>
+
+                        <!-- Hover Overlay -->
+                        <div class="absolute inset-0 bg-zinc-950/80 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex flex-col items-center justify-center text-center p-6 border border-emerald-500/30 rounded-3xl">
+                            <span class="px-6 py-3 bg-emerald-500 text-zinc-950 font-bold rounded-full transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500">Read The Story</span>
+                        </div>
+                    </div>
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <h3 class="text-xl font-bold text-white font-serif mb-1 group-hover:text-emerald-400 transition-colors">Oasis Health</h3>
+                            <p class="text-zinc-400 text-sm">Telemedicine Made Human</p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- About Us Section (The Human Element) -->
+        <section id="about" class="py-24 md:py-32 border-t border-white/5 relative overflow-hidden">
+            <div class="max-w-7xl mx-auto px-6 md:px-12 flex flex-col lg:flex-row items-center gap-16">
+                
+                <!-- Left: Story -->
+                <div class="w-full lg:w-1/2 gs-reveal">
+                    <h2 class="font-serif text-4xl md:text-5xl font-bold text-white mb-6">The Humans Behind the Code.</h2>
+                    <p class="text-zinc-400 text-lg font-light leading-relaxed mb-6">
+                        Aura began in 2020 with a simple, frustrating observation: <strong class="text-white font-normal">enterprise software was being built for machines, not people.</strong> 
+                    </p>
+                    <p class="text-zinc-400 text-lg font-light leading-relaxed mb-6">
+                        Employees were burning out navigating bloated dashboards, and customers were abandoning carts because interfaces lacked empathy. We decided to fix that. Founded by a hybrid team of behavioral psychologists and systems engineers, we bridge the gap between heavy technical architecture and beautiful, intuitive human experiences.
+                    </p>
+                    <p class="text-zinc-400 text-lg font-light leading-relaxed mb-10">
+                        We don't use jargon to hide behind. We listen to the people using your product, we write clean code that scales, and we deliver tools that your team will actually love to use.
+                    </p>
+                    
+                    <div class="flex items-center gap-4">
+                        <img src="https://ui-avatars.com/api/?name=Elena+Vance&background=10b981&color=fff" class="w-14 h-14 rounded-full border-2 border-zinc-800">
+                        <div>
+                            <p class="text-white font-bold font-serif">Elena Vance</p>
+                            <p class="text-zinc-500 text-sm">Founder & Lead Strategist</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right: Interactive Team Grid -->
+                <div class="w-full lg:w-1/2 grid grid-cols-2 gap-4 gs-reveal relative">
+                    <div class="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(16,185,129,0.1)_0%,transparent_60%)] pointer-events-none blur-xl"></div>
+                    
+                    <div class="glass-card p-6 rounded-3xl text-center group cursor-pointer" onclick="showToast('Engineering Team: 14 Experts')">
+                        <div class="w-16 h-16 mx-auto bg-zinc-900 rounded-full border border-white/10 flex items-center justify-center mb-4 group-hover:border-emerald-500 transition-colors">
+                            <i class="fas fa-terminal text-2xl text-zinc-500 group-hover:text-emerald-400 transition-colors"></i>
+                        </div>
+                        <h4 class="text-white font-bold mb-1">Engineering</h4>
+                        <p class="text-xs text-zinc-500">React, Node, Go</p>
+                    </div>
+                    
+                    <div class="glass-card p-6 rounded-3xl text-center group cursor-pointer translate-y-6" onclick="showToast('Design Team: 8 Experts')">
+                        <div class="w-16 h-16 mx-auto bg-zinc-900 rounded-full border border-white/10 flex items-center justify-center mb-4 group-hover:border-emerald-500 transition-colors">
+                            <i class="fas fa-bezier-curve text-2xl text-zinc-500 group-hover:text-emerald-400 transition-colors"></i>
+                        </div>
+                        <h4 class="text-white font-bold mb-1">Design</h4>
+                        <p class="text-xs text-zinc-500">UI/UX, Research</p>
+                    </div>
+                    
+                    <div class="glass-card p-6 rounded-3xl text-center group cursor-pointer" onclick="showToast('Strategy Team: 5 Experts')">
+                        <div class="w-16 h-16 mx-auto bg-zinc-900 rounded-full border border-white/10 flex items-center justify-center mb-4 group-hover:border-emerald-500 transition-colors">
+                            <i class="fas fa-lightbulb text-2xl text-zinc-500 group-hover:text-emerald-400 transition-colors"></i>
+                        </div>
+                        <h4 class="text-white font-bold mb-1">Strategy</h4>
+                        <p class="text-xs text-zinc-500">Growth, Branding</p>
+                    </div>
+                    
+                    <div class="glass-card p-6 rounded-3xl text-center group cursor-pointer translate-y-6" onclick="showToast('Support Team: 24/7 Availability')">
+                        <div class="w-16 h-16 mx-auto bg-zinc-900 rounded-full border border-white/10 flex items-center justify-center mb-4 group-hover:border-emerald-500 transition-colors">
+                            <i class="fas fa-headset text-2xl text-zinc-500 group-hover:text-emerald-400 transition-colors"></i>
+                        </div>
+                        <h4 class="text-white font-bold mb-1">Client Success</h4>
+                        <p class="text-xs text-zinc-500">Always Online</p>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- CTA Section -->
+        <section class="py-24 relative overflow-hidden">
+            <div class="absolute inset-0 bg-emerald-600/10 border-t border-emerald-500/20"></div>
+            <div class="absolute inset-0 bg-[radial-gradient(circle_at_bottom,rgba(16,185,129,0.15)_0%,transparent_70%)] pointer-events-none"></div>
+            
+            <div class="max-w-4xl mx-auto px-6 text-center relative z-10 gs-reveal">
+                <h2 class="font-serif text-4xl md:text-6xl font-bold text-white mb-6">Ready to elevate your brand?</h2>
+                <p class="text-lg text-zinc-400 mb-10 max-w-2xl mx-auto font-light">Partner with Aura to build a digital presence that commands attention and drives sustainable growth.</p>
+                <button onclick="openModal()" class="btn-primary px-10 py-5 rounded-full font-bold text-lg inline-flex items-center gap-3 shadow-[0_0_30px_rgba(16,185,129,0.3)]">
+                    Start a Project <i class="fas fa-arrow-right"></i>
+                </button>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-zinc-950 border-t border-white/5 pt-20 pb-10 px-6 md:px-12">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-start gap-10 mb-16">
+            <div class="max-w-xs">
+                <div class="flex items-center gap-3 mb-6">
+                    <div class="w-8 h-8 rounded-lg bg-emerald-500 flex items-center justify-center text-zinc-950 font-serif font-bold text-xl">A</div>
+                    <span class="font-serif font-bold tracking-wide text-xl text-white">Aura.</span>
+                </div>
+                <p class="text-zinc-500 text-sm leading-relaxed mb-6">A premium digital agency focused on strategic design, enterprise engineering, and brand authority.</p>
+                <div class="flex gap-4">
+                    <a href="#" class="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center text-zinc-400 hover:text-white hover:bg-white/10 transition-colors"><i class="fab fa-twitter"></i></a>
+                    <a href="#" class="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center text-zinc-400 hover:text-white hover:bg-white/10 transition-colors"><i class="fab fa-linkedin-in"></i></a>
+                    <a href="#" class="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center text-zinc-400 hover:text-white hover:bg-white/10 transition-colors"><i class="fab fa-dribbble"></i></a>
+                </div>
+            </div>
+            
+            <div class="flex gap-16 flex-wrap">
+                <div>
+                    <h4 class="text-white font-bold mb-4 font-serif">Services</h4>
+                    <ul class="space-y-3 text-sm text-zinc-400">
+                        <li><a href="#" class="hover:text-emerald-400 transition-colors">Digital Strategy</a></li>
+                        <li><a href="#" class="hover:text-emerald-400 transition-colors">UI/UX Design</a></li>
+                        <li><a href="#" class="hover:text-emerald-400 transition-colors">Web Engineering</a></li>
+                        <li><a href="#" class="hover:text-emerald-400 transition-colors">Brand Identity</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-white font-bold mb-4 font-serif">Company</h4>
+                    <ul class="space-y-3 text-sm text-zinc-400">
+                        <li><a href="#about" class="hover:text-emerald-400 transition-colors">About Us</a></li>
+                        <li><a href="#work" class="hover:text-emerald-400 transition-colors">Case Studies</a></li>
+                        <li><a href="#" class="hover:text-emerald-400 transition-colors">Careers</a></li>
+                        <li><a href="#" class="hover:text-emerald-400 transition-colors">Contact</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <div class="max-w-7xl mx-auto border-t border-white/5 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-zinc-600">
+            <p>© 2026 Aura Digital Partners. All rights reserved.</p>
+            <div class="flex gap-6">
+                <a href="#" class="hover:text-white transition-colors">Privacy Policy</a>
+                <a href="#" class="hover:text-white transition-colors">Terms of Service</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Consultation Modal (Lead Gen) -->
+    <div id="contact-modal" class="fixed inset-0 z-50 flex items-center justify-center hidden">
+        <div class="absolute inset-0 bg-black/80 backdrop-blur-md cursor-pointer" onclick="closeModal()"></div>
+        
+        <div id="contact-modal-content" class="relative w-full max-w-3xl bg-zinc-950 border border-white/10 rounded-[2rem] shadow-2xl flex flex-col md:flex-row overflow-hidden opacity-0 scale-95 transform max-h-[95vh]">
+            
+            <!-- Left Info Panel -->
+            <div class="hidden md:flex w-2/5 bg-zinc-900 border-r border-white/5 p-10 flex-col justify-between relative overflow-hidden">
+                <div class="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(16,185,129,0.1)_0%,transparent_70%)] pointer-events-none"></div>
+                <div class="relative z-10">
+                    <h3 class="font-serif text-2xl font-bold text-white mb-2">Let's discuss your vision.</h3>
+                    <p class="text-sm text-zinc-400">Fill out the form and our strategic team will be in touch within 24 hours to schedule an introductory call.</p>
+                </div>
+                <div class="relative z-10 text-sm text-zinc-500 space-y-4">
+                    <p class="flex items-center gap-3"><i class="fas fa-envelope text-emerald-500"></i> hello@aurapartners.com</p>
+                    <p class="flex items-center gap-3"><i class="fas fa-map-marker-alt text-emerald-500"></i> New York, NY</p>
+                </div>
+            </div>
+
+            <!-- Right Form Panel -->
+            <div class="w-full md:w-3/5 p-8 md:p-10 overflow-y-auto custom-scrollbar bg-zinc-950 relative">
+                <button onclick="closeModal()" class="absolute top-6 right-6 w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 text-zinc-400 hover:text-white flex items-center justify-center transition-colors z-10">
+                    <i class="fas fa-times"></i>
+                </button>
+
+                <h3 class="md:hidden font-serif text-2xl font-bold text-white mb-6">Request a Consultation</h3>
+
+                <form id="lead-form" onsubmit="submitForm(event)" class="space-y-5 relative">
+                    
+                    <div class="grid grid-cols-2 gap-5">
+                        <div>
+                            <label class="block text-xs font-bold uppercase tracking-widest text-zinc-500 mb-2">First Name</label>
+                            <input type="text" required class="w-full bg-zinc-900 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-emerald-500/50 transition-colors placeholder-zinc-600" placeholder="John">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold uppercase tracking-widest text-zinc-500 mb-2">Last Name</label>
+                            <input type="text" required class="w-full bg-zinc-900 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-emerald-500/50 transition-colors placeholder-zinc-600" placeholder="Doe">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-widest text-zinc-500 mb-2">Work Email</label>
+                        <input type="email" required class="w-full bg-zinc-900 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-emerald-500/50 transition-colors placeholder-zinc-600" placeholder="john@company.com">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-widest text-zinc-500 mb-2">Project Budget</label>
+                        <div class="relative">
+                            <select class="w-full bg-zinc-900 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-emerald-500/50 transition-colors appearance-none cursor-pointer">
+                                <option>$10k - $25k</option>
+                                <option selected>$25k - $50k</option>
+                                <option>$50k - $100k</option>
+                                <option>$100k+</option>
+                            </select>
+                            <i class="fas fa-chevron-down absolute right-4 top-4 text-zinc-500 pointer-events-none text-xs"></i>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-widest text-zinc-500 mb-2">Project Details</label>
+                        <textarea required rows="3" class="w-full bg-zinc-900 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-emerald-500/50 transition-colors placeholder-zinc-600 resize-none custom-scrollbar" placeholder="Tell us briefly about your goals..."></textarea>
+                    </div>
+
+                    <button type="submit" id="submit-btn" class="w-full btn-primary py-4 rounded-xl font-bold text-base mt-2 flex items-center justify-center gap-2">
+                        Send Request <i class="fas fa-paper-plane"></i>
+                    </button>
+                </form>
+
+                <!-- Success State Overlay -->
+                <div id="form-success" class="absolute inset-0 bg-zinc-950 flex flex-col items-center justify-center text-center p-10 opacity-0 pointer-events-none z-20 transition-opacity duration-500">
+                    <div class="w-20 h-20 bg-emerald-500/10 border border-emerald-500/30 rounded-full flex items-center justify-center mb-6 shadow-[0_0_30px_rgba(16,185,129,0.2)]">
+                        <i class="fas fa-check text-4xl text-emerald-500"></i>
+                    </div>
+                    <h3 class="font-serif text-3xl font-bold text-white mb-2">Request Sent.</h3>
+                    <p class="text-zinc-400">Thank you for reaching out. A strategic director will contact you shortly.</p>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Case Study Interactive Modal -->
+    <div id="case-study-modal" class="fixed inset-0 z-[60] flex items-center justify-center hidden">
+        <div class="absolute inset-0 bg-black/90 backdrop-blur-md cursor-pointer" onclick="closeCaseStudy()"></div>
+        
+        <div id="case-study-content" class="relative w-full max-w-5xl bg-zinc-950 border border-white/10 rounded-[2rem] shadow-2xl flex flex-col md:flex-row overflow-hidden opacity-0 scale-95 transform h-[90vh] md:h-[80vh] m-4">
+            
+            <button onclick="closeCaseStudy()" class="absolute top-6 right-6 w-10 h-10 rounded-full bg-black/50 border border-white/10 hover:bg-black/80 text-zinc-400 hover:text-white flex items-center justify-center transition-colors z-20 backdrop-blur-sm">
+                <i class="fas fa-times"></i>
+            </button>
+
+            <!-- Visual Left Side -->
+            <div id="cs-visual" class="w-full md:w-2/5 bg-gradient-to-br from-emerald-900 to-zinc-950 flex items-center justify-center relative overflow-hidden shrink-0 h-48 md:h-full">
+                <div class="absolute inset-0 opacity-20 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI4IiBoZWlnaHQ9IjgiPgo8cmVjdCB3aWR0aD0iOCIgaGVpZ2h0PSI4IiBmaWxsPSIjZmZmIiBmaWxsLW9wYWNpdHk9IjAuMSI+PC9yZWN0Pgo8cGF0aCBkPSJNMCAwaDh2OEgweiIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMDAwIiBzdHJva2Utd2lkdGg9IjEiIG9wYWNpdHk9IjAuMSI+PC9wYXRoPgo8L3N2Zz4=')]"></div>
+                <i id="cs-icon" class="fas fa-chart-pie text-7xl text-white/20 relative z-10"></i>
+            </div>
+
+            <!-- Text Right Side -->
+            <div class="w-full md:w-3/5 p-8 md:p-12 overflow-y-auto custom-scrollbar bg-zinc-950">
+                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 text-[10px] font-bold tracking-widest uppercase mb-4 text-emerald-400 border border-emerald-500/20">
+                    Case Study
+                </div>
+                
+                <h2 id="cs-title" class="font-serif text-3xl md:text-4xl font-bold text-white mb-2">Company Name</h2>
+                <p id="cs-subtitle" class="text-lg text-zinc-400 mb-10 font-light border-b border-white/5 pb-6">Project Subtitle</p>
+
+                <div class="space-y-8">
+                    <div>
+                        <h4 class="text-sm font-bold uppercase tracking-widest text-zinc-500 mb-3 flex items-center gap-2">
+                            <i class="fas fa-exclamation-triangle text-orange-500"></i> The Human Frustration
+                        </h4>
+                        <p id="cs-challenge" class="text-zinc-300 leading-relaxed font-light">Challenge text goes here.</p>
+                    </div>
+
+                    <div>
+                        <h4 class="text-sm font-bold uppercase tracking-widest text-zinc-500 mb-3 flex items-center gap-2">
+                            <i class="fas fa-lightbulb text-emerald-500"></i> Our Architectural Solution
+                        </h4>
+                        <p id="cs-solution" class="text-zinc-300 leading-relaxed font-light">Solution text goes here.</p>
+                    </div>
+
+                    <div class="bg-zinc-900 border border-white/5 rounded-2xl p-6">
+                        <h4 class="text-sm font-bold uppercase tracking-widest text-zinc-500 mb-4 flex items-center gap-2">
+                            <i class="fas fa-chart-line text-blue-500"></i> The Business Impact
+                        </h4>
+                        <ul id="cs-results" class="space-y-3 text-zinc-300 font-light">
+                            <!-- Injected via JS -->
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="mt-10 flex justify-end">
+                    <button onclick="closeCaseStudy(); openModal();" class="text-emerald-400 hover:text-emerald-300 font-bold flex items-center gap-2 transition-colors">
+                        Start a similar project <i class="fas fa-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Core Logic -->
+    <script>
+        // --- Navbar Scroll Effect ---
+        window.addEventListener('scroll', () => {
+            const nav = document.getElementById('navbar');
+            if (window.scrollY > 50) {
+                nav.classList.add('shadow-lg', 'bg-zinc-950/90');
+                nav.classList.remove('bg-zinc-950/70');
+            } else {
+                nav.classList.remove('shadow-lg', 'bg-zinc-950/90');
+                nav.classList.add('bg-zinc-950/70');
+            }
+        });
+
+        // --- Custom Toast Notification ---
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            
+            let icon = '<i class="fas fa-info-circle text-emerald-400"></i>';
+            let border = 'border-l-emerald-500';
+
+            toast.className = `bg-zinc-900 border border-white/10 text-white px-5 py-3 rounded-xl shadow-2xl flex items-center gap-3 text-sm font-medium toast-enter pointer-events-auto border-l-4 ${border}`;
+            toast.innerHTML = `${icon} <span>${message}</span>`;
+            
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.classList.remove('toast-enter');
+                toast.classList.add('toast-leave');
+                setTimeout(() => toast.remove(), 300); 
+            }, 3000);
+        }
+
+        // --- Modal & Form Logic ---
+        function openModal() {
+            const modal = document.getElementById('contact-modal');
+            const content = document.getElementById('contact-modal-content');
+            
+            document.getElementById('lead-form').reset();
+            document.getElementById('form-success').classList.add('opacity-0', 'pointer-events-none');
+            
+            const btn = document.getElementById('submit-btn');
+            btn.innerHTML = `Send Request <i class="fas fa-paper-plane"></i>`;
+            btn.disabled = false;
+            btn.className = "w-full btn-primary py-4 rounded-xl font-bold text-base mt-2 flex items-center justify-center gap-2";
+
+            modal.classList.remove('hidden');
+            gsap.to(content, { opacity: 1, scale: 1, duration: 0.5, ease: "back.out(1.1)" });
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('contact-modal');
+            const content = document.getElementById('contact-modal-content');
+            gsap.to(content, { opacity: 0, scale: 0.95, duration: 0.3, ease: "power2.in", onComplete: () => modal.classList.add('hidden') });
+        }
+
+        function submitForm(e) {
+            e.preventDefault(); 
+            const btn = document.getElementById('submit-btn');
+            
+            btn.innerHTML = `<div class="loader border-zinc-950/20 border-t-zinc-950"></div> <span class="ml-2 text-zinc-950">Sending...</span>`;
+            btn.disabled = true;
+            btn.classList.add('opacity-90');
+
+            setTimeout(() => {
+                const successOverlay = document.getElementById('form-success');
+                successOverlay.classList.remove('opacity-0', 'pointer-events-none');
+                showToast('Consultation request submitted successfully.');
+
+                setTimeout(() => { closeModal(); }, 2500);
+            }, 1500);
+        }
+
+        // --- Interactive Case Studies Data & Logic ---
+        const caseStudiesDB = {
+            'atlas': {
+                title: "Atlas Capital",
+                subtitle: "Modernizing Wealth Management for Millennials",
+                challenge: "Atlas Capital, a 40-year-old financial firm, was entirely losing the millennial demographic. Their legacy web portal was intimidating, visually cluttered, and completely broken on mobile devices. Human advisors were burning out, spending over 60% of their time walking frustrated clients through basic UI tasks rather than giving financial advice.",
+                solution: "We didn't just redesign a dashboard; we completely reimagined the human journey of investing. By conducting 50+ interviews with young investors, we designed a calming, jargon-free, mobile-first interface. We engineered a secure, headless React frontend that completely hid the legacy backend complexity from the user.",
+                results: [
+                    "210% increase in new account creations under age 35.",
+                    "60% reduction in basic UI-related support calls.",
+                    "Human advisors reclaimed an average of 15 hours a week."
+                ],
+                gradient: "from-emerald-900 to-zinc-950",
+                icon: "fa-chart-pie"
+            },
+            'lumina': {
+                title: "Lumina Sustains",
+                subtitle: "Saving Black Friday with Headless Commerce",
+                challenge: "Lumina's legacy monolithic e-commerce site crashed completely during the previous Black Friday. The backend couldn't scale to meet the sudden traffic spikes, costing them hundreds of thousands in lost revenue. Internally, the marketing team was terrified to update the site because the monolithic codebase was too fragile.",
+                solution: "We decoupled their frontend from their backend. We migrated them to a blazing-fast Next.js frontend, powered by Shopify's headless API for the backend logic. We implemented static site generation (SSG) so the site could handle virtually infinite traffic without querying the database on every page load.",
+                results: [
+                    "0ms downtime during the subsequent Black Friday event.",
+                    "40% faster average page load times across all mobile devices.",
+                    "Marketing team can now deploy campaigns in minutes, not days."
+                ],
+                gradient: "from-purple-900 to-zinc-950",
+                icon: "fa-shopping-bag"
+            },
+            'oasis': {
+                title: "Oasis Health",
+                subtitle: "Telemedicine Made Human and Accessible",
+                challenge: "Oasis Health launched a powerful telehealth portal, but adoption among elderly patients was abysmal. The multi-step login process, tiny fonts, and confusing navigation paths were causing elderly users to abandon their appointments out of sheer technical frustration.",
+                solution: "We aggressively stripped away the complexity. We enlarged hit targets, increased contrast ratios for failing eyesight, and reduced the 'Join Appointment' flow from 7 clicks down to exactly 3. We implemented seamless SMS magic links so patients wouldn't have to remember complex passwords.",
+                results: [
+                    "85% drop in technical support calls from patients over 65.",
+                    "Telehealth appointment completion rate soared to 98%.",
+                    "Awarded 'Most Accessible App' by the National Health Board."
+                ],
+                gradient: "from-blue-900 to-zinc-950",
+                icon: "fa-heartbeat"
+            }
+        };
+
+        function openCaseStudy(id) {
+            const data = caseStudiesDB[id];
+            if (!data) return;
+
+            // Populate Modal
+            document.getElementById('cs-visual').className = `w-full md:w-2/5 bg-gradient-to-br ${data.gradient} flex items-center justify-center relative overflow-hidden shrink-0 h-48 md:h-full`;
+            document.getElementById('cs-icon').className = `fas ${data.icon} text-7xl text-white/20 relative z-10`;
+            
+            document.getElementById('cs-title').textContent = data.title;
+            document.getElementById('cs-subtitle').textContent = data.subtitle;
+            document.getElementById('cs-challenge').textContent = data.challenge;
+            document.getElementById('cs-solution').textContent = data.solution;
+            
+            const resultsList = document.getElementById('cs-results');
+            resultsList.innerHTML = data.results.map(res => `
+                <li class="flex items-start gap-3">
+                    <i class="fas fa-check-circle text-emerald-500 mt-1"></i>
+                    <span>${res}</span>
+                </li>
+            `).join('');
+
+            // Show Modal
+            const modal = document.getElementById('case-study-modal');
+            const content = document.getElementById('case-study-content');
+            modal.classList.remove('hidden');
+            gsap.to(content, { opacity: 1, scale: 1, duration: 0.5, ease: "power3.out" });
+        }
+
+        function closeCaseStudy() {
+            const modal = document.getElementById('case-study-modal');
+            const content = document.getElementById('case-study-content');
+            gsap.to(content, { opacity: 0, scale: 0.95, duration: 0.3, ease: "power2.in", onComplete: () => modal.classList.add('hidden') });
+        }
+
+        // --- Number Counter Animation ---
+        function runCounters() {
+            const counters = document.querySelectorAll('.counter');
+            
+            counters.forEach(counter => {
+                const target = +counter.getAttribute('data-target');
+                const obj = { val: 0 };
+                
+                gsap.to(obj, {
+                    val: target,
+                    duration: 2,
+                    ease: "power2.out",
+                    onUpdate: function() {
+                        counter.innerText = Math.floor(obj.val);
+                    }
+                });
+            });
+        }
+
+        // --- Initial Animations & ScrollTriggers ---
+        window.addEventListener("DOMContentLoaded", () => {
+            
+            // Hero Entrance
+            gsap.to(".hero-anim", {
+                y: 0,
+                opacity: 1,
+                duration: 1,
+                stagger: 0.15,
+                ease: "power3.out",
+                delay: 0.1
+            });
+
+            // Register ScrollTrigger Plugins
+            gsap.registerPlugin(ScrollTrigger);
+
+            // General Reveal
+            gsap.utils.toArray('.gs-reveal').forEach(function(elem) {
+                gsap.fromTo(elem, 
+                    { y: 30, opacity: 0 },
+                    {
+                        scrollTrigger: { trigger: elem, start: "top 85%" },
+                        y: 0,
+                        opacity: 1,
+                        duration: 0.8,
+                        ease: "power2.out"
+                    }
+                );
+            });
+
+            // Counter Trigger
+            ScrollTrigger.create({
+                trigger: ".counter",
+                start: "top 85%",
+                once: true,
+                onEnter: () => runCounters()
+            });
+        });
+
+    </script>
+</body>
+</html>

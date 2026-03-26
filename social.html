@@ -1,0 +1,956 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nexus | Next-Gen Social</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- GSAP for Animations -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        zinc: {
+                            850: '#202022',
+                            900: '#18181b',
+                            950: '#09090b',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background-color: #09090b; /* zinc-950 */
+            color: #fafafa;
+            overflow-x: hidden;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #3f3f46; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #ec4899; } /* pink-500 */
+
+        /* Glass Cards */
+        .glass-card {
+            background: rgba(24, 24, 27, 0.6);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: border-color 0.3s ease, background-color 0.3s ease;
+        }
+        .glass-card:hover {
+            border-color: rgba(236, 72, 153, 0.15); /* pink-500/15 */
+            background: rgba(24, 24, 27, 0.8);
+        }
+
+        /* Nav Item Hover */
+        .nav-item {
+            transition: all 0.3s ease;
+        }
+        .nav-item:hover, .nav-item.active {
+            background: rgba(236, 72, 153, 0.1);
+            color: #ec4899;
+            transform: translateX(4px);
+        }
+
+        /* Animations */
+        @keyframes popAnimation {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.4); }
+            100% { transform: scale(1); }
+        }
+        .liked i { animation: popAnimation 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; font-weight: 900; }
+        .reposted i { animation: popAnimation 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+        .bookmarked i { animation: popAnimation 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; font-weight: 900; }
+
+        /* Post Input Focus Expansion */
+        #post-input {
+            transition: height 0.3s ease, border-color 0.3s ease;
+        }
+        #post-input:focus {
+            height: 120px;
+            border-color: rgba(236, 72, 153, 0.5);
+        }
+
+        /* Ambient Background */
+        .ambient-glow {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: radial-gradient(circle at 50% 0%, rgba(236, 72, 153, 0.04) 0%, transparent 60%);
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        /* Toast Animations */
+        .toast-enter { animation: slideInUp 0.3s forwards cubic-bezier(0.16, 1, 0.3, 1); }
+        .toast-leave { animation: fadeOutDown 0.3s forwards; }
+        @keyframes slideInUp { from { transform: translateY(100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        @keyframes fadeOutDown { from { transform: translateY(0); opacity: 1; } to { transform: translateY(20px); opacity: 0; } }
+    </style>
+</head>
+<body class="antialiased min-h-screen relative selection:bg-pink-500 selection:text-white">
+
+    <div class="ambient-glow"></div>
+    <div id="toast-container" class="fixed bottom-6 right-6 z-50 flex flex-col gap-3 pointer-events-none"></div>
+
+    <div class="max-w-[1400px] mx-auto flex justify-center w-full min-h-screen relative">
+
+        <!-- Left Sidebar (Navigation) -->
+        <aside class="hidden sm:flex flex-col w-20 xl:w-64 h-screen sticky top-0 pt-6 pb-6 px-4 border-r border-white/5 z-20">
+
+            <!-- Logo -->
+            <div class="flex items-center gap-4 px-2 xl:px-4 mb-10 cursor-pointer" onclick="window.scrollTo(0,0); closeAllSectionModals(); setActiveNav(document.getElementById('nav-home'), 'Home Feed')">
+                <div class="w-10 h-10 rounded-xl bg-pink-600 flex items-center justify-center text-white font-bold text-2xl shadow-[0_0_20px_rgba(236,72,153,0.3)] shrink-0">
+                    <i class="fas fa-layer-group text-lg"></i>
+                </div>
+                <span class="font-extrabold tracking-tight text-xl hidden xl:block text-white">Nexus</span>
+            </div>
+
+            <!-- Nav Links -->
+            <nav class="flex flex-col gap-2 flex-1" id="main-nav">
+                <a href="#" id="nav-home" onclick="closeAllSectionModals(); setActiveNav(this, 'Home Feed')" class="nav-item active flex items-center gap-4 px-4 py-3.5 rounded-xl text-zinc-400 font-semibold text-[15px]">
+                    <i class="fas fa-home text-xl w-6 text-center"></i>
+                    <span class="hidden xl:block">Home</span>
+                </a>
+                <a href="#" onclick="setActiveNav(this, 'Explore'); openSectionModal('explore-modal')" class="nav-item flex items-center gap-4 px-4 py-3.5 rounded-xl text-zinc-400 font-semibold text-[15px] hover:text-white">
+                    <i class="fas fa-compass text-xl w-6 text-center"></i>
+                    <span class="hidden xl:block">Explore</span>
+                </a>
+                <a href="#" onclick="setActiveNav(this, 'Notifications'); hideNotificationBadge(this); openSectionModal('notif-modal')" class="nav-item flex items-center gap-4 px-4 py-3.5 rounded-xl text-zinc-400 font-semibold text-[15px] hover:text-white relative">
+                    <i class="fas fa-bell text-xl w-6 text-center"></i>
+                    <span class="hidden xl:block">Notifications</span>
+                    <span id="notif-badge" class="absolute top-3 left-8 w-2.5 h-2.5 bg-pink-500 rounded-full border-2 border-zinc-950"></span>
+                </a>
+                <a href="#" onclick="setActiveNav(this, 'Messages'); openSectionModal('msg-modal')" class="nav-item flex items-center gap-4 px-4 py-3.5 rounded-xl text-zinc-400 font-semibold text-[15px] hover:text-white">
+                    <i class="fas fa-envelope text-xl w-6 text-center"></i>
+                    <span class="hidden xl:block">Messages</span>
+                </a>
+                <a href="#" onclick="setActiveNav(this, 'Bookmarks'); openSectionModal('bookmark-modal')" class="nav-item flex items-center gap-4 px-4 py-3.5 rounded-xl text-zinc-400 font-semibold text-[15px] hover:text-white">
+                    <i class="fas fa-bookmark text-xl w-6 text-center"></i>
+                    <span class="hidden xl:block">Bookmarks</span>
+                </a>
+                <a href="#" onclick="setActiveNav(this, 'Profile'); openSectionModal('profile-modal')" class="nav-item flex items-center gap-4 px-4 py-3.5 rounded-xl text-zinc-400 font-semibold text-[15px] hover:text-white">
+                    <i class="fas fa-user text-xl w-6 text-center"></i>
+                    <span class="hidden xl:block">Profile</span>
+                </a>
+            </nav>
+
+            <!-- Post Button -->
+            <button onclick="closeAllSectionModals(); document.getElementById('post-input').focus();" class="mt-auto w-full py-4 bg-pink-600 text-white font-bold rounded-xl hover:bg-pink-500 transition-all shadow-[0_0_20px_rgba(236,72,153,0.2)] flex items-center justify-center gap-2 transform active:scale-95">
+                <i class="fas fa-feather-alt"></i>
+                <span class="hidden xl:block">Create Post</span>
+            </button>
+
+            <!-- User Profile Snippet -->
+            <div onclick="setActiveNav(document.querySelectorAll('.nav-item')[5], 'Profile'); openSectionModal('profile-modal')" class="mt-6 flex items-center gap-3 px-2 xl:px-4 py-3 rounded-xl hover:bg-white/5 cursor-pointer transition-colors">
+                <img src="https://ui-avatars.com/api/?name=Shinyy&background=ec4899&color=fff" class="w-10 h-10 rounded-full border border-pink-500/30 shrink-0">
+                <div class="hidden xl:block flex-1 min-w-0">
+                    <h4 class="text-sm font-bold text-white truncate">Shinyy</h4>
+                    <p class="text-xs text-zinc-500 truncate">@shinyy_dev</p>
+                </div>
+                <i class="fas fa-ellipsis-h text-zinc-500 hidden xl:block"></i>
+            </div>
+        </aside>
+
+        <!-- Center Feed -->
+        <main class="flex-1 w-full max-w-[650px] border-r border-white/5 min-h-screen relative">
+
+            <!-- Mobile Header -->
+            <div class="sm:hidden flex justify-between items-center p-4 border-b border-white/5 bg-zinc-950/80 backdrop-blur-md sticky top-0 z-30">
+                <div class="w-8 h-8 rounded-lg bg-pink-600 flex items-center justify-center text-white font-bold text-lg" onclick="closeAllSectionModals()">
+                    <i class="fas fa-layer-group"></i>
+                </div>
+                <span id="mobile-header-title" class="font-bold text-lg">Home</span>
+                <img src="https://ui-avatars.com/api/?name=Shinyy&background=ec4899&color=fff" class="w-8 h-8 rounded-full cursor-pointer" onclick="setActiveNavMobile(document.querySelectorAll('.nav-item-mobile')[4], 'Profile'); openSectionModal('profile-modal')">
+            </div>
+
+            <!-- Feed Header -->
+            <div class="hidden sm:block p-6 border-b border-white/5 bg-zinc-950/80 backdrop-blur-md sticky top-0 z-30">
+                <h2 id="desktop-header-title" class="text-xl font-bold tracking-tight text-white">Home Feed</h2>
+            </div>
+
+            <!-- Create Post Box -->
+            <div class="p-6 border-b border-white/5 bg-zinc-900/30">
+                <div class="flex gap-4">
+                    <img src="https://ui-avatars.com/api/?name=Shinyy&background=ec4899&color=fff" class="w-12 h-12 rounded-full border border-pink-500/30 shrink-0 shadow-lg">
+                    <div class="flex-1">
+                        <textarea id="post-input" class="w-full bg-zinc-900/50 border border-white/10 rounded-xl p-4 text-white placeholder-zinc-500 focus:outline-none resize-none h-[60px] custom-scrollbar text-lg" placeholder="What's architecting in your mind?"></textarea>
+
+                        <!-- Image Upload Preview Container -->
+                        <div id="image-preview-container" class="hidden mt-3 relative">
+                            <img id="image-preview" src="" class="rounded-xl border border-white/10 max-h-64 w-full object-cover shadow-lg">
+                            <button onclick="clearImagePreview()" class="absolute top-2 right-2 bg-black/60 hover:bg-black/80 text-white w-8 h-8 rounded-full flex items-center justify-center transition-colors backdrop-blur-sm">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+
+                        <!-- Hidden File Input -->
+                        <input type="file" id="image-upload" hidden accept="image/*" onchange="handleImageUpload(event)">
+
+                        <div class="flex justify-between items-center mt-4 pt-4 border-t border-white/5">
+                            <div class="flex gap-2 text-pink-500">
+                                <button onclick="document.getElementById('image-upload').click()" class="w-9 h-9 rounded-full hover:bg-pink-500/20 flex items-center justify-center transition-colors" title="Upload Image"><i class="far fa-image"></i></button>
+                                <button onclick="showToast('GIF selector opened')" class="w-9 h-9 rounded-full hover:bg-pink-500/20 flex items-center justify-center transition-colors" title="Add GIF"><i class="fas fa-film"></i></button>
+                                <button onclick="showToast('Emoji picker opened')" class="w-9 h-9 rounded-full hover:bg-pink-500/20 flex items-center justify-center transition-colors" title="Add Emoji"><i class="far fa-smile"></i></button>
+                                <button onclick="showToast('Poll creator opened')" class="w-9 h-9 rounded-full hover:bg-pink-500/20 flex items-center justify-center transition-colors" title="Create Poll"><i class="fas fa-poll-h"></i></button>
+                            </div>
+                            <button onclick="submitPost()" class="px-6 py-2 bg-pink-600 text-white font-bold rounded-full hover:bg-pink-500 transition-all shadow-[0_0_15px_rgba(236,72,153,0.3)] transform active:scale-95">Post</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Feed Container -->
+            <div id="feed-container" class="flex flex-col">
+                <!-- Posts will be injected here -->
+            </div>
+
+            <div class="py-10 flex justify-center">
+                <div class="w-6 h-6 border-2 border-pink-500/30 border-t-pink-500 rounded-full animate-spin"></div>
+            </div>
+
+        </main>
+
+        <!-- Right Sidebar (Widgets) -->
+        <aside class="hidden lg:flex flex-col w-[350px] sticky top-0 h-screen pt-6 pb-6 px-6 z-20">
+
+            <!-- Search -->
+            <div class="relative mb-8 group">
+                <div class="absolute inset-y-0 left-4 flex items-center pointer-events-none">
+                    <i class="fas fa-search text-zinc-500 group-focus-within:text-pink-500 transition-colors"></i>
+                </div>
+                <input type="text" class="w-full bg-zinc-900 border border-white/5 rounded-full py-3 pl-11 pr-4 text-white placeholder-zinc-500 focus:outline-none focus:border-pink-500/50 transition-all" placeholder="Search Nexus...">
+            </div>
+
+            <!-- Trending Widget -->
+            <div class="glass-card rounded-2xl p-5 mb-6">
+                <h3 class="font-extrabold text-lg mb-4 text-white">Trending Architectures</h3>
+
+                <div class="flex flex-col gap-4">
+                    <div class="cursor-pointer group" onclick="showToast('Browsing #FullStackMastery')">
+                        <p class="text-xs text-zinc-500 mb-0.5 flex justify-between">1 · Tech · Trending <i class="fas fa-ellipsis-h opacity-0 group-hover:opacity-100 transition-opacity"></i></p>
+                        <h4 class="font-bold text-white group-hover:text-pink-400 transition-colors">#FullStackMastery</h4>
+                        <p class="text-xs text-zinc-500 mt-0.5">24.5K posts</p>
+                    </div>
+                    <div class="cursor-pointer group" onclick="showToast('Browsing Discord Automation')">
+                        <p class="text-xs text-zinc-500 mb-0.5 flex justify-between">2 · Development <i class="fas fa-ellipsis-h opacity-0 group-hover:opacity-100 transition-opacity"></i></p>
+                        <h4 class="font-bold text-white group-hover:text-pink-400 transition-colors">Discord Automation</h4>
+                        <p class="text-xs text-zinc-500 mt-0.5">18.2K posts</p>
+                    </div>
+                    <div class="cursor-pointer group" onclick="showToast('Browsing UI Glassmorphism')">
+                        <p class="text-xs text-zinc-500 mb-0.5 flex justify-between">3 · Design <i class="fas fa-ellipsis-h opacity-0 group-hover:opacity-100 transition-opacity"></i></p>
+                        <h4 class="font-bold text-white group-hover:text-pink-400 transition-colors">UI Glassmorphism</h4>
+                        <p class="text-xs text-zinc-500 mt-0.5">12.1K posts</p>
+                    </div>
+                </div>
+                <button class="w-full text-left mt-4 text-pink-500 text-sm hover:text-pink-400 transition-colors" onclick="showToast('Loading more trends...')">Show more</button>
+            </div>
+
+            <!-- Who to Follow Widget -->
+            <div class="glass-card rounded-2xl p-5">
+                <h3 class="font-extrabold text-lg mb-4 text-white">Suggested Connections</h3>
+
+                <div class="flex flex-col gap-4">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-3 cursor-pointer group" onclick="showToast('Viewing @alex_eng profile')">
+                            <img src="https://ui-avatars.com/api/?name=Alex&background=3b82f6&color=fff" class="w-10 h-10 rounded-full border border-white/10">
+                            <div>
+                                <h4 class="text-sm font-bold text-white group-hover:underline">Alex Engineer</h4>
+                                <p class="text-xs text-zinc-500">@alex_eng</p>
+                            </div>
+                        </div>
+                        <button onclick="toggleFollow(this)" class="px-4 py-1.5 bg-white text-black text-sm font-bold rounded-full hover:bg-zinc-200 transition-colors shadow-sm">Follow</button>
+                    </div>
+
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-3 cursor-pointer group" onclick="showToast('Viewing @ui_sarah profile')">
+                            <img src="https://ui-avatars.com/api/?name=Sarah&background=10b981&color=fff" class="w-10 h-10 rounded-full border border-white/10">
+                            <div>
+                                <h4 class="text-sm font-bold text-white group-hover:underline">Sarah Design</h4>
+                                <p class="text-xs text-zinc-500">@ui_sarah</p>
+                            </div>
+                        </div>
+                        <button onclick="toggleFollow(this)" class="px-4 py-1.5 bg-white text-black text-sm font-bold rounded-full hover:bg-zinc-200 transition-colors shadow-sm">Follow</button>
+                    </div>
+                </div>
+            </div>
+
+            <footer class="mt-6 px-4 text-xs text-zinc-600 flex flex-wrap gap-x-4 gap-y-2">
+                <a href="#" class="hover:underline">Terms of Service</a>
+                <a href="#" class="hover:underline">Privacy Policy</a>
+                <a href="#" class="hover:underline">Cookie Policy</a>
+                <a href="#" class="hover:underline">Accessibility</a>
+                <span class="w-full mt-2">© 2026 Nexus Platform</span>
+            </footer>
+        </aside>
+
+        <!-- Mobile Bottom Nav -->
+        <nav class="sm:hidden fixed bottom-0 w-full bg-zinc-950/90 backdrop-blur-md border-t border-white/5 flex justify-around p-3 z-30" id="mobile-nav">
+            <button id="mob-nav-home" onclick="closeAllSectionModals(); setActiveNavMobile(this, 'Home Feed')" class="nav-item-mobile text-pink-500 text-xl"><i class="fas fa-home"></i></button>
+            <button onclick="setActiveNavMobile(this, 'Search'); openSectionModal('explore-modal')" class="nav-item-mobile text-zinc-500 hover:text-pink-400 transition-colors text-xl"><i class="fas fa-search"></i></button>
+            <button onclick="setActiveNavMobile(this, 'Notifications'); hideNotificationBadge(document.getElementById('notif-badge')); openSectionModal('notif-modal')" class="nav-item-mobile text-zinc-500 hover:text-pink-400 transition-colors text-xl relative">
+                <i class="fas fa-bell"></i>
+                <span class="absolute top-0 right-[-4px] w-2 h-2 bg-pink-500 rounded-full"></span>
+            </button>
+            <button onclick="setActiveNavMobile(this, 'Messages'); openSectionModal('msg-modal')" class="nav-item-mobile text-zinc-500 hover:text-pink-400 transition-colors text-xl"><i class="fas fa-envelope"></i></button>
+            <button onclick="setActiveNavMobile(this, 'Profile'); openSectionModal('profile-modal')" class="nav-item-mobile text-zinc-500 hover:text-pink-400 transition-colors text-xl hidden"><i class="fas fa-user"></i></button>
+        </nav>
+
+    </div>
+
+    <!-- ================= MODALS CONTAINER ================= -->
+    <div id="section-modals-wrapper" class="fixed inset-0 z-50 flex items-center justify-center hidden pointer-events-none">
+
+        <!-- Shared Backdrop -->
+        <div id="modal-backdrop" class="absolute inset-0 bg-black/80 backdrop-blur-sm opacity-0 transition-opacity duration-300 pointer-events-auto cursor-pointer" onclick="closeAllSectionModals()"></div>
+
+        <!-- 1. PROFILE MODAL -->
+        <div id="profile-modal" class="section-modal absolute w-full max-w-2xl bg-zinc-950 border border-white/10 rounded-2xl shadow-2xl overflow-hidden flex flex-col opacity-0 scale-95 pointer-events-none hidden max-h-[85vh]">
+            <div class="h-36 bg-gradient-to-r from-pink-600 to-purple-600 w-full relative shrink-0">
+                <button onclick="closeAllSectionModals()" class="absolute top-4 right-4 bg-black/40 hover:bg-black/60 backdrop-blur text-white w-8 h-8 rounded-full flex items-center justify-center transition-colors">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="px-6 relative pb-6 flex-1 overflow-y-auto custom-scrollbar">
+                <img src="https://ui-avatars.com/api/?name=Shinyy&background=ec4899&color=fff" class="w-32 h-32 rounded-full border-4 border-zinc-950 absolute -top-16 bg-zinc-950 shadow-xl">
+
+                <div class="flex justify-end pt-4 mb-4">
+                    <button class="px-5 py-1.5 border border-white/20 rounded-full text-white font-bold hover:bg-white/10 transition-colors">Edit Profile</button>
+                </div>
+
+                <h3 class="font-extrabold text-2xl text-white">Shinyy</h3>
+                <p class="text-zinc-500 mb-4">@shinyy_dev</p>
+
+                <p class="text-zinc-300 mb-4 leading-relaxed">Full Stack Web Engineer & Discord Automation Master. Building high-performance ecosystems and scalable bots. Code is architecture.</p>
+
+                <div class="flex gap-4 text-sm text-zinc-500 mb-6">
+                    <span class="flex items-center gap-1"><i class="fas fa-map-marker-alt"></i> Dhaka, BD</span>
+                    <span class="flex items-center gap-1"><i class="fas fa-link"></i> <a href="#" class="text-pink-500 hover:underline">shinyy.dev</a></span>
+                    <span class="flex items-center gap-1"><i class="far fa-calendar-alt"></i> Joined Jan 2023</span>
+                </div>
+
+                <div class="flex gap-6 text-sm mb-6 border-b border-white/5 pb-6">
+                    <span class="text-zinc-500"><strong class="text-white">1,024</strong> Following</span>
+                    <span class="text-zinc-500"><strong class="text-white">12.5K</strong> Followers</span>
+                </div>
+
+                <h4 class="font-bold text-white mb-4">Pinned Post</h4>
+                <!-- Pinned Post Preview -->
+                <div class="p-4 border border-white/10 rounded-xl bg-zinc-900/50 hover:bg-zinc-900 transition-colors">
+                    <div class="flex items-center gap-2 mb-2">
+                        <img src="https://ui-avatars.com/api/?name=Shinyy&background=ec4899&color=fff" class="w-6 h-6 rounded-full">
+                        <span class="font-bold text-white text-sm">Shinyy</span>
+                        <span class="text-xs text-zinc-500">Pinned</span>
+                    </div>
+                    <p class="text-sm text-zinc-300">Welcome to my profile. I specialize in taking incredibly complex ideas and turning them into seamless digital realities.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. EXPLORE MODAL -->
+        <div id="explore-modal" class="section-modal absolute w-full max-w-2xl h-[80vh] bg-zinc-950 border border-white/10 rounded-2xl shadow-2xl flex flex-col opacity-0 scale-95 pointer-events-none hidden">
+            <div class="p-4 border-b border-white/5 flex items-center gap-4 sticky top-0 bg-zinc-950/90 backdrop-blur z-10">
+                <button onclick="closeAllSectionModals()" class="w-8 h-8 flex items-center justify-center text-zinc-400 hover:text-white transition-colors rounded-full hover:bg-white/10 shrink-0"><i class="fas fa-arrow-left"></i></button>
+                <div class="relative flex-1 group">
+                    <i class="fas fa-search absolute left-4 top-3 text-zinc-500 group-focus-within:text-pink-500"></i>
+                    <input type="text" class="w-full bg-zinc-900 border border-white/5 rounded-full py-2.5 pl-11 pr-4 text-white placeholder-zinc-500 focus:outline-none focus:border-pink-500/50" placeholder="Search topics, tags, or users...">
+                </div>
+            </div>
+            <div class="flex-1 overflow-y-auto custom-scrollbar p-6">
+                <h3 class="font-bold text-xl text-white mb-6">Trending Near You</h3>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="p-4 border border-white/10 rounded-xl bg-zinc-900/30 hover:bg-zinc-900 transition-colors cursor-pointer">
+                        <p class="text-xs text-zinc-500 mb-1">1 · Tech</p>
+                        <h4 class="font-bold text-white text-lg">#FullStackMastery</h4>
+                        <p class="text-sm text-zinc-400 mt-1">24.5K posts trending</p>
+                    </div>
+                    <div class="p-4 border border-white/10 rounded-xl bg-zinc-900/30 hover:bg-zinc-900 transition-colors cursor-pointer">
+                        <p class="text-xs text-zinc-500 mb-1">2 · Development</p>
+                        <h4 class="font-bold text-white text-lg">Discord APIs</h4>
+                        <p class="text-sm text-zinc-400 mt-1">18.2K posts trending</p>
+                    </div>
+                    <div class="p-4 border border-white/10 rounded-xl bg-zinc-900/30 hover:bg-zinc-900 transition-colors cursor-pointer">
+                        <p class="text-xs text-zinc-500 mb-1">3 · Design</p>
+                        <h4 class="font-bold text-white text-lg">Glassmorphism</h4>
+                        <p class="text-sm text-zinc-400 mt-1">12.1K posts trending</p>
+                    </div>
+                    <div class="p-4 border border-white/10 rounded-xl bg-zinc-900/30 hover:bg-zinc-900 transition-colors cursor-pointer">
+                        <p class="text-xs text-zinc-500 mb-1">4 · AI</p>
+                        <h4 class="font-bold text-white text-lg">Generative Models</h4>
+                        <p class="text-sm text-zinc-400 mt-1">9.8K posts trending</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. NOTIFICATIONS MODAL -->
+        <div id="notif-modal" class="section-modal absolute w-full max-w-xl h-[75vh] bg-zinc-950 border border-white/10 rounded-2xl shadow-2xl flex flex-col opacity-0 scale-95 pointer-events-none hidden">
+            <div class="p-4 border-b border-white/5 flex items-center justify-between sticky top-0 bg-zinc-950/90 backdrop-blur z-10">
+                <div class="flex items-center gap-4">
+                    <button onclick="closeAllSectionModals()" class="w-8 h-8 flex items-center justify-center text-zinc-400 hover:text-white transition-colors rounded-full hover:bg-white/10 shrink-0"><i class="fas fa-arrow-left"></i></button>
+                    <h3 class="font-bold text-xl text-white">Notifications</h3>
+                </div>
+                <button class="text-zinc-500 hover:text-white text-sm"><i class="fas fa-cog"></i></button>
+            </div>
+            <div class="flex-1 overflow-y-auto custom-scrollbar">
+
+                <div class="p-4 border-b border-white/5 hover:bg-zinc-900/50 flex gap-4 cursor-pointer">
+                    <i class="fas fa-heart text-2xl text-pink-500 pt-1 w-8 text-center"></i>
+                    <div>
+                        <img src="https://ui-avatars.com/api/?name=Alex&background=3b82f6&color=fff" class="w-8 h-8 rounded-full mb-2">
+                        <p class="text-white"><strong class="font-bold">Alex Engineer</strong> liked your post.</p>
+                        <p class="text-zinc-500 text-sm mt-1">"Just deployed the new microservices..."</p>
+                    </div>
+                </div>
+
+                <div class="p-4 border-b border-white/5 hover:bg-zinc-900/50 flex gap-4 cursor-pointer">
+                    <i class="fas fa-user text-2xl text-blue-500 pt-1 w-8 text-center"></i>
+                    <div>
+                        <img src="https://ui-avatars.com/api/?name=Sarah&background=10b981&color=fff" class="w-8 h-8 rounded-full mb-2">
+                        <p class="text-white"><strong class="font-bold">Sarah Design</strong> followed you.</p>
+                    </div>
+                </div>
+
+                <div class="p-4 border-b border-white/5 hover:bg-zinc-900/50 flex gap-4 cursor-pointer">
+                    <i class="fas fa-retweet text-2xl text-green-500 pt-1 w-8 text-center"></i>
+                    <div>
+                        <img src="https://ui-avatars.com/api/?name=System+Admin&background=18181b&color=fff" class="w-8 h-8 rounded-full mb-2">
+                        <p class="text-white"><strong class="font-bold">System Admin</strong> reposted your architecture breakdown.</p>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- 4. MESSAGES MODAL -->
+        <div id="msg-modal" class="section-modal absolute w-full max-w-2xl h-[80vh] bg-zinc-950 border border-white/10 rounded-2xl shadow-2xl flex flex-col opacity-0 scale-95 pointer-events-none hidden">
+            <div class="p-4 border-b border-white/5 flex items-center justify-between sticky top-0 bg-zinc-950/90 backdrop-blur z-10">
+                <div class="flex items-center gap-4">
+                    <button onclick="closeAllSectionModals()" class="w-8 h-8 flex items-center justify-center text-zinc-400 hover:text-white transition-colors rounded-full hover:bg-white/10 shrink-0"><i class="fas fa-arrow-left"></i></button>
+                    <h3 class="font-bold text-xl text-white">Messages</h3>
+                </div>
+                <button class="w-8 h-8 rounded-full hover:bg-white/10 flex items-center justify-center text-white"><i class="far fa-envelope"></i></button>
+            </div>
+
+            <div class="p-4 border-b border-white/5">
+                <div class="relative group">
+                    <i class="fas fa-search absolute left-4 top-2.5 text-zinc-500"></i>
+                    <input type="text" class="w-full bg-zinc-900 border border-white/5 rounded-full py-2 pl-11 pr-4 text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-pink-500/50" placeholder="Search Direct Messages">
+                </div>
+            </div>
+
+            <div class="flex-1 overflow-y-auto custom-scrollbar">
+
+                <div class="flex items-center justify-between p-4 border-b border-white/5 hover:bg-zinc-900/50 cursor-pointer">
+                    <div class="flex gap-3 items-center w-full">
+                        <img src="https://ui-avatars.com/api/?name=Sarah&background=10b981&color=fff" class="w-12 h-12 rounded-full shrink-0">
+                        <div class="flex-1 min-w-0">
+                            <div class="flex justify-between items-center mb-0.5">
+                                <h4 class="font-bold text-white truncate">Sarah Design <span class="text-zinc-500 font-normal text-sm">@ui_sarah</span></h4>
+                                <span class="text-xs text-zinc-500">10m</span>
+                            </div>
+                            <p class="text-sm text-zinc-400 truncate">Hey! I love the new glassmorphism UI you posted. Would love to collab!</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-between p-4 border-b border-white/5 hover:bg-zinc-900/50 cursor-pointer">
+                    <div class="flex gap-3 items-center w-full">
+                        <img src="https://ui-avatars.com/api/?name=System+Admin&background=18181b&color=fff" class="w-12 h-12 rounded-full shrink-0">
+                        <div class="flex-1 min-w-0">
+                            <div class="flex justify-between items-center mb-0.5">
+                                <h4 class="font-bold text-white truncate">System Admin <span class="text-zinc-500 font-normal text-sm">@sys_admin</span></h4>
+                                <span class="text-xs text-zinc-500">Yesterday</span>
+                            </div>
+                            <p class="text-sm text-zinc-500 truncate">Deployment was fully successful. Zero downtime.</p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- 5. BOOKMARKS MODAL -->
+        <div id="bookmark-modal" class="section-modal absolute w-full max-w-xl h-[75vh] bg-zinc-950 border border-white/10 rounded-2xl shadow-2xl flex flex-col opacity-0 scale-95 pointer-events-none hidden">
+            <div class="p-4 border-b border-white/5 flex items-center justify-between sticky top-0 bg-zinc-950/90 backdrop-blur z-10">
+                <div class="flex items-center gap-4">
+                    <button onclick="closeAllSectionModals()" class="w-8 h-8 flex items-center justify-center text-zinc-400 hover:text-white transition-colors rounded-full hover:bg-white/10 shrink-0"><i class="fas fa-arrow-left"></i></button>
+                    <div>
+                        <h3 class="font-bold text-xl text-white">Bookmarks</h3>
+                        <p class="text-xs text-zinc-500">@shinyy_dev</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex-1 flex flex-col items-center justify-center text-center p-8">
+                <div class="w-20 h-20 bg-pink-500/10 rounded-full flex items-center justify-center mb-6">
+                    <i class="fas fa-bookmark text-4xl text-pink-500"></i>
+                </div>
+                <h3 class="font-bold text-2xl text-white mb-2">Save posts for later</h3>
+                <p class="text-zinc-400 max-w-sm">Don't let good architectures get lost in the feed. Bookmark posts to easily find them again in the future.</p>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // --- Mock Data ---
+        let currentUploadedImage = null;
+
+        const initialPosts = [
+            {
+                id: 1,
+                name: "System Admin",
+                handle: "@sys_admin",
+                avatar: "https://ui-avatars.com/api/?name=System+Admin&background=18181b&color=fff",
+                time: "2h",
+                content: "Just deployed the new microservices architecture. The latency drop is absolutely insane. Full Stack really is an art form. 🚀💻",
+                likes: 342,
+                comments: 45,
+                reposts: 12,
+                isLiked: false,
+                isReposted: false,
+                isBookmarked: false
+            },
+            {
+                id: 2,
+                name: "UI Collective",
+                handle: "@uicollective",
+                avatar: "https://ui-avatars.com/api/?name=UI&background=db2777&color=fff",
+                time: "5h",
+                content: "Glassmorphism is evolving. We are seeing a trend towards darker, more muted background blurs combined with highly saturated, singular accent colors. What do you think?",
+                image: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1000&auto=format&fit=crop", // Abstract placeholder
+                likes: 891,
+                comments: 120,
+                reposts: 54,
+                isLiked: false,
+                isReposted: false,
+                isBookmarked: false
+            },
+            {
+                id: 3,
+                name: "Bot Architect",
+                handle: "@discord_engineer",
+                avatar: "https://ui-avatars.com/api/?name=Bot&background=5865F2&color=fff",
+                time: "12h",
+                content: "A properly structured Discord bot shouldn't just respond to commands; it should seamlessly integrate into the server's ecosystem, automating the tedious and elevating the interactive.",
+                likes: 512,
+                comments: 32,
+                reposts: 88,
+                isLiked: true, // Pre-liked to show the state
+                isReposted: false,
+                isBookmarked: false
+            }
+        ];
+
+        const feedContainer = document.getElementById('feed-container');
+
+        // --- Render Posts ---
+        function createPostElement(post) {
+            const div = document.createElement('div');
+            div.className = "p-6 border-b border-white/5 hover:bg-white/[0.02] transition-colors gs-post opacity-0";
+
+            const imgHtml = post.image ? `
+                <div class="mt-4 rounded-2xl overflow-hidden border border-white/10 shadow-lg">
+                    <div class="max-h-96 w-full bg-zinc-800 animate-pulse relative" id="loader-${post.id}">
+                        <img src="${post.image}" alt="Post image" class="w-full h-full object-cover opacity-0 transition-opacity duration-500" onload="this.classList.remove('opacity-0'); document.getElementById('loader-${post.id}').classList.remove('animate-pulse');">
+                    </div>
+                </div>
+            ` : '';
+
+            // Icon states
+            const likeIconClass = post.isLiked ? 'fas fa-heart' : 'far fa-heart';
+            const likeColorClass = post.isLiked ? 'text-pink-500 liked' : 'hover:text-pink-500';
+
+            const repostColorClass = post.isReposted ? 'text-green-500 reposted' : 'hover:text-green-400';
+            const bookmarkIconClass = post.isBookmarked ? 'fas fa-bookmark text-pink-500 bookmarked' : 'far fa-bookmark hover:text-pink-400';
+
+            div.innerHTML = `
+                <div class="flex gap-4">
+                    <img src="${post.avatar}" class="w-12 h-12 rounded-full border border-white/10 shrink-0 cursor-pointer" onclick="showToast('Viewing ${post.handle} profile')">
+                    <div class="flex-1 min-w-0">
+                        <!-- Header -->
+                        <div class="flex justify-between items-start">
+                            <div class="flex items-center gap-2 truncate cursor-pointer group" onclick="showToast('Viewing ${post.handle} profile')">
+                                <h4 class="font-bold text-white group-hover:underline truncate">${post.name}</h4>
+                                <span class="text-sm text-zinc-500 truncate">${post.handle} · ${post.time}</span>
+                            </div>
+                            <button onclick="showToast('Post options')" class="text-zinc-500 hover:text-pink-500 w-8 h-8 rounded-full hover:bg-pink-500/10 flex items-center justify-center transition-colors shrink-0">
+                                <i class="fas fa-ellipsis-h"></i>
+                            </button>
+                        </div>
+
+                        <!-- Content -->
+                        <p class="text-zinc-300 mt-1 text-[15px] leading-relaxed whitespace-pre-wrap">${post.content}</p>
+
+                        ${imgHtml}
+
+                        <!-- Actions -->
+                        <div class="flex justify-between mt-4 text-zinc-500 text-sm max-w-md">
+                            <button onclick="toggleCommentSection(${post.id})" class="flex items-center gap-2 hover:text-blue-400 transition-colors group">
+                                <div class="w-8 h-8 rounded-full group-hover:bg-blue-400/10 flex items-center justify-center transition-colors"><i class="far fa-comment"></i></div>
+                                <span id="comment-count-${post.id}">${post.comments}</span>
+                            </button>
+                            <button onclick="toggleRepost(this)" class="flex items-center gap-2 transition-colors group ${repostColorClass}">
+                                <div class="w-8 h-8 rounded-full group-hover:bg-green-400/10 flex items-center justify-center transition-colors"><i class="fas fa-retweet transition-all"></i></div>
+                                <span class="repost-count">${post.reposts}</span>
+                            </button>
+                            <button onclick="toggleLike(this)" class="flex items-center gap-2 transition-colors group ${likeColorClass} like-btn">
+                                <div class="w-8 h-8 rounded-full group-hover:bg-pink-500/10 flex items-center justify-center transition-colors"><i class="${likeIconClass} transition-all"></i></div>
+                                <span class="like-count">${post.likes}</span>
+                            </button>
+                            <button onclick="showToast('View post analytics')" class="flex items-center gap-2 hover:text-blue-400 transition-colors group">
+                                <div class="w-8 h-8 rounded-full group-hover:bg-blue-500/10 flex items-center justify-center transition-colors"><i class="far fa-chart-bar"></i></div>
+                            </button>
+                            <button onclick="toggleBookmark(this)" class="flex items-center gap-2 transition-colors group">
+                                <div class="w-8 h-8 rounded-full group-hover:bg-pink-500/10 flex items-center justify-center transition-colors"><i class="${bookmarkIconClass} transition-all"></i></div>
+                            </button>
+                        </div>
+
+                        <!-- Expandable Comment Section -->
+                        <div id="comments-section-${post.id}" class="hidden mt-4 pt-4 border-t border-white/5">
+                            <div class="flex gap-3 items-center">
+                                <img src="https://ui-avatars.com/api/?name=Shinyy&background=ec4899&color=fff" class="w-8 h-8 rounded-full border border-white/10 shrink-0">
+                                <div class="flex-1 flex bg-zinc-900 border border-white/10 rounded-full overflow-hidden focus-within:border-pink-500/50 transition-colors">
+                                    <input type="text" id="comment-input-${post.id}" class="flex-1 bg-transparent px-4 py-2 text-sm text-white focus:outline-none" placeholder="Post your reply...">
+                                    <button onclick="submitComment(${post.id})" class="px-4 py-2 bg-transparent text-pink-500 hover:text-pink-400 font-bold text-sm transition-colors">Reply</button>
+                                </div>
+                            </div>
+                            <!-- Appended Comments Go Here -->
+                            <div id="comments-list-${post.id}" class="mt-4 space-y-4 pl-11"></div>
+                        </div>
+
+                    </div>
+                </div>
+            `;
+            return div;
+        }
+
+        // Render initial posts
+        initialPosts.forEach(post => {
+            const el = createPostElement(post);
+            feedContainer.appendChild(el);
+        });
+
+        // --- Interactive Logic ---
+
+        // Image Upload Handlers
+        function handleImageUpload(event) {
+            const file = event.target.files[0];
+            if (file) {
+                // Show a fake loading toast
+                showToast('Uploading image...');
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    currentUploadedImage = e.target.result;
+                    document.getElementById('image-preview').src = currentUploadedImage;
+                    document.getElementById('image-preview-container').classList.remove('hidden');
+                }
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function clearImagePreview() {
+            currentUploadedImage = null;
+            document.getElementById('image-preview').src = '';
+            document.getElementById('image-preview-container').classList.add('hidden');
+            document.getElementById('image-upload').value = ''; // Reset input
+        }
+
+        // --- MODAL & NAV LOGIC ---
+        function openSectionModal(modalId) {
+            const wrapper = document.getElementById('section-modals-wrapper');
+            const backdrop = document.getElementById('modal-backdrop');
+            const targetModal = document.getElementById(modalId);
+
+            // Hide any currently open modals inside the wrapper
+            document.querySelectorAll('.section-modal').forEach(m => {
+                m.classList.add('hidden', 'pointer-events-none');
+                gsap.set(m, { opacity: 0, scale: 0.95 });
+            });
+
+            // Show wrapper & backdrop
+            wrapper.classList.remove('hidden', 'pointer-events-none');
+            setTimeout(() => backdrop.classList.remove('opacity-0'), 10);
+
+            // Show & animate target modal
+            targetModal.classList.remove('hidden');
+            targetModal.classList.remove('pointer-events-none');
+            targetModal.classList.add('pointer-events-auto');
+
+            gsap.to(targetModal, {
+                opacity: 1, scale: 1, duration: 0.4, ease: "back.out(1.1)"
+            });
+        }
+
+        function closeAllSectionModals() {
+            const wrapper = document.getElementById('section-modals-wrapper');
+            const backdrop = document.getElementById('modal-backdrop');
+
+            // Animate modals out
+            document.querySelectorAll('.section-modal:not(.hidden)').forEach(m => {
+                gsap.to(m, {
+                    opacity: 0, scale: 0.95, duration: 0.2, ease: "power2.in",
+                    onComplete: () => {
+                        m.classList.add('hidden', 'pointer-events-none');
+                    }
+                });
+            });
+
+            // Fade out backdrop and hide wrapper
+            backdrop.classList.add('opacity-0');
+            setTimeout(() => {
+                wrapper.classList.add('hidden', 'pointer-events-none');
+
+                // Reset Nav active state back to Home if we closed modals
+                setActiveNav(document.getElementById('nav-home'), 'Home Feed');
+                if(window.innerWidth < 640) { // mobile reset
+                    setActiveNavMobile(document.getElementById('mob-nav-home'), 'Home Feed');
+                }
+            }, 300);
+        }
+
+        // Navigation Active States
+        function setActiveNav(element, title) {
+            if(!element) return;
+            // Desktop
+            const navItems = document.querySelectorAll('#main-nav .nav-item');
+            navItems.forEach(nav => {
+                nav.classList.remove('active', 'text-pink-500');
+                nav.classList.add('text-zinc-400');
+                nav.style.background = 'transparent';
+            });
+
+            element.classList.add('active');
+
+            // Update Headers (only if we are going to Home, otherwise modal covers it)
+            if(title === 'Home Feed') {
+                document.getElementById('desktop-header-title').textContent = title;
+                document.getElementById('mobile-header-title').textContent = 'Home';
+            }
+        }
+
+        function setActiveNavMobile(element, title) {
+            if(!element) return;
+            const navItems = document.querySelectorAll('.nav-item-mobile');
+            navItems.forEach(nav => {
+                nav.classList.remove('text-pink-500');
+                nav.classList.add('text-zinc-500');
+            });
+
+            element.classList.add('text-pink-500');
+            element.classList.remove('text-zinc-500');
+
+            if(title === 'Home Feed') {
+                document.getElementById('mobile-header-title').textContent = 'Home';
+            }
+        }
+
+        function hideNotificationBadge() {
+            const badge1 = document.getElementById('notif-badge');
+            if(badge1) badge1.style.display = 'none';
+        }
+
+        // Action Toggles
+        function toggleLike(btn) {
+            const icon = btn.querySelector('i');
+            const countSpan = btn.querySelector('.like-count');
+            const isCurrentlyLiked = btn.classList.contains('liked');
+
+            if (isCurrentlyLiked) {
+                btn.classList.remove('liked', 'text-pink-500');
+                btn.classList.add('hover:text-pink-500');
+                icon.className = 'far fa-heart transition-all';
+                countSpan.textContent = parseInt(countSpan.textContent) - 1;
+            } else {
+                btn.classList.add('liked', 'text-pink-500');
+                btn.classList.remove('hover:text-pink-500');
+                icon.className = 'fas fa-heart transition-all';
+                countSpan.textContent = parseInt(countSpan.textContent) + 1;
+            }
+        }
+
+        function toggleRepost(btn) {
+            const countSpan = btn.querySelector('.repost-count');
+            const isReposted = btn.classList.contains('reposted');
+
+            if (isReposted) {
+                btn.classList.remove('reposted', 'text-green-500');
+                btn.classList.add('hover:text-green-400');
+                countSpan.textContent = parseInt(countSpan.textContent) - 1;
+                showToast('Removed Repost');
+            } else {
+                btn.classList.add('reposted', 'text-green-500');
+                btn.classList.remove('hover:text-green-400');
+                countSpan.textContent = parseInt(countSpan.textContent) + 1;
+                showToast('Reposted successfully');
+            }
+        }
+
+        function toggleBookmark(btn) {
+            const icon = btn.querySelector('i');
+            const isBookmarked = icon.classList.contains('fas');
+
+            if (isBookmarked) {
+                icon.className = 'far fa-bookmark hover:text-pink-400 transition-all';
+                icon.classList.remove('text-pink-500', 'bookmarked');
+                showToast('Removed from Bookmarks');
+            } else {
+                icon.className = 'fas fa-bookmark text-pink-500 bookmarked transition-all';
+                showToast('Saved to Bookmarks');
+            }
+        }
+
+        function toggleFollow(btn) {
+            if (btn.textContent === 'Follow') {
+                btn.textContent = 'Following';
+                btn.classList.remove('bg-white', 'text-black', 'hover:bg-zinc-200');
+                btn.classList.add('bg-transparent', 'border', 'border-white/20', 'text-white', 'hover:border-pink-500', 'hover:text-pink-500');
+                showToast('Followed user');
+            } else {
+                btn.textContent = 'Follow';
+                btn.classList.add('bg-white', 'text-black', 'hover:bg-zinc-200');
+                btn.classList.remove('bg-transparent', 'border', 'border-white/20', 'text-white', 'hover:border-pink-500', 'hover:text-pink-500');
+                showToast('Unfollowed user');
+            }
+        }
+
+        // Comment System
+        function toggleCommentSection(postId) {
+            const section = document.getElementById(`comments-section-${postId}`);
+            if (section.classList.contains('hidden')) {
+                section.classList.remove('hidden');
+                document.getElementById(`comment-input-${postId}`).focus();
+            } else {
+                section.classList.add('hidden');
+            }
+        }
+
+        function submitComment(postId) {
+            const input = document.getElementById(`comment-input-${postId}`);
+            const text = input.value.trim();
+            if (!text) return;
+
+            const commentsList = document.getElementById(`comments-list-${postId}`);
+
+            // Build Comment HTML
+            const commentHtml = `
+                <div class="flex gap-3 text-sm animate-[slideInUp_0.3s_ease-out]">
+                    <img src="https://ui-avatars.com/api/?name=Shinyy&background=ec4899&color=fff" class="w-6 h-6 rounded-full">
+                    <div>
+                        <div class="bg-zinc-900 border border-white/5 rounded-2xl rounded-tl-none px-4 py-2">
+                            <span class="font-bold text-white mr-1">Shinyy</span>
+                            <span class="text-zinc-300">${text}</span>
+                        </div>
+                        <div class="text-xs text-zinc-500 mt-1 ml-2 flex gap-3">
+                            <button class="hover:text-pink-500 font-bold transition-colors">Like</button>
+                            <span>Just now</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // Prepend comment
+            commentsList.insertAdjacentHTML('afterbegin', commentHtml);
+
+            // Update counter
+            const countSpan = document.getElementById(`comment-count-${postId}`);
+            countSpan.textContent = parseInt(countSpan.textContent) + 1;
+
+            // Clear input
+            input.value = '';
+            showToast('Reply posted');
+        }
+
+        // Submit New Post
+        function submitPost() {
+            const input = document.getElementById('post-input');
+            const text = input.value.trim();
+
+            if (!text && !currentUploadedImage) return; // Must have text or image
+
+            const newPost = {
+                id: Date.now(),
+                name: "Shinyy",
+                handle: "@shinyy_dev",
+                avatar: "https://ui-avatars.com/api/?name=Shinyy&background=ec4899&color=fff",
+                time: "Just now",
+                content: text,
+                image: currentUploadedImage, // Attach image if exists
+                likes: 0,
+                comments: 0,
+                reposts: 0,
+                isLiked: false,
+                isReposted: false,
+                isBookmarked: false
+            };
+
+            const postEl = createPostElement(newPost);
+
+            // Prepend to feed container
+            feedContainer.insertBefore(postEl, feedContainer.firstChild);
+
+            // Clear inputs
+            input.value = '';
+            input.blur();
+            clearImagePreview();
+
+            // Animate new post sliding down
+            gsap.fromTo(postEl,
+                { opacity: 0, y: -20, height: 0, margin: 0, padding: 0 },
+                { opacity: 1, y: 0, height: 'auto', margin: '', padding: '', duration: 0.5, ease: "power3.out" }
+            );
+
+            showToast('Post published successfully');
+        }
+
+        // --- Custom Toast Notification ---
+        function showToast(message) {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+
+            toast.className = `bg-pink-600 text-white px-5 py-3 rounded-xl shadow-[0_10px_30px_-10px_rgba(236,72,153,0.5)] flex items-center gap-3 text-sm font-bold toast-enter border border-pink-400/30 z-[100]`;
+            toast.innerHTML = `
+                <i class="fas fa-check-circle"></i>
+                <span>${message}</span>
+            `;
+
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.classList.remove('toast-enter');
+                toast.classList.add('toast-leave');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // --- Initial Animations ---
+        window.addEventListener("DOMContentLoaded", () => {
+            gsap.fromTo(".gs-post",
+                { y: 20, opacity: 0 },
+                { y: 0, opacity: 1, duration: 0.6, stagger: 0.1, ease: "power2.out", delay: 0.2 }
+            );
+        });
+
+    </script>
+</body>
+</html>
