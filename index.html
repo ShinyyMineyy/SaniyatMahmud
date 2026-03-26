@@ -1319,9 +1319,18 @@
                 elem.addEventListener('mouseenter', () => { rect = elem.getBoundingClientRect(); }, { passive: true });
                 elem.addEventListener('mousemove', (e) => {
                     if(!rect) rect = elem.getBoundingClientRect(); 
-                    const strength = elem.dataset.strength || 20; 
-                    const moveX = (e.clientX - (rect.left + rect.width / 2)) / (rect.width / 2) * strength;
-                    const moveY = (e.clientY - (rect.top + rect.height / 2)) / (rect.height / 2) * strength;
+                    
+                    // Reduce the raw pulling strength by 70% for a much subtler effect
+                    const strength = (elem.dataset.strength || 20) * 0.3; 
+                    
+                    let moveX = (e.clientX - (rect.left + rect.width / 2)) / (rect.width / 2) * strength;
+                    let moveY = (e.clientY - (rect.top + rect.height / 2)) / (rect.height / 2) * strength;
+                    
+                    // STRICT CLAMP: Force the button to never move more than 15 pixels in any direction
+                    const maxDist = 15;
+                    moveX = Math.max(-maxDist, Math.min(maxDist, moveX));
+                    moveY = Math.max(-maxDist, Math.min(maxDist, moveY));
+
                     gsap.to(elem, { x: moveX, y: moveY, duration: 0.5, ease: "power3.out" });
                 }, { passive: true });
                 elem.addEventListener('mouseleave', () => {
