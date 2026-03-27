@@ -3,9 +3,731 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Command Center</title>
+    <title>SHINYY | Zero-Trust Command Center</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- GSAP for Animations -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;700&family=Manrope:wght@700;800&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { 
+                        sans: ['Inter', 'sans-serif'], 
+                        display: ['Manrope', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace']
+                    },
+                    colors: {
+                        sec: {
+                            bg: '#030712',      
+                            surface: '#0f172a', 
+                            border: '#1e293b',  
+                            accent: '#0d9488',  
+                            accentHover: '#14b8a6', 
+                            alert: '#e11d48',   
+                            warn: '#d97706',    
+                            text: '#94a3b8'     
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body { background-color: #030712; color: #f8fafc; overflow: hidden; }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #334155; }
+
+        /* Grid Background Pattern */
+        .bg-grid {
+            background-image: linear-gradient(to right, rgba(13, 148, 136, 0.05) 1px, transparent 1px),
+                              linear-gradient(to bottom, rgba(13, 148, 136, 0.05) 1px, transparent 1px);
+            background-size: 40px 40px;
+        }
+
+        /* Toast Animation */
+        .toast-enter { animation: toastIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+        .toast-leave { animation: toastOut 0.3s ease-in forwards; }
+        @keyframes toastIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        @keyframes toastOut { from { transform: translateX(0); opacity: 1; } to { transform: translateX(100%); opacity: 0; } }
+
+        /* Camera Static Effect */
+        .static-noise {
+            background-image: url('data:image/svg+xml;utf8,%3Csvg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="noiseFilter"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="3" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="100%25" height="100%25" filter="url(%23noiseFilter)" opacity="0.15"/%3E%3C/svg%3E');
+        }
+
+        /* Terminal Line Animation */
+        .term-line { animation: fadeUp 0.2s ease-out forwards; }
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* View Switching */
+        .view-section { animation: fadeIn 0.3s ease-out forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Custom Toggle */
+        .toggle-checkbox:checked { right: 0; border-color: #0d9488; }
+        .toggle-checkbox:checked + .toggle-label { background-color: #0d9488; }
+
+        /* Hologram World Map */
+        .hologram-map {
+            background-image: url('https://upload.wikimedia.org/wikipedia/commons/8/80/World_map_-_low_resolution.svg');
+            background-size: contain;
+            background-position: center;
+            background-repeat: no-repeat;
+            filter: invert(1) sepia(1) saturate(5) hue-rotate(130deg) brightness(0.8) opacity(0.3) drop-shadow(0 0 10px rgba(13,148,136,0.8));
+        }
+    </style>
 </head>
-<body>
-    <!-- Content will be added later -->
+<body class="h-screen w-screen flex antialiased bg-grid relative">
+
+    <!-- TOAST NOTIFICATION CONTAINER -->
+    <div id="toast-container" class="fixed top-6 right-6 z-[100] flex flex-col gap-3 pointer-events-none"></div>
+
+    <!-- VISUAL FEED MODAL (CAMERA/SCREEN) -->
+    <div id="camera-modal" class="fixed inset-0 bg-black/95 z-[90] hidden flex-col items-center justify-center opacity-0 transition-opacity duration-500 backdrop-blur-md">
+        <div class="absolute top-6 right-6 z-50">
+            <button onclick="closeCameraFeed()" class="w-12 h-12 rounded-full border border-sec-border bg-sec-surface hover:bg-sec-border text-white flex items-center justify-center transition-all cursor-pointer group">
+                <i class="fas fa-times group-hover:rotate-90 transition-transform duration-300"></i>
+            </button>
+        </div>
+        
+        <div class="w-full max-w-5xl aspect-video bg-black border border-sec-border rounded-2xl relative overflow-hidden shadow-[0_0_50px_rgba(13,148,136,0.15)] ring-1 ring-sec-accent/20">
+            <!-- Cinematic Placeholder Image -->
+            <div class="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1544197150-b99a580bb7a8?q=80&w=2000')] bg-cover bg-center opacity-40 mix-blend-luminosity"></div>
+            <div class="absolute inset-0 static-noise pointer-events-none mix-blend-overlay"></div>
+            <div class="absolute inset-0 bg-gradient-to-t from-sec-bg via-transparent to-sec-bg opacity-80 pointer-events-none"></div>
+            
+            <div class="absolute top-6 left-6 flex items-center gap-3">
+                <div class="w-3 h-3 rounded-full bg-sec-alert animate-pulse shadow-[0_0_10px_rgba(225,29,72,0.8)]"></div>
+                <span class="font-mono text-sec-alert font-bold tracking-widest text-sm uppercase">P2P ENCRYPTED STREAM</span>
+            </div>
+            
+            <div class="absolute top-6 right-6 font-mono text-sec-accent text-sm flex flex-col items-end">
+                <span id="cam-ip">192.168.1.104</span>
+                <span class="opacity-50 text-xs">BITRATE: 4.2 MB/s</span>
+            </div>
+
+            <div class="absolute inset-0 flex items-center justify-center pointer-events-none opacity-30">
+                <div class="w-64 h-64 border border-sec-accent/50 rounded-full relative">
+                    <div class="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-1 h-4 bg-sec-accent"></div>
+                    <div class="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2 w-1 h-4 bg-sec-accent"></div>
+                    <div class="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1/2 w-4 h-1 bg-sec-accent"></div>
+                    <div class="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 w-4 h-1 bg-sec-accent"></div>
+                </div>
+            </div>
+
+            <div class="absolute bottom-6 left-6 font-mono text-white/50 text-xs">
+                NODE_ID: <span id="cam-node" class="text-white">NODE-04</span><br>
+                AUTH: BYPASS_ACTIVE
+            </div>
+        </div>
+    </div>
+
+    <!-- NODE DETAILS MODAL -->
+    <div id="node-modal" class="fixed inset-0 bg-sec-bg/80 backdrop-blur-sm z-[80] hidden flex items-center justify-center opacity-0 transition-opacity duration-300">
+        <div class="bg-sec-surface w-[900px] rounded-2xl border border-sec-border shadow-2xl transform scale-95 transition-transform duration-300 flex flex-col overflow-hidden" id="node-modal-content">
+            
+            <div class="h-16 border-b border-sec-border px-6 flex justify-between items-center bg-sec-surface relative overflow-hidden">
+                <div class="absolute top-0 left-0 w-full h-1 bg-sec-accent"></div>
+                <div class="flex items-center gap-3">
+                    <i class="fas fa-server text-sec-accent text-xl"></i>
+                    <div>
+                        <h2 class="text-white font-bold tracking-wide" id="modal-node-name">NODE-04 (DESKTOP-X9)</h2>
+                        <p class="text-xs font-mono text-sec-accent" id="modal-node-ip">192.168.1.104</p>
+                    </div>
+                </div>
+                <button onclick="closeNodeModal()" class="text-sec-text hover:text-white transition-colors w-8 h-8 rounded hover:bg-sec-border flex items-center justify-center">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <div class="flex h-[450px]">
+                <!-- Left: Process Terminal -->
+                <div class="flex-1 border-r border-sec-border bg-[#02040a] flex flex-col relative font-mono text-xs">
+                    <div class="px-4 py-2 border-b border-sec-border flex justify-between items-center text-sec-text">
+                        <span>Live Process Memory</span>
+                        <div class="flex gap-2">
+                            <span class="w-2 h-2 rounded-full bg-sec-accent animate-pulse"></span>
+                        </div>
+                    </div>
+                    <div id="process-log" class="flex-1 overflow-y-auto p-4 space-y-2 text-gray-400"></div>
+                    <div class="absolute bottom-0 w-full h-10 bg-gradient-to-t from-[#02040a] to-transparent pointer-events-none"></div>
+                </div>
+
+                <!-- Right: Action Panel -->
+                <div class="w-72 bg-sec-surface p-6 flex flex-col gap-6">
+                    <div>
+                        <h3 class="text-xs font-bold text-sec-text uppercase tracking-widest mb-3">System Identity</h3>
+                        <div class="space-y-2 text-sm">
+                            <div class="flex justify-between"><span class="text-sec-text">OS</span><span class="text-white">Windows 11 Pro</span></div>
+                            <div class="flex justify-between"><span class="text-sec-text">Uptime</span><span class="text-white">14d 02h 45m</span></div>
+                            <div class="flex justify-between"><span class="text-sec-text">User</span><span class="text-white font-mono">admin_sys</span></div>
+                        </div>
+                    </div>
+
+                    <div class="flex-1 flex flex-col gap-3 justify-end">
+                        <h3 class="text-xs font-bold text-sec-text uppercase tracking-widest mb-1">Execution Commands</h3>
+                        <button onclick="openCameraFeed()" class="w-full bg-sec-border hover:bg-[#334155] border border-sec-accent/30 text-white p-3 rounded-lg flex items-center gap-3 transition-all cursor-pointer group active:scale-95 text-sm font-medium">
+                            <i class="fas fa-video text-sec-accent group-hover:scale-110 transition-transform"></i> Access Visual Feed
+                        </button>
+                        <button onclick="executeAction(this, 'network')" class="w-full bg-sec-border hover:bg-sec-warn/20 border border-sec-warn/30 text-white p-3 rounded-lg flex items-center gap-3 transition-all cursor-pointer group active:scale-95 text-sm font-medium">
+                            <i class="fas fa-wifi text-sec-warn group-hover:scale-110 transition-transform"></i> Disable Network I/O
+                        </button>
+                        <button onclick="executeAction(this, 'shutdown')" class="w-full bg-sec-border hover:bg-sec-alert/20 border border-sec-alert/30 text-white p-3 rounded-lg flex items-center gap-3 transition-all cursor-pointer group active:scale-95 text-sm font-medium">
+                            <i class="fas fa-power-off text-sec-alert group-hover:scale-110 transition-transform"></i> Remote Shutdown
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SIDEBAR -->
+    <aside class="w-20 md:w-64 bg-sec-surface border-r border-sec-border flex flex-col shrink-0 z-20 shadow-2xl relative gs-reveal-left">
+        <div class="h-16 flex items-center justify-center md:justify-start md:px-6 border-b border-sec-border">
+            <i class="fas fa-shield-alt text-sec-accent text-2xl md:mr-3 drop-shadow-[0_0_10px_rgba(13,148,136,0.8)]"></i>
+            <h1 class="font-display font-bold text-white text-lg tracking-wide hidden md:block">COMMAND</h1>
+        </div>
+
+        <nav class="flex-1 py-6 flex flex-col gap-2 px-3">
+            <div class="hidden md:block px-3 pb-2 text-[10px] font-bold text-sec-text uppercase tracking-widest">Telemetry</div>
+            
+            <a href="#" onclick="switchView('grid', this, 'Endpoint Telemetry')" class="nav-link flex items-center justify-center md:justify-start gap-4 px-3 md:px-4 py-3 bg-sec-accent/10 border border-sec-accent/30 text-sec-accent rounded-xl cursor-pointer transition-colors relative group">
+                <i class="fas fa-network-wired text-lg"></i>
+                <span class="font-medium text-sm hidden md:block">Node Overview</span>
+                <div class="absolute right-3 w-2 h-2 rounded-full bg-sec-accent animate-pulse hidden md:block nav-dot"></div>
+            </a>
+
+            <a href="#" onclick="switchView('map', this, 'Global Radar Map')" class="nav-link flex items-center justify-center md:justify-start gap-4 px-3 md:px-4 py-3 text-sec-text border border-transparent hover:bg-sec-border hover:text-white rounded-xl cursor-pointer transition-colors relative group">
+                <i class="fas fa-globe text-lg"></i>
+                <span class="font-medium text-sm hidden md:block">Geo-Location Map</span>
+                <div class="absolute right-3 w-2 h-2 rounded-full bg-sec-accent animate-pulse hidden md:block nav-dot hidden"></div>
+            </a>
+
+            <a href="#" onclick="switchView('logs', this, 'SIEM Access Logs')" class="nav-link flex items-center justify-center md:justify-start gap-4 px-3 md:px-4 py-3 text-sec-text border border-transparent hover:bg-sec-border hover:text-white rounded-xl cursor-pointer transition-colors relative group">
+                <i class="fas fa-database text-lg"></i>
+                <span class="font-medium text-sm hidden md:block">Access Logs</span>
+                <div class="absolute right-3 w-2 h-2 rounded-full bg-sec-accent animate-pulse hidden md:block nav-dot hidden"></div>
+            </a>
+
+            <div class="hidden md:block px-3 pt-6 pb-2 text-[10px] font-bold text-sec-text uppercase tracking-widest">System</div>
+
+            <a href="#" onclick="switchView('policy', this, 'Security Protocols')" class="nav-link flex items-center justify-center md:justify-start gap-4 px-3 md:px-4 py-3 text-sec-text border border-transparent hover:bg-sec-border hover:text-white rounded-xl cursor-pointer transition-colors relative group">
+                <i class="fas fa-cogs text-lg"></i>
+                <span class="font-medium text-sm hidden md:block">Security Policy</span>
+                <div class="absolute right-3 w-2 h-2 rounded-full bg-sec-accent animate-pulse hidden md:block nav-dot hidden"></div>
+            </a>
+        </nav>
+        
+        <!-- Upgraded Connection Widget -->
+        <div class="p-4 border-t border-sec-border">
+            <div class="w-full rounded-xl bg-gradient-to-b from-[#0f172a] to-[#02040a] border border-sec-accent/30 p-3 relative overflow-hidden group cursor-pointer shadow-[0_0_15px_rgba(13,148,136,0.15)]">
+                <div class="absolute inset-0 bg-sec-accent/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                <div class="flex flex-col md:flex-row items-center gap-3 relative z-10">
+                    <div class="relative flex items-center justify-center shrink-0">
+                        <div class="w-8 h-8 rounded-full border-2 border-sec-accent/20 border-t-sec-accent animate-spin"></div>
+                        <i class="fas fa-lock text-sec-accent absolute text-[10px]"></i>
+                    </div>
+                    <div class="flex flex-col text-center md:text-left hidden md:flex">
+                        <span class="text-[10px] text-sec-text font-mono font-bold tracking-wider">SECURE TUNNEL</span>
+                        <span class="text-[11px] text-white font-mono tracking-widest">AES-256-GCM</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- MAIN DASHBOARD -->
+    <main class="flex-1 flex flex-col h-full relative z-10">
+        
+        <!-- Header -->
+        <header class="h-16 border-b border-sec-border flex items-center justify-between px-8 bg-sec-surface/80 backdrop-blur-md shrink-0">
+            <div class="flex items-center gap-6">
+                <h2 id="topbar-title" class="text-white font-display font-bold text-lg tracking-wide">Endpoint Telemetry</h2>
+                <div class="h-5 w-[1px] bg-sec-border"></div>
+                <div class="flex items-center gap-2">
+                    <div class="w-2 h-2 rounded-full bg-sec-accent animate-pulse"></div>
+                    <span class="text-sm font-mono text-sec-text"><span id="active-nodes-count">10</span> Nodes Connected</span>
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-4">
+                <button onclick="showToast('Exporting dashboard view to encrypted CSV...', 'success')" class="bg-sec-border hover:bg-[#334155] border border-sec-border text-white text-xs font-bold px-4 py-2 rounded transition-all flex items-center gap-2 active:scale-95">
+                    <i class="fas fa-download"></i> Export Data
+                </button>
+            </div>
+        </header>
+
+        <!-- View: NODE GRID -->
+        <div id="view-grid" class="view-section flex-1 overflow-y-auto p-8 discord-scrollbar">
+            <div id="nodes-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 gs-reveal-up">
+                <!-- Nodes generated by JS -->
+            </div>
+        </div>
+
+        <!-- View: GEO MAP -->
+        <div id="view-map" class="view-section hidden flex-1 overflow-hidden p-8 flex flex-col md:flex-row gap-6">
+            <!-- Location List -->
+            <div class="w-full md:w-72 bg-sec-surface border border-sec-border rounded-2xl flex flex-col overflow-hidden shadow-xl shrink-0">
+                <div class="p-4 border-b border-sec-border bg-[#152033]">
+                    <h3 class="text-white font-bold text-sm tracking-wide">Active Regions</h3>
+                    <p class="text-xs text-sec-text font-mono mt-1">Tracing IP coordinates</p>
+                </div>
+                <div class="flex-1 overflow-y-auto p-2 space-y-1 custom-scrollbar">
+                    <div class="flex justify-between items-center p-3 rounded-lg hover:bg-sec-border transition-colors cursor-pointer">
+                        <div>
+                            <div class="text-sm text-white font-medium">US-East-1 (Virginia)</div>
+                            <div class="text-[10px] text-sec-text font-mono">4 Nodes • 12ms ping</div>
+                        </div>
+                        <div class="w-2 h-2 rounded-full bg-sec-accent animate-pulse"></div>
+                    </div>
+                    <div class="flex justify-between items-center p-3 rounded-lg hover:bg-sec-border transition-colors cursor-pointer">
+                        <div>
+                            <div class="text-sm text-white font-medium">EU-Central (Frankfurt)</div>
+                            <div class="text-[10px] text-sec-text font-mono">3 Nodes • 45ms ping</div>
+                        </div>
+                        <div class="w-2 h-2 rounded-full bg-sec-accent animate-pulse"></div>
+                    </div>
+                    <div class="flex justify-between items-center p-3 rounded-lg hover:bg-sec-border transition-colors cursor-pointer">
+                        <div>
+                            <div class="text-sm text-white font-medium">AP-Northeast (Tokyo)</div>
+                            <div class="text-[10px] text-sec-text font-mono">2 Nodes • 110ms ping</div>
+                        </div>
+                        <div class="w-2 h-2 rounded-full bg-sec-accent animate-pulse"></div>
+                    </div>
+                    <div class="flex justify-between items-center p-3 rounded-lg hover:bg-sec-border transition-colors cursor-pointer opacity-50">
+                        <div>
+                            <div class="text-sm text-gray-400 font-medium">SA-East-1 (São Paulo)</div>
+                            <div class="text-[10px] text-sec-text font-mono">1 Node • Offline</div>
+                        </div>
+                        <div class="w-2 h-2 rounded-full bg-sec-alert"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- The Map -->
+            <div class="flex-1 bg-sec-surface border border-sec-border rounded-2xl relative overflow-hidden flex items-center justify-center shadow-xl">
+                <div class="absolute inset-0 hologram-map z-0"></div>
+                <!-- Radar Scanner effect -->
+                <div class="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_50%,rgba(3,7,18,0.8)_100%)] z-10 pointer-events-none"></div>
+                
+                <!-- Plot Dots (Simulated positions) -->
+                <div class="absolute z-20 top-[35%] left-[25%] w-3 h-3 rounded-full bg-sec-accent shadow-[0_0_15px_rgba(13,148,136,1)] animate-ping"></div> <!-- US East -->
+                <div class="absolute z-20 top-[30%] left-[52%] w-3 h-3 rounded-full bg-sec-accent shadow-[0_0_15px_rgba(13,148,136,1)] animate-ping" style="animation-delay: 0.5s"></div> <!-- EU -->
+                <div class="absolute z-20 top-[38%] left-[82%] w-3 h-3 rounded-full bg-sec-accent shadow-[0_0_15px_rgba(13,148,136,1)] animate-ping" style="animation-delay: 1s"></div> <!-- Tokyo -->
+                <div class="absolute z-20 top-[65%] left-[32%] w-3 h-3 rounded-full bg-sec-alert shadow-[0_0_15px_rgba(225,29,72,1)]"></div> <!-- SA Offline -->
+            </div>
+        </div>
+
+        <!-- View: ACCESS LOGS (SIEM) -->
+        <div id="view-logs" class="view-section hidden flex-1 overflow-hidden p-8 flex flex-col">
+            <div class="w-full bg-sec-surface border border-sec-border rounded-2xl flex flex-col h-full overflow-hidden shadow-xl">
+                <!-- Filters -->
+                <div class="p-4 border-b border-sec-border bg-[#152033] flex flex-wrap gap-4 items-center justify-between">
+                    <div class="flex gap-2">
+                        <select class="bg-sec-bg border border-sec-border text-white text-xs px-3 py-1.5 rounded focus:outline-none focus:border-sec-accent">
+                            <option>All Severities</option>
+                            <option>CRITICAL</option>
+                            <option>WARNING</option>
+                            <option>INFO</option>
+                        </select>
+                        <select class="bg-sec-bg border border-sec-border text-white text-xs px-3 py-1.5 rounded focus:outline-none focus:border-sec-accent">
+                            <option>Last 24 Hours</option>
+                            <option>Last 7 Days</option>
+                        </select>
+                    </div>
+                    <div class="relative">
+                        <input type="text" placeholder="Search IP or Event..." class="bg-sec-bg border border-sec-border text-white text-xs px-3 py-1.5 rounded w-64 focus:outline-none focus:border-sec-accent pl-8">
+                        <i class="fas fa-search absolute left-2.5 top-2 text-sec-text text-[10px]"></i>
+                    </div>
+                </div>
+
+                <!-- Table -->
+                <div class="flex-1 overflow-auto custom-scrollbar bg-[#02040a]">
+                    <table class="w-full text-left border-collapse text-xs font-mono whitespace-nowrap">
+                        <thead class="bg-sec-surface sticky top-0 z-10 shadow-sm">
+                            <tr>
+                                <th class="p-3 text-sec-text border-b border-sec-border">TIMESTAMP</th>
+                                <th class="p-3 text-sec-text border-b border-sec-border">SEVERITY</th>
+                                <th class="p-3 text-sec-text border-b border-sec-border">SOURCE IP</th>
+                                <th class="p-3 text-sec-text border-b border-sec-border">EVENT IDENTIFIER</th>
+                                <th class="p-3 text-sec-text border-b border-sec-border">ACTION TAKEN</th>
+                            </tr>
+                        </thead>
+                        <tbody id="siem-table-body" class="text-gray-300">
+                            <!-- Populated by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- View: SECURITY POLICY -->
+        <div id="view-policy" class="view-section hidden flex-1 overflow-y-auto p-8 flex justify-center custom-scrollbar">
+            <div class="w-full max-w-4xl space-y-6">
+                <div class="border-b border-sec-border pb-4 mb-6">
+                    <h2 class="text-2xl font-bold text-white mb-1">Global Security Protocols</h2>
+                    <p class="text-sm text-sec-text">Configure deep packet inspection, zero-trust rules, and automated threat responses.</p>
+                </div>
+                
+                <div class="bg-sec-surface p-6 rounded-xl border border-sec-border space-y-6 shadow-xl">
+                    
+                    <!-- Toggle 1 -->
+                    <div class="flex justify-between items-center p-4 bg-[#02040a] border border-sec-border rounded-lg hover:border-sec-accent/50 transition-colors">
+                        <div>
+                            <h4 class="text-white font-medium text-sm flex items-center gap-2"><i class="fas fa-shield-virus text-sec-accent"></i> Strict Zero-Trust Enforcement</h4>
+                            <p class="text-sec-text text-xs mt-1 max-w-lg">Require MFA for all SSH/RDP sessions and deny internal lateral movement by default.</p>
+                        </div>
+                        <div class="relative inline-block w-10 h-5 align-middle select-none">
+                            <input type="checkbox" checked onchange="showToast('Zero-Trust policy updated.', 'success')" class="toggle-checkbox absolute block w-5 h-5 rounded-full bg-white border-4 appearance-none cursor-pointer z-10 top-0 transition-all duration-300"/>
+                            <label class="toggle-label block overflow-hidden h-5 rounded-full bg-gray-600 cursor-pointer transition-colors duration-300"></label>
+                        </div>
+                    </div>
+
+                    <!-- Toggle 2 -->
+                    <div class="flex justify-between items-center p-4 bg-[#02040a] border border-sec-border rounded-lg hover:border-sec-accent/50 transition-colors">
+                        <div>
+                            <h4 class="text-white font-medium text-sm flex items-center gap-2"><i class="fas fa-microchip text-sec-accent"></i> Deep Packet Inspection (DPI)</h4>
+                            <p class="text-sec-text text-xs mt-1 max-w-lg">Analyze application-layer payloads for zero-day signatures and exfiltration attempts.</p>
+                        </div>
+                        <div class="relative inline-block w-10 h-5 align-middle select-none">
+                            <input type="checkbox" checked onchange="showToast('DPI Engine restarted.', 'success')" class="toggle-checkbox absolute block w-5 h-5 rounded-full bg-white border-4 appearance-none cursor-pointer z-10 top-0 transition-all duration-300"/>
+                            <label class="toggle-label block overflow-hidden h-5 rounded-full bg-gray-600 cursor-pointer transition-colors duration-300"></label>
+                        </div>
+                    </div>
+
+                    <!-- Toggle 3 -->
+                    <div class="flex justify-between items-center p-4 bg-[#02040a] border border-sec-border rounded-lg hover:border-sec-alert/50 transition-colors">
+                        <div>
+                            <h4 class="text-white font-medium text-sm flex items-center gap-2"><i class="fas fa-biohazard text-sec-alert"></i> Auto-Isolate Compromised Nodes</h4>
+                            <p class="text-sec-text text-xs mt-1 max-w-lg">Automatically sever network interfaces on any node detecting anomalous heuristic behavior.</p>
+                        </div>
+                        <div class="relative inline-block w-10 h-5 align-middle select-none">
+                            <input type="checkbox" checked onchange="showToast('Auto-Isolation armed.', 'warn')" class="toggle-checkbox absolute block w-5 h-5 rounded-full bg-white border-4 appearance-none cursor-pointer z-10 top-0 transition-all duration-300 border-sec-alert"/>
+                            <label class="toggle-label block overflow-hidden h-5 rounded-full bg-gray-600 cursor-pointer transition-colors duration-300"></label>
+                        </div>
+                    </div>
+
+                    <div class="pt-4 border-t border-sec-border">
+                        <label class="block text-xs font-bold text-sec-text uppercase mb-2">Blacklisted Geographies (Geo-Fence)</label>
+                        <input type="text" value="RU, KP, IR, BY" class="w-full bg-[#02040a] border border-sec-border rounded p-3 text-white text-sm focus:outline-none focus:border-sec-accent transition-colors font-mono">
+                        <p class="text-[10px] text-sec-text mt-1">Drop all packets originating from these ISO country codes.</p>
+                    </div>
+
+                </div>
+                
+                <div class="flex justify-end">
+                    <button onclick="savePolicy(this)" class="bg-sec-accent hover:bg-sec-accentHover text-white px-8 py-3 rounded-lg text-sm font-bold transition-colors shadow-[0_0_15px_rgba(13,148,136,0.3)] active:scale-95 flex items-center gap-2">
+                        <i class="fas fa-save"></i> Deploy Policies
+                    </button>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        // View Switcher Logic
+        function switchView(viewId, element, titleText) {
+            // Update Sidebar links
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('bg-sec-accent/10', 'border-sec-accent/30', 'text-sec-accent');
+                link.classList.add('text-sec-text', 'hover:bg-sec-border', 'hover:text-white', 'border-transparent');
+                const dot = link.querySelector('.nav-dot');
+                if(dot) dot.classList.add('hidden');
+            });
+
+            // Activate clicked link
+            element.classList.remove('text-sec-text', 'hover:bg-sec-border', 'hover:text-white', 'border-transparent');
+            element.classList.add('bg-sec-accent/10', 'border-sec-accent/30', 'text-sec-accent');
+            const dot = element.querySelector('.nav-dot');
+            if(dot) dot.classList.remove('hidden');
+
+            // Update Topbar Title
+            document.getElementById('topbar-title').innerText = titleText;
+
+            // Swap views
+            document.querySelectorAll('.view-section').forEach(view => view.classList.add('hidden'));
+            document.getElementById(`view-${viewId}`).classList.remove('hidden');
+        }
+
+        // Policy Save Button
+        function savePolicy(btn) {
+            btn.disabled = true;
+            const orig = btn.innerHTML;
+            btn.innerHTML = `<i class="fas fa-circle-notch fa-spin"></i> Compiling...`;
+            setTimeout(() => {
+                btn.innerHTML = `<i class="fas fa-check"></i> Deployed`;
+                showToast('Security policies deployed across all nodes.', 'success');
+                setTimeout(() => { btn.innerHTML = orig; btn.disabled = false; }, 2000);
+            }, 1000);
+        }
+
+        // Generate SIEM Logs
+        const siemTable = document.getElementById('siem-table-body');
+        const siemEvents = [
+            { sev: "CRITICAL", col: "text-sec-alert", ip: "185.15.58.21", evt: "Zero-Day Payload Detected (CVE-2023-XXXX)", act: "Packet Dropped" },
+            { sev: "WARNING", col: "text-sec-warn", ip: "92.11.45.101", evt: "Repeated Failed SSH Auth (Brute Force)", act: "IP Temporarily Banned" },
+            { sev: "INFO", col: "text-sec-accent", ip: "192.168.1.104", evt: "Heuristic Scan Completed", act: "Clean" },
+            { sev: "CRITICAL", col: "text-sec-alert", ip: "45.132.89.12", evt: "DDoS Volumetric Anomaly", act: "Traffic Sinkholed" },
+            { sev: "INFO", col: "text-sec-accent", ip: "10.0.0.52", evt: "Admin Login Success (MFA Verified)", act: "Session Granted" }
+        ];
+
+        function addSiemLog() {
+            if(!siemTable) return;
+            const ev = siemEvents[Math.floor(Math.random() * siemEvents.length)];
+            const time = new Date().toISOString().replace('T', ' ').substring(0, 19);
+            
+            const tr = document.createElement('tr');
+            tr.className = "hover:bg-sec-border/30 transition-colors term-line";
+            tr.innerHTML = `
+                <td class="p-3 border-b border-sec-border/30 text-gray-500">${time}</td>
+                <td class="p-3 border-b border-sec-border/30 ${ev.col} font-bold">[${ev.sev}]</td>
+                <td class="p-3 border-b border-sec-border/30 text-white">${ev.ip}</td>
+                <td class="p-3 border-b border-sec-border/30">${ev.evt}</td>
+                <td class="p-3 border-b border-sec-border/30"><span class="bg-sec-surface border border-sec-border px-2 py-1 rounded text-[10px]">${ev.act}</span></td>
+            `;
+            
+            siemTable.insertBefore(tr, siemTable.firstChild);
+            if (siemTable.children.length > 15) siemTable.removeChild(siemTable.lastChild);
+        }
+        
+        // Initial population
+        for(let i=0; i<8; i++) addSiemLog();
+        // Live injection
+        setInterval(addSiemLog, 4500);
+
+        // Nodes Grid Logic (Retained from previous code)
+        const nodes = Array.from({length: 10}, (_, i) => ({
+            id: `NODE-${(i+1).toString().padStart(2, '0')}`,
+            name: `DESKTOP-${Math.random().toString(36).substring(2, 6).toUpperCase()}`,
+            ip: `192.168.1.${100 + i}`,
+            cpu: Math.floor(Math.random() * 60) + 10,
+            ram: Math.floor(Math.random() * 40) + 40,
+            status: 'online'
+        }));
+
+        let activeNodeId = null;
+        const grid = document.getElementById('nodes-grid');
+        
+        function renderNodes() {
+            grid.innerHTML = '';
+            nodes.forEach(node => {
+                const isOffline = node.status === 'offline';
+                const statusColor = isOffline ? 'bg-sec-alert' : 'bg-sec-accent';
+                const statusText = isOffline ? 'OFFLINE' : 'ACTIVE';
+                const borderHover = isOffline ? 'hover:border-sec-alert/50' : 'hover:border-sec-accent/50';
+
+                const cardHtml = `
+                    <div onclick="openNodeModal('${node.id}')" class="bg-sec-surface border border-sec-border rounded-xl p-5 cursor-pointer transition-all hover:bg-[#152033] ${borderHover} hover:shadow-lg hover:-translate-y-1 relative overflow-hidden group ${isOffline ? 'opacity-50' : ''}">
+                        <div class="flex justify-between items-start mb-4">
+                            <div class="flex items-center gap-3">
+                                <i class="fas fa-desktop text-sec-text text-xl group-hover:text-white transition-colors"></i>
+                                <div>
+                                    <h3 class="text-white font-bold text-sm tracking-wide">${node.id}</h3>
+                                    <p class="text-xs font-mono text-sec-text">${node.ip}</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-1.5 px-2 py-1 rounded bg-[#02040a] border border-sec-border">
+                                <div class="w-1.5 h-1.5 rounded-full ${statusColor} ${!isOffline ? 'animate-pulse' : ''}"></div>
+                                <span class="text-[9px] font-mono text-sec-text">${statusText}</span>
+                            </div>
+                        </div>
+                        <div class="space-y-3">
+                            <div>
+                                <div class="flex justify-between text-[10px] font-mono text-sec-text mb-1">
+                                    <span>CPU USAGE</span>
+                                    <span id="cpu-txt-${node.id}">${isOffline ? '0' : node.cpu}%</span>
+                                </div>
+                                <div class="w-full h-1.5 bg-sec-border rounded-full overflow-hidden">
+                                    <div id="cpu-bar-${node.id}" class="h-full bg-sec-accent transition-all duration-500" style="width: ${isOffline ? '0' : node.cpu}%"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between text-[10px] font-mono text-sec-text mb-1">
+                                    <span>MEMORY</span>
+                                    <span id="ram-txt-${node.id}">${isOffline ? '0' : node.ram}%</span>
+                                </div>
+                                <div class="w-full h-1.5 bg-sec-border rounded-full overflow-hidden">
+                                    <div id="ram-bar-${node.id}" class="h-full bg-sec-text transition-all duration-500" style="width: ${isOffline ? '0' : node.ram}%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                grid.innerHTML += cardHtml;
+            });
+        }
+        renderNodes();
+
+        setInterval(() => {
+            nodes.forEach(node => {
+                if (node.status === 'offline') return;
+                node.cpu = Math.max(5, Math.min(95, node.cpu + (Math.random() * 20 - 10)));
+                node.ram = Math.max(30, Math.min(90, node.ram + (Math.random() * 4 - 2)));
+                
+                const cpuBar = document.getElementById(`cpu-bar-${node.id}`);
+                const cpuTxt = document.getElementById(`cpu-txt-${node.id}`);
+                const ramBar = document.getElementById(`ram-bar-${node.id}`);
+                const ramTxt = document.getElementById(`ram-txt-${node.id}`);
+
+                if(cpuBar) cpuBar.style.width = `${node.cpu}%`;
+                if(cpuTxt) cpuTxt.innerText = `${Math.round(node.cpu)}%`;
+                if(ramBar) ramBar.style.width = `${node.ram}%`;
+                if(ramTxt) ramTxt.innerText = `${Math.round(node.ram)}%`;
+
+                if(cpuBar) {
+                    if (node.cpu > 80) cpuBar.classList.replace('bg-sec-accent', 'bg-sec-alert');
+                    else cpuBar.classList.replace('bg-sec-alert', 'bg-sec-accent');
+                }
+            });
+        }, 2000);
+
+        // Modals & Process Logs
+        function openNodeModal(nodeId) {
+            const node = nodes.find(n => n.id === nodeId);
+            if(!node || node.status === 'offline') return;
+            activeNodeId = nodeId;
+            document.getElementById('modal-node-name').innerText = `${node.id} (${node.name})`;
+            document.getElementById('modal-node-ip').innerText = node.ip;
+            
+            document.getElementById('process-log').innerHTML = '';
+            for(let i=0; i<8; i++) addProcessLog();
+
+            const modal = document.getElementById('node-modal');
+            const content = document.getElementById('node-modal-content');
+            modal.classList.remove('hidden');
+            setTimeout(() => { modal.classList.remove('opacity-0'); content.classList.remove('scale-95'); }, 10);
+        }
+
+        function closeNodeModal() {
+            const modal = document.getElementById('node-modal');
+            const content = document.getElementById('node-modal-content');
+            modal.classList.add('opacity-0');
+            content.classList.add('scale-95');
+            setTimeout(() => modal.classList.add('hidden'), 300);
+            activeNodeId = null;
+        }
+
+        const processes = [
+            { name: "chrome.exe", mem: "845 MB", status: "Active (Watching Video)" },
+            { name: "svchost.exe", mem: "12 MB", status: "Background" },
+            { name: "discord.exe", mem: "210 MB", status: "Active (Chatting)" },
+            { name: "explorer.exe", mem: "95 MB", status: "System" },
+            { name: "code.exe", mem: "1.2 GB", status: "Active (Coding)" },
+            { name: "steam.exe", mem: "150 MB", status: "Background" },
+            { name: "msmpeng.exe", mem: "45 MB", status: "System" }
+        ];
+
+        function addProcessLog() {
+            if (!activeNodeId) return;
+            const logContainer = document.getElementById('process-log');
+            const p = processes[Math.floor(Math.random() * processes.length)];
+            const time = new Date().toLocaleTimeString('en-US', {hour12:false});
+            
+            const entry = document.createElement('div');
+            entry.className = "flex gap-3 term-line py-1 border-b border-sec-border/50";
+            
+            let highlight = 'text-sec-text';
+            if (p.status.includes('Active')) highlight = 'text-sec-accent font-bold';
+
+            entry.innerHTML = `
+                <span class="text-gray-600 shrink-0">[${time}]</span>
+                <span class="w-24 shrink-0 text-white truncate">${p.name}</span>
+                <span class="w-16 shrink-0 text-gray-500">${p.mem}</span>
+                <span class="${highlight} truncate">${p.status}</span>
+            `;
+            
+            logContainer.appendChild(entry);
+            logContainer.scrollTop = logContainer.scrollHeight;
+            if (logContainer.children.length > 25) logContainer.removeChild(logContainer.firstElementChild);
+        }
+        setInterval(addProcessLog, 1500);
+
+        function executeAction(btn, type) {
+            btn.disabled = true;
+            const originalHtml = btn.innerHTML;
+            btn.innerHTML = `<i class="fas fa-circle-notch fa-spin"></i> Executing...`;
+            
+            setTimeout(() => {
+                const node = nodes.find(n => n.id === activeNodeId);
+                if (type === 'network') {
+                    showToast(`Network adapter disabled on ${node.id}`, 'warn');
+                    node.status = 'offline';
+                    document.getElementById('active-nodes-count').innerText = nodes.filter(n=>n.status==='online').length;
+                    renderNodes();
+                    closeNodeModal();
+                } else if (type === 'shutdown') {
+                    showToast(`Remote shutdown command sent to ${node.id}`, 'error');
+                    node.status = 'offline';
+                    document.getElementById('active-nodes-count').innerText = nodes.filter(n=>n.status==='online').length;
+                    renderNodes();
+                    closeNodeModal();
+                }
+                btn.innerHTML = originalHtml;
+                btn.disabled = false;
+            }, 1500);
+        }
+
+        function openCameraFeed() {
+            const node = nodes.find(n => n.id === activeNodeId);
+            document.getElementById('cam-ip').innerText = node.ip;
+            document.getElementById('cam-node').innerText = node.id;
+            const modal = document.getElementById('camera-modal');
+            modal.classList.remove('hidden');
+            setTimeout(() => modal.classList.remove('opacity-0'), 10);
+        }
+
+        function closeCameraFeed() {
+            const modal = document.getElementById('camera-modal');
+            modal.classList.add('opacity-0');
+            setTimeout(() => modal.classList.add('hidden'), 500);
+        }
+
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            
+            let icon = 'fa-check-circle';
+            let bgClass = 'bg-sec-surface border-l-sec-accent';
+            let iconColor = 'text-sec-accent';
+            
+            if(type === 'error') { icon = 'fa-skull-crossbones'; bgClass = 'bg-sec-surface border-l-sec-alert'; iconColor = 'text-sec-alert'; }
+            if(type === 'warn') { icon = 'fa-exclamation-triangle'; bgClass = 'bg-sec-surface border-l-sec-warn'; iconColor = 'text-sec-warn'; }
+            if(type === 'info') { icon = 'fa-info-circle'; bgClass = 'bg-sec-surface border-l-sec-accent'; iconColor = 'text-sec-accent'; }
+
+            toast.className = `${bgClass} border-l-[3px] border border-sec-border px-4 py-3 rounded-lg shadow-2xl flex items-center gap-3 toast-enter font-mono text-sm relative overflow-hidden`;
+            toast.innerHTML = `
+                <div class="absolute inset-0 bg-gradient-to-r from-[${type==='error'?'#e11d48':(type==='warn'?'#d97706':'#0d9488')}]/10 to-transparent pointer-events-none"></div>
+                <i class="fas ${icon} ${iconColor} relative z-10 text-lg"></i>
+                <span class="text-white relative z-10">${message}</span>
+            `;
+            
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.classList.replace('toast-enter', 'toast-leave');
+                setTimeout(() => toast.remove(), 300);
+            }, 4000);
+        }
+        
+        // Initial animations
+        gsap.from(".gs-reveal-left", { x: -50, opacity: 0, duration: 0.8, ease: "power3.out" });
+        gsap.from(".gs-reveal-down", { y: -20, opacity: 0, duration: 0.6, ease: "power3.out", delay: 0.2 });
+        gsap.from(".gs-reveal-up", { y: 30, opacity: 0, duration: 0.8, stagger: 0.05, ease: "power3.out", delay: 0.3 });
+    </script>
 </body>
 </html>
