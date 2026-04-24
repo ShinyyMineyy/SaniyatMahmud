@@ -1,1 +1,485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Celestial Roleplay | Case Study</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Manrope:wght@500;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- GSAP for Smooth Scrolling Animations -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js" defer></script>
 
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Manrope', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: '#06b6d4', // Cyan accent (Tailwind cyan-500)
+                        darkBase: '#030305'
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background-color: #030305;
+            color: #e5e7eb;
+            overflow-x: hidden;
+        }
+        
+        /* Custom Scrollbar - Cyan */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #030305; }
+        ::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #06b6d4; }
+
+        /* Premium Glassmorphism - Cyan Glows */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(12px);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        
+        .glass-card:hover {
+            border-color: rgba(6, 182, 212, 0.4);
+            box-shadow: 0 10px 40px rgba(6, 182, 212, 0.15);
+            transform: translateY(-4px);
+        }
+
+        /* GIF Fallback Pattern */
+        .gif-placeholder {
+            background: repeating-linear-gradient(
+                45deg,
+                rgba(255,255,255,0.01),
+                rgba(255,255,255,0.01) 10px,
+                rgba(255,255,255,0.03) 10px,
+                rgba(255,255,255,0.03) 20px
+            );
+        }
+
+        /* Element initial state for GSAP */
+        .reveal-element {
+            opacity: 0;
+            transform: translateY(40px);
+            will-change: transform, opacity;
+        }
+        
+        /* Lightbox transitions */
+        .lightbox-enter {
+            opacity: 1 !important;
+            pointer-events: auto !important;
+        }
+        .lightbox-img-enter {
+            transform: scale(1) !important;
+        }
+    </style>
+</head>
+<body class="antialiased min-h-screen selection:bg-brand/30 selection:text-white p-4 md:p-10">
+
+    <!-- Subtle Background Glow - Cyan & Sky Blue -->
+    <div class="fixed top-[-20%] left-[-10%] w-[50%] h-[50%] bg-brand/10 blur-[150px] rounded-full pointer-events-none z-0"></div>
+    <div class="fixed bottom-[-20%] right-[-10%] w-[50%] h-[50%] bg-sky-500/10 blur-[150px] rounded-full pointer-events-none z-0"></div>
+
+    <div class="max-w-5xl mx-auto flex flex-col gap-20 pb-24 relative z-10">
+        
+        <!-- Header -->
+        <header class="flex flex-col gap-4 text-center items-center mt-8 reveal-element">
+            <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-brand/10 border border-brand/20 text-brand text-xs font-bold uppercase tracking-widest">
+                <i class="fas fa-satellite"></i> Project Showcase
+            </div>
+            <h1 class="font-display text-5xl md:text-6xl font-black tracking-tighter text-white drop-shadow-lg">
+                Celestial Roleplay
+            </h1>
+            <p class="text-gray-400 text-lg font-light max-w-2xl leading-relaxed">
+                A custom-built, fully animated GTA RP storefront and centralized management dashboard.
+            </p>
+        </header>
+
+        <!-- 1. Hero Interface (Single GIF) -->
+        <section class="flex flex-col gap-3 reveal-element">
+            <h3 class="text-white font-display font-bold text-xl ml-2 uppercase tracking-widest text-brand">Main Interface</h3>
+            <div class="w-full aspect-[16/9] rounded-3xl glass-card overflow-hidden relative group cursor-pointer" onclick="openLightbox('main.gif')">
+                <img src="main.gif" alt="Main Interface" class="w-full h-full object-cover opacity-60 group-hover:opacity-30 transition-all duration-700 group-hover:scale-105" onerror="this.style.display='none'">
+                
+                <!-- Hover Expand Icon -->
+                <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20">
+                    <div class="w-16 h-16 bg-black/60 rounded-full flex items-center justify-center text-white backdrop-blur-md border border-white/20 shadow-2xl">
+                        <i class="fas fa-search-plus text-2xl"></i>
+                    </div>
+                </div>
+
+                <div class="absolute inset-0 flex flex-col items-center justify-center text-brand/60 -z-10 gif-placeholder">
+                    <i class="fas fa-play-circle text-5xl mb-3 opacity-60 drop-shadow-lg"></i>
+                    <span class="font-mono text-xs uppercase tracking-widest bg-black/50 px-3 py-1 rounded border border-white/10">Please add: main.gif</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- 2. Smooth Interactions (2 GIFs) -->
+        <section class="flex flex-col gap-6 reveal-element">
+            <h3 class="text-white font-display font-bold text-xl ml-2 uppercase tracking-widest text-brand border-b border-white/10 pb-2">Smooth Interactions</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Interaction 1 -->
+                <div class="w-full aspect-video rounded-2xl glass-card overflow-hidden relative group cursor-pointer" onclick="openLightbox('smooth1.gif')">
+                    <img src="smooth1.gif" class="w-full h-full object-cover opacity-60 group-hover:opacity-30 transition-all duration-500 group-hover:scale-105" onerror="this.style.display='none'">
+                    
+                    <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20">
+                        <div class="w-12 h-12 bg-black/60 rounded-full flex items-center justify-center text-white backdrop-blur-md border border-white/20">
+                            <i class="fas fa-search-plus"></i>
+                        </div>
+                    </div>
+
+                    <div class="absolute inset-0 flex flex-col items-center justify-center text-gray-500 -z-10 gif-placeholder">
+                        <i class="fas fa-mouse-pointer text-3xl mb-2 opacity-50"></i>
+                        <span class="font-mono text-[10px] uppercase tracking-widest bg-black/50 px-2 py-1 rounded">Please add: smooth1.gif</span>
+                    </div>
+                </div>
+                <!-- Interaction 2 -->
+                <div class="w-full aspect-video rounded-2xl glass-card overflow-hidden relative group cursor-pointer" onclick="openLightbox('smooth2.gif')">
+                    <img src="smooth2.gif" class="w-full h-full object-cover opacity-60 group-hover:opacity-30 transition-all duration-500 group-hover:scale-105" onerror="this.style.display='none'">
+                    
+                    <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20">
+                        <div class="w-12 h-12 bg-black/60 rounded-full flex items-center justify-center text-white backdrop-blur-md border border-white/20">
+                            <i class="fas fa-search-plus"></i>
+                        </div>
+                    </div>
+
+                    <div class="absolute inset-0 flex flex-col items-center justify-center text-gray-500 -z-10 gif-placeholder">
+                        <i class="fas fa-expand-arrows-alt text-3xl mb-2 opacity-50"></i>
+                        <span class="font-mono text-[10px] uppercase tracking-widest bg-black/50 px-2 py-1 rounded">Please add: smooth2.gif</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 3. Core Platforms (5 GIFs) -->
+        <section class="flex flex-col gap-6 reveal-element">
+            <h3 class="text-white font-display font-bold text-xl ml-2 uppercase tracking-widest text-brand border-b border-white/10 pb-2">Platform Modules</h3>
+            <!-- Top Row: 2 items -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <!-- Hub -->
+                <div class="flex flex-col gap-2">
+                    <div class="w-full aspect-[4/3] rounded-2xl glass-card overflow-hidden relative group cursor-pointer" onclick="openLightbox('hub.gif')">
+                        <img src="hub.gif" class="w-full h-full object-cover opacity-60 group-hover:opacity-30 transition-all duration-500 group-hover:scale-105" onerror="this.style.display='none'">
+                        <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20">
+                            <div class="w-12 h-12 bg-black/60 rounded-full flex items-center justify-center text-white backdrop-blur-md border border-white/20"><i class="fas fa-search-plus"></i></div>
+                        </div>
+                        <div class="absolute inset-0 flex flex-col items-center justify-center text-gray-500 -z-10 gif-placeholder">
+                            <span class="font-mono text-[10px] uppercase tracking-widest bg-black/50 px-2 py-1 rounded">Please add: hub.gif</span>
+                        </div>
+                    </div>
+                    <div class="px-2 text-sm font-bold tracking-wide text-gray-300"><i class="fas fa-home text-brand mr-1"></i> The Hub</div>
+                </div>
+                <!-- Store -->
+                <div class="flex flex-col gap-2">
+                    <div class="w-full aspect-[4/3] rounded-2xl glass-card overflow-hidden relative group cursor-pointer" onclick="openLightbox('store.gif')">
+                        <img src="store.gif" class="w-full h-full object-cover opacity-60 group-hover:opacity-30 transition-all duration-500 group-hover:scale-105" onerror="this.style.display='none'">
+                        <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20">
+                            <div class="w-12 h-12 bg-black/60 rounded-full flex items-center justify-center text-white backdrop-blur-md border border-white/20"><i class="fas fa-search-plus"></i></div>
+                        </div>
+                        <div class="absolute inset-0 flex flex-col items-center justify-center text-gray-500 -z-10 gif-placeholder">
+                            <span class="font-mono text-[10px] uppercase tracking-widest bg-black/50 px-2 py-1 rounded">Please add: store.gif</span>
+                        </div>
+                    </div>
+                    <div class="px-2 text-sm font-bold tracking-wide text-gray-300"><i class="fas fa-shopping-bag text-brand mr-1"></i> Premium Store</div>
+                </div>
+            </div>
+            <!-- Bottom Row: 3 items -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Businesses -->
+                <div class="flex flex-col gap-2">
+                    <div class="w-full aspect-[4/3] md:aspect-square rounded-2xl glass-card overflow-hidden relative group cursor-pointer" onclick="openLightbox('business.gif')">
+                        <img src="business.gif" class="w-full h-full object-cover opacity-60 group-hover:opacity-30 transition-all duration-500 group-hover:scale-105" onerror="this.style.display='none'">
+                        <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20">
+                            <div class="w-10 h-10 bg-black/60 rounded-full flex items-center justify-center text-white backdrop-blur-md border border-white/20"><i class="fas fa-search-plus text-sm"></i></div>
+                        </div>
+                        <div class="absolute inset-0 flex flex-col items-center justify-center text-gray-500 -z-10 gif-placeholder">
+                            <span class="font-mono text-[10px] uppercase tracking-widest bg-black/50 px-2 py-1 rounded text-center">Please add: business.gif</span>
+                        </div>
+                    </div>
+                    <div class="px-2 text-sm font-bold tracking-wide text-gray-300"><i class="fas fa-briefcase text-brand mr-1"></i> Businesses</div>
+                </div>
+                <!-- Departments -->
+                <div class="flex flex-col gap-2">
+                    <div class="w-full aspect-[4/3] md:aspect-square rounded-2xl glass-card overflow-hidden relative group cursor-pointer" onclick="openLightbox('departments.gif')">
+                        <img src="departments.gif" class="w-full h-full object-cover opacity-60 group-hover:opacity-30 transition-all duration-500 group-hover:scale-105" onerror="this.style.display='none'">
+                        <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20">
+                            <div class="w-10 h-10 bg-black/60 rounded-full flex items-center justify-center text-white backdrop-blur-md border border-white/20"><i class="fas fa-search-plus text-sm"></i></div>
+                        </div>
+                        <div class="absolute inset-0 flex flex-col items-center justify-center text-gray-500 -z-10 gif-placeholder">
+                            <span class="font-mono text-[10px] uppercase tracking-widest bg-black/50 px-2 py-1 rounded text-center">Please add: departments.gif</span>
+                        </div>
+                    </div>
+                    <div class="px-2 text-sm font-bold tracking-wide text-gray-300"><i class="fas fa-shield-alt text-brand mr-1"></i> Departments</div>
+                </div>
+                <!-- Underground -->
+                <div class="flex flex-col gap-2">
+                    <div class="w-full aspect-[4/3] md:aspect-square rounded-2xl glass-card overflow-hidden relative group cursor-pointer" onclick="openLightbox('underground.gif')">
+                        <img src="underground.gif" class="w-full h-full object-cover opacity-60 group-hover:opacity-30 transition-all duration-500 group-hover:scale-105" onerror="this.style.display='none'">
+                        <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20">
+                            <div class="w-10 h-10 bg-black/60 rounded-full flex items-center justify-center text-white backdrop-blur-md border border-white/20"><i class="fas fa-search-plus text-sm"></i></div>
+                        </div>
+                        <div class="absolute inset-0 flex flex-col items-center justify-center text-gray-500 -z-10 gif-placeholder">
+                            <span class="font-mono text-[10px] uppercase tracking-widest bg-black/50 px-2 py-1 rounded text-center">Please add: underground.gif</span>
+                        </div>
+                    </div>
+                    <div class="px-2 text-sm font-bold tracking-wide text-gray-300"><i class="fas fa-skull text-brand mr-1"></i> Underground</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Dashboard Divider -->
+        <div class="w-full h-px bg-gradient-to-r from-transparent via-white/20 to-transparent my-4 reveal-element"></div>
+
+        <!-- 4. Dashboard Intro -->
+        <section class="text-center flex flex-col items-center gap-4 reveal-element">
+            <div class="w-16 h-16 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center shadow-lg">
+                <i class="fas fa-server text-2xl text-brand"></i>
+            </div>
+            <h2 class="font-display text-4xl font-black text-white">System Dashboard</h2>
+            <p class="text-gray-400 font-light max-w-xl">
+                The centralized command hub controlling every aspect of the roleplay ecosystem. 
+            </p>
+        </section>
+
+        <!-- 5. Dashboard 10 Modules Grid -->
+        <section class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-10 reveal-element">
+            
+            <!-- Dashboard Item 1 -->
+            <div class="flex flex-col gap-3 group/dash">
+                <h4 class="text-white font-bold tracking-wide flex items-center gap-2"><i class="fas fa-users text-brand"></i> Player Roster</h4>
+                <div class="w-full aspect-video rounded-xl glass-card overflow-hidden relative border-white/5 group-hover/dash:border-white/20 cursor-pointer group/img" onclick="openLightbox('player.gif')">
+                    <img src="player.gif" class="w-full h-full object-cover opacity-50 group-hover/img:opacity-30 transition-all duration-500 group-hover/img:scale-105" onerror="this.style.display='none'">
+                    <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover/img:opacity-100 transition-opacity duration-300 z-20">
+                        <div class="w-10 h-10 bg-black/60 rounded-full flex items-center justify-center text-white backdrop-blur-md border border-white/20"><i class="fas fa-search-plus text-sm"></i></div>
+                    </div>
+                    <div class="absolute inset-0 flex items-center justify-center text-gray-600 -z-10 gif-placeholder">
+                        <span class="font-mono text-[9px] uppercase bg-black/50 px-2 py-1 rounded">Please add: player.gif</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dashboard Item 2 -->
+            <div class="flex flex-col gap-3 group/dash">
+                <h4 class="text-white font-bold tracking-wide flex items-center gap-2"><i class="fas fa-user-circle text-brand"></i> Website Users</h4>
+                <div class="w-full aspect-video rounded-xl glass-card overflow-hidden relative border-white/5 group-hover/dash:border-white/20 cursor-pointer group/img" onclick="openLightbox('website.gif')">
+                    <img src="website.gif" class="w-full h-full object-cover opacity-50 group-hover/img:opacity-30 transition-all duration-500 group-hover/img:scale-105" onerror="this.style.display='none'">
+                    <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover/img:opacity-100 transition-opacity duration-300 z-20">
+                        <div class="w-10 h-10 bg-black/60 rounded-full flex items-center justify-center text-white backdrop-blur-md border border-white/20"><i class="fas fa-search-plus text-sm"></i></div>
+                    </div>
+                    <div class="absolute inset-0 flex items-center justify-center text-gray-600 -z-10 gif-placeholder">
+                        <span class="font-mono text-[9px] uppercase bg-black/50 px-2 py-1 rounded">Please add: website.gif</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dashboard Item 3 -->
+            <div class="flex flex-col gap-3 group/dash">
+                <h4 class="text-white font-bold tracking-wide flex items-center gap-2"><i class="fas fa-terminal text-brand"></i> System Console</h4>
+                <div class="w-full aspect-video rounded-xl glass-card overflow-hidden relative border-white/5 group-hover/dash:border-white/20 cursor-pointer group/img" onclick="openLightbox('console.gif')">
+                    <img src="console.gif" class="w-full h-full object-cover opacity-50 group-hover/img:opacity-30 transition-all duration-500 group-hover/img:scale-105" onerror="this.style.display='none'">
+                    <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover/img:opacity-100 transition-opacity duration-300 z-20">
+                        <div class="w-10 h-10 bg-black/60 rounded-full flex items-center justify-center text-white backdrop-blur-md border border-white/20"><i class="fas fa-search-plus text-sm"></i></div>
+                    </div>
+                    <div class="absolute inset-0 flex items-center justify-center text-gray-600 -z-10 gif-placeholder">
+                        <span class="font-mono text-[9px] uppercase bg-black/50 px-2 py-1 rounded">Please add: console.gif</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dashboard Item 4 -->
+            <div class="flex flex-col gap-3 group/dash">
+                <h4 class="text-white font-bold tracking-wide flex items-center gap-2"><i class="fab fa-discord text-brand"></i> Discord Webhooks</h4>
+                <div class="w-full aspect-video rounded-xl glass-card overflow-hidden relative border-white/5 group-hover/dash:border-white/20 cursor-pointer group/img" onclick="openLightbox('webhooks.gif')">
+                    <img src="webhooks.gif" class="w-full h-full object-cover opacity-50 group-hover/img:opacity-30 transition-all duration-500 group-hover/img:scale-105" onerror="this.style.display='none'">
+                    <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover/img:opacity-100 transition-opacity duration-300 z-20">
+                        <div class="w-10 h-10 bg-black/60 rounded-full flex items-center justify-center text-white backdrop-blur-md border border-white/20"><i class="fas fa-search-plus text-sm"></i></div>
+                    </div>
+                    <div class="absolute inset-0 flex items-center justify-center text-gray-600 -z-10 gif-placeholder">
+                        <span class="font-mono text-[9px] uppercase bg-black/50 px-2 py-1 rounded">Please add: webhooks.gif</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dashboard Item 5 -->
+            <div class="flex flex-col gap-3 group/dash">
+                <h4 class="text-white font-bold tracking-wide flex items-center gap-2"><i class="fas fa-database text-brand"></i> System Backups</h4>
+                <div class="w-full aspect-video rounded-xl glass-card overflow-hidden relative border-white/5 group-hover/dash:border-white/20 cursor-pointer group/img" onclick="openLightbox('backups.gif')">
+                    <img src="backups.gif" class="w-full h-full object-cover opacity-50 group-hover/img:opacity-30 transition-all duration-500 group-hover/img:scale-105" onerror="this.style.display='none'">
+                    <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover/img:opacity-100 transition-opacity duration-300 z-20">
+                        <div class="w-10 h-10 bg-black/60 rounded-full flex items-center justify-center text-white backdrop-blur-md border border-white/20"><i class="fas fa-search-plus text-sm"></i></div>
+                    </div>
+                    <div class="absolute inset-0 flex items-center justify-center text-gray-600 -z-10 gif-placeholder">
+                        <span class="font-mono text-[9px] uppercase bg-black/50 px-2 py-1 rounded">Please add: backups.gif</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dashboard Item 6 -->
+            <div class="flex flex-col gap-3 group/dash">
+                <h4 class="text-white font-bold tracking-wide flex items-center gap-2"><i class="fas fa-store text-brand"></i> Store Management</h4>
+                <div class="w-full aspect-video rounded-xl glass-card overflow-hidden relative border-white/5 group-hover/dash:border-white/20 cursor-pointer group/img" onclick="openLightbox('store_management.gif')">
+                    <img src="store_management.gif" class="w-full h-full object-cover opacity-50 group-hover/img:opacity-30 transition-all duration-500 group-hover/img:scale-105" onerror="this.style.display='none'">
+                    <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover/img:opacity-100 transition-opacity duration-300 z-20">
+                        <div class="w-10 h-10 bg-black/60 rounded-full flex items-center justify-center text-white backdrop-blur-md border border-white/20"><i class="fas fa-search-plus text-sm"></i></div>
+                    </div>
+                    <div class="absolute inset-0 flex items-center justify-center text-gray-600 -z-10 gif-placeholder">
+                        <span class="font-mono text-[9px] uppercase bg-black/50 px-2 py-1 rounded">Please add: store_management.gif</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dashboard Item 7 -->
+            <div class="flex flex-col gap-3 group/dash">
+                <h4 class="text-white font-bold tracking-wide flex items-center gap-2"><i class="fas fa-briefcase text-brand"></i> Businesses Manager</h4>
+                <div class="w-full aspect-video rounded-xl glass-card overflow-hidden relative border-white/5 group-hover/dash:border-white/20 cursor-pointer group/img" onclick="openLightbox('business_manager.gif')">
+                    <img src="business_manager.gif" class="w-full h-full object-cover opacity-50 group-hover/img:opacity-30 transition-all duration-500 group-hover/img:scale-105" onerror="this.style.display='none'">
+                    <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover/img:opacity-100 transition-opacity duration-300 z-20">
+                        <div class="w-10 h-10 bg-black/60 rounded-full flex items-center justify-center text-white backdrop-blur-md border border-white/20"><i class="fas fa-search-plus text-sm"></i></div>
+                    </div>
+                    <div class="absolute inset-0 flex items-center justify-center text-gray-600 -z-10 gif-placeholder">
+                        <span class="font-mono text-[9px] uppercase bg-black/50 px-2 py-1 rounded">Please add: business_manager.gif</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dashboard Item 8 -->
+            <div class="flex flex-col gap-3 group/dash">
+                <h4 class="text-white font-bold tracking-wide flex items-center gap-2"><i class="fas fa-shield-alt text-brand"></i> Departments Config</h4>
+                <div class="w-full aspect-video rounded-xl glass-card overflow-hidden relative border-white/5 group-hover/dash:border-white/20 cursor-pointer group/img" onclick="openLightbox('departments_config.gif')">
+                    <img src="departments_config.gif" class="w-full h-full object-cover opacity-50 group-hover/img:opacity-30 transition-all duration-500 group-hover/img:scale-105" onerror="this.style.display='none'">
+                    <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover/img:opacity-100 transition-opacity duration-300 z-20">
+                        <div class="w-10 h-10 bg-black/60 rounded-full flex items-center justify-center text-white backdrop-blur-md border border-white/20"><i class="fas fa-search-plus text-sm"></i></div>
+                    </div>
+                    <div class="absolute inset-0 flex items-center justify-center text-gray-600 -z-10 gif-placeholder">
+                        <span class="font-mono text-[9px] uppercase bg-black/50 px-2 py-1 rounded">Please add: departments_config.gif</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dashboard Item 9 -->
+            <div class="flex flex-col gap-3 group/dash">
+                <h4 class="text-white font-bold tracking-wide flex items-center gap-2"><i class="fas fa-skull text-brand"></i> Underground Log</h4>
+                <div class="w-full aspect-video rounded-xl glass-card overflow-hidden relative border-white/5 group-hover/dash:border-white/20 cursor-pointer group/img" onclick="openLightbox('underground_log.gif')">
+                    <img src="underground_log.gif" class="w-full h-full object-cover opacity-50 group-hover/img:opacity-30 transition-all duration-500 group-hover/img:scale-105" onerror="this.style.display='none'">
+                    <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover/img:opacity-100 transition-opacity duration-300 z-20">
+                        <div class="w-10 h-10 bg-black/60 rounded-full flex items-center justify-center text-white backdrop-blur-md border border-white/20"><i class="fas fa-search-plus text-sm"></i></div>
+                    </div>
+                    <div class="absolute inset-0 flex items-center justify-center text-gray-600 -z-10 gif-placeholder">
+                        <span class="font-mono text-[9px] uppercase bg-black/50 px-2 py-1 rounded">Please add: underground_log.gif</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dashboard Item 10 -->
+            <div class="flex flex-col gap-3 group/dash">
+                <h4 class="text-white font-bold tracking-wide flex items-center gap-2"><i class="fas fa-users-cog text-brand"></i> Team CRP Panel</h4>
+                <div class="w-full aspect-video rounded-xl glass-card overflow-hidden relative border-white/5 group-hover/dash:border-white/20 cursor-pointer group/img" onclick="openLightbox('team.gif')">
+                    <img src="team.gif" class="w-full h-full object-cover opacity-50 group-hover/img:opacity-30 transition-all duration-500 group-hover/img:scale-105" onerror="this.style.display='none'">
+                    <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover/img:opacity-100 transition-opacity duration-300 z-20">
+                        <div class="w-10 h-10 bg-black/60 rounded-full flex items-center justify-center text-white backdrop-blur-md border border-white/20"><i class="fas fa-search-plus text-sm"></i></div>
+                    </div>
+                    <div class="absolute inset-0 flex items-center justify-center text-gray-600 -z-10 gif-placeholder">
+                        <span class="font-mono text-[9px] uppercase bg-black/50 px-2 py-1 rounded">Please add: team.gif</span>
+                    </div>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- CTA footer for the iframe -->
+        <section class="flex justify-center mt-8 reveal-element pb-10">
+            <a href="https://crpstore.kaiserfahim.me/" target="_blank" class="px-8 py-4 bg-brand hover:bg-cyan-500 text-white font-bold tracking-widest uppercase rounded-2xl shadow-[0_0_30px_rgba(6,182,212,0.4)] hover:shadow-[0_0_50px_rgba(6,182,212,0.6)] transition-all flex items-center gap-3">
+                Visit Live Production Site <i class="fas fa-arrow-right"></i>
+            </a>
+        </section>
+
+    </div>
+
+    <!-- Fullscreen Lightbox Modal -->
+    <div id="lightbox" class="fixed inset-0 z-50 flex items-center justify-center opacity-0 pointer-events-none transition-all duration-300">
+        <div class="absolute inset-0 bg-black/90 backdrop-blur-md cursor-pointer" onclick="closeLightbox()"></div>
+        <button onclick="closeLightbox()" class="absolute top-6 right-6 md:top-10 md:right-10 text-white bg-white/10 hover:bg-white/20 w-12 h-12 rounded-full flex items-center justify-center z-10 transition-colors border border-white/10">
+            <i class="fas fa-times text-xl"></i>
+        </button>
+        <img id="lightbox-img" src="" alt="Expanded View" class="max-w-[95vw] max-h-[90vh] object-contain relative z-10 rounded-xl shadow-2xl border border-white/10 transform scale-95 transition-transform duration-300">
+    </div>
+
+    <!-- GSAP & JS Logic -->
+    <script>
+        // Lightbox Functions
+        function openLightbox(src) {
+            const lightbox = document.getElementById('lightbox');
+            const lightboxImg = document.getElementById('lightbox-img');
+            
+            lightboxImg.src = src;
+            lightbox.classList.add('lightbox-enter');
+            
+            // Short delay to trigger transform animation after display
+            setTimeout(() => {
+                lightboxImg.classList.add('lightbox-img-enter');
+            }, 10);
+        }
+
+        function closeLightbox() {
+            const lightbox = document.getElementById('lightbox');
+            const lightboxImg = document.getElementById('lightbox-img');
+            
+            lightbox.classList.remove('lightbox-enter');
+            lightboxImg.classList.remove('lightbox-img-enter');
+            
+            // Clear source after fade out to stop playback/reset state
+            setTimeout(() => {
+                lightboxImg.src = '';
+            }, 300);
+        }
+
+        // Close lightbox on Escape key
+        document.addEventListener('keydown', function(event) {
+            if (event.key === "Escape") {
+                closeLightbox();
+            }
+        });
+
+        // GSAP Scroll Animations
+        window.addEventListener("DOMContentLoaded", () => {
+            if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
+                gsap.registerPlugin(ScrollTrigger);
+
+                gsap.utils.toArray('.reveal-element').forEach(element => {
+                    gsap.to(element, {
+                        scrollTrigger: {
+                            trigger: element,
+                            start: "top 90%",
+                            toggleActions: "play none none none"
+                        },
+                        opacity: 1,
+                        y: 0,
+                        duration: 1,
+                        ease: "power3.out"
+                    });
+                });
+            } else {
+                document.querySelectorAll('.reveal-element').forEach(el => {
+                    el.style.opacity = '1';
+                    el.style.transform = 'translateY(0)';
+                });
+            }
+        });
+    </script>
+</body>
+</html>
