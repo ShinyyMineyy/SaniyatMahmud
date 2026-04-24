@@ -58,33 +58,26 @@
             will-change: transform;
         }
 
-        /* Custom Cinematic Cursor */
-        #cursor-dot, #cursor-ring {
-            position: fixed; top: 0; left: 0; pointer-events: none; z-index: 9999;
-            transform: translate(-50%, -50%); border-radius: 50%;
-            will-change: transform, left, top, width, height, opacity;
+        /* Standard Smooth Cursor */
+        #cursor-core {
+            position: fixed; top: 0; left: 0; 
+            width: 8px; height: 8px; 
+            background-color: #06b6d4; 
+            border-radius: 50%;
+            pointer-events: none; z-index: 9999;
+            transform-origin: center;
+            will-change: transform;
         }
-        #cursor-dot { 
-            width: 6px; height: 6px; background-color: #fff; box-shadow: 0 0 10px rgba(255,255,255,0.8); 
-            transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        #cursor-glow {
+            position: fixed; top: 0; left: 0; 
+            width: 40px; height: 40px; 
+            border: 1px solid rgba(6, 182, 212, 0.4);
+            border-radius: 50%;
+            pointer-events: none; z-index: 9998;
+            transform-origin: center;
+            will-change: transform;
+            box-shadow: inset 0 0 10px rgba(6, 182, 212, 0.1);
         }
-        #cursor-ring {
-            width: 36px; height: 36px; border: 1px solid rgba(255,255,255,0.4);
-            transition: width 0.4s cubic-bezier(0.16, 1, 0.3, 1), height 0.4s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.4s ease, border-color 0.4s ease;
-            box-shadow: inset 0 0 10px rgba(255,255,255,0.1);
-            display: flex; align-items: center; justify-content: center;
-        }
-        #cursor-text {
-            opacity: 0; font-family: 'Manrope', sans-serif; font-size: 10px; font-weight: 800; letter-spacing: 0.1em; color: #fff; text-transform: uppercase;
-            transition: opacity 0.3s ease; transform: scale(0.8);
-        }
-        
-        /* Cursor Hover States */
-        body.hover-media #cursor-ring {
-            width: 80px; height: 80px; background-color: rgba(6, 182, 212, 0.2); border-color: rgba(6, 182, 212, 0.8); backdrop-filter: blur(4px); box-shadow: 0 0 30px rgba(6, 182, 212, 0.4);
-        }
-        body.hover-media #cursor-dot { opacity: 0; }
-        body.hover-media #cursor-text { opacity: 1; transform: scale(1); transition-delay: 0.1s; }
 
         /* Custom Scrollbar - Cyan */
         ::-webkit-scrollbar { width: 6px; }
@@ -132,9 +125,9 @@
 </head>
 <body class="antialiased min-h-screen selection:bg-brand/30 selection:text-white pb-24">
 
-    <!-- Cinematic Custom Cursor -->
-    <div id="cursor-dot"></div>
-    <div id="cursor-ring"><span id="cursor-text">View</span></div>
+    <!-- Standard Interactive Cursor -->
+    <div id="cursor-glow"></div>
+    <div id="cursor-core"></div>
 
     <!-- Global Ambient Background Elements -->
     <div class="bg-noise"></div>
@@ -212,9 +205,9 @@
                 <!-- Offset Images Right with 3D Tilt -->
                 <div class="flex-1 relative w-full h-[500px] md:h-[600px] reveal-right">
                     <!-- Image 1 (Back/Top) -->
-                    <div class="absolute top-0 right-0 w-[80%] aspect-video editorial-card rounded-2xl overflow-hidden shadow-2xl z-10 lightbox-trigger media-zoom" data-media="smooth1.png"></div>
+                    <div class="absolute top-0 right-0 w-[80%] aspect-video editorial-card rounded-2xl overflow-hidden shadow-2xl z-10 lightbox-trigger media-zoom cursor-pointer" data-media="smooth1.png"></div>
                     <!-- Image 2 (Front/Bottom Offset) -->
-                    <div class="absolute bottom-0 left-0 w-[70%] aspect-video editorial-card rounded-2xl overflow-hidden shadow-[0_30px_60px_rgba(0,0,0,0.8)] z-20 border-brand/30 lightbox-trigger media-zoom" data-media="smooth2.png"></div>
+                    <div class="absolute bottom-0 left-0 w-[70%] aspect-video editorial-card rounded-2xl overflow-hidden shadow-[0_30px_60px_rgba(0,0,0,0.8)] z-20 border-brand/30 lightbox-trigger media-zoom cursor-pointer" data-media="smooth2.png"></div>
                 </div>
                 
             </div>
@@ -232,7 +225,7 @@
                 
                 <!-- Hub (Large - 8 cols) -->
                 <div class="md:col-span-8 reveal-up flex flex-col p-4 editorial-card rounded-[2.5rem] bg-[#050505]/50">
-                    <div class="lightbox-trigger w-full h-[300px] md:h-[450px] rounded-2xl overflow-hidden media-zoom bg-black border border-white/5" data-media="hub.png"></div>
+                    <div class="lightbox-trigger w-full h-[300px] md:h-[450px] rounded-2xl overflow-hidden cursor-pointer media-zoom bg-black border border-white/5" data-media="hub.png"></div>
                     <div class="flex flex-col gap-2 px-3 pt-5 pb-2">
                         <div class="flex justify-between items-start">
                             <h4 class="text-2xl font-bold text-white tracking-tight"><i class="fas fa-home text-brand mr-2"></i> The Central Hub</h4>
@@ -244,7 +237,7 @@
 
                 <!-- Store (Tall - 4 cols) -->
                 <div class="md:col-span-4 reveal-up flex flex-col p-4 editorial-card rounded-[2.5rem] bg-[#050505]/50" style="transition-delay: 100ms;">
-                    <div class="lightbox-trigger w-full h-[300px] md:h-[450px] rounded-2xl overflow-hidden media-zoom bg-black border border-white/5" data-media="store.png"></div>
+                    <div class="lightbox-trigger w-full h-[300px] md:h-[450px] rounded-2xl overflow-hidden cursor-pointer media-zoom bg-black border border-white/5" data-media="store.png"></div>
                     <div class="flex flex-col gap-2 px-3 pt-5 pb-2">
                         <div class="flex justify-between items-start">
                             <h4 class="text-xl font-bold text-white tracking-tight"><i class="fas fa-shopping-bag text-brand mr-2"></i> Premium Store</h4>
@@ -256,7 +249,7 @@
 
                 <!-- Businesses (4 cols) -->
                 <div class="md:col-span-4 reveal-up flex flex-col p-3 editorial-card rounded-[2rem] bg-[#050505]/50" style="transition-delay: 0ms;">
-                    <div class="lightbox-trigger w-full aspect-video md:aspect-[4/3] rounded-xl overflow-hidden media-zoom bg-black border border-white/5" data-media="business.png"></div>
+                    <div class="lightbox-trigger w-full aspect-video md:aspect-[4/3] rounded-xl overflow-hidden cursor-pointer media-zoom bg-black border border-white/5" data-media="business.png"></div>
                     <div class="flex flex-col gap-2 px-3 pt-4 pb-2">
                         <div class="flex justify-between items-center">
                             <h4 class="text-lg font-bold text-white"><i class="fas fa-briefcase text-brand/70 mr-2"></i> Businesses</h4>
@@ -268,7 +261,7 @@
 
                 <!-- Departments (4 cols) -->
                 <div class="md:col-span-4 reveal-up flex flex-col p-3 editorial-card rounded-[2rem] bg-[#050505]/50" style="transition-delay: 100ms;">
-                    <div class="lightbox-trigger w-full aspect-video md:aspect-[4/3] rounded-xl overflow-hidden media-zoom bg-black border border-white/5" data-media="departments.png"></div>
+                    <div class="lightbox-trigger w-full aspect-video md:aspect-[4/3] rounded-xl overflow-hidden cursor-pointer media-zoom bg-black border border-white/5" data-media="departments.png"></div>
                     <div class="flex flex-col gap-2 px-3 pt-4 pb-2">
                         <div class="flex justify-between items-center">
                             <h4 class="text-lg font-bold text-white"><i class="fas fa-shield-alt text-brand/70 mr-2"></i> Departments</h4>
@@ -280,7 +273,7 @@
 
                 <!-- Underground (4 cols) -->
                 <div class="md:col-span-4 reveal-up flex flex-col p-3 editorial-card rounded-[2rem] bg-[#050505]/50" style="transition-delay: 200ms;">
-                    <div class="lightbox-trigger w-full aspect-video md:aspect-[4/3] rounded-xl overflow-hidden media-zoom bg-black border border-white/5" data-media="underground.png"></div>
+                    <div class="lightbox-trigger w-full aspect-video md:aspect-[4/3] rounded-xl overflow-hidden cursor-pointer media-zoom bg-black border border-white/5" data-media="underground.png"></div>
                     <div class="flex flex-col gap-2 px-3 pt-4 pb-2">
                         <div class="flex justify-between items-center">
                             <h4 class="text-lg font-bold text-white"><i class="fas fa-skull text-brand/70 mr-2"></i> Underground</h4>
@@ -331,7 +324,7 @@
                     
                     <!-- Row 1 (2 Items) -->
                     <div class="md:col-span-6 reveal-up flex flex-col p-3 editorial-card rounded-[2rem] bg-black/60 backdrop-blur-md">
-                        <div class="lightbox-trigger w-full aspect-[16/10] rounded-[1.5rem] overflow-hidden media-zoom border border-white/5" data-media="player.png"></div>
+                        <div class="lightbox-trigger w-full aspect-[16/10] rounded-[1.5rem] overflow-hidden cursor-pointer media-zoom border border-white/5" data-media="player.png"></div>
                         <div class="px-3 pt-4 pb-2">
                             <h4 class="text-white font-bold tracking-wide flex items-center gap-2 mb-1"><i class="fas fa-users text-brand/70"></i> Player Roster</h4>
                             <p class="text-xs text-gray-400 font-light leading-relaxed">Live player states synced directly from the game server database, allowing real-time ban/kick enforcement.</p>
@@ -339,7 +332,7 @@
                     </div>
 
                     <div class="md:col-span-6 reveal-up flex flex-col p-3 editorial-card rounded-[2rem] bg-black/60 backdrop-blur-md" style="transition-delay: 100ms;">
-                        <div class="lightbox-trigger w-full aspect-[16/10] rounded-[1.5rem] overflow-hidden media-zoom border border-white/5" data-media="website.png"></div>
+                        <div class="lightbox-trigger w-full aspect-[16/10] rounded-[1.5rem] overflow-hidden cursor-pointer media-zoom border border-white/5" data-media="website.png"></div>
                         <div class="px-3 pt-4 pb-2">
                             <h4 class="text-white font-bold tracking-wide flex items-center gap-2 mb-1"><i class="fas fa-user-circle text-brand/70"></i> Website Users</h4>
                             <p class="text-xs text-gray-400 font-light leading-relaxed">OAuth2 Discord integration managing web-permissions, linked accounts, and total purchase histories.</p>
@@ -348,7 +341,7 @@
 
                     <!-- Row 2 (3 Items) -->
                     <div class="md:col-span-4 reveal-up flex flex-col p-3 editorial-card rounded-[1.5rem] bg-black/60 backdrop-blur-md">
-                        <div class="lightbox-trigger w-full aspect-[4/3] rounded-xl overflow-hidden media-zoom border border-white/5" data-media="console.png"></div>
+                        <div class="lightbox-trigger w-full aspect-[4/3] rounded-xl overflow-hidden cursor-pointer media-zoom border border-white/5" data-media="console.png"></div>
                         <div class="px-2 pt-3 pb-1">
                             <h4 class="text-white text-sm font-bold tracking-wide flex items-center gap-2"><i class="fas fa-terminal text-brand/70"></i> System Console</h4>
                             <p class="text-[11px] text-gray-500 mt-1">Live server terminal execution via secure WebSocket tunnels.</p>
@@ -356,7 +349,7 @@
                     </div>
 
                     <div class="md:col-span-4 reveal-up flex flex-col p-3 editorial-card rounded-[1.5rem] bg-black/60 backdrop-blur-md" style="transition-delay: 100ms;">
-                        <div class="lightbox-trigger w-full aspect-[4/3] rounded-xl overflow-hidden media-zoom border border-white/5" data-media="webhooks.png"></div>
+                        <div class="lightbox-trigger w-full aspect-[4/3] rounded-xl overflow-hidden cursor-pointer media-zoom border border-white/5" data-media="webhooks.png"></div>
                         <div class="px-2 pt-3 pb-1">
                             <h4 class="text-white text-sm font-bold tracking-wide flex items-center gap-2"><i class="fab fa-discord text-brand/70"></i> Discord Webhooks</h4>
                             <p class="text-[11px] text-gray-500 mt-1">Automated logging, purchase alerts, and system routing logic.</p>
@@ -364,7 +357,7 @@
                     </div>
 
                     <div class="md:col-span-4 reveal-up flex flex-col p-3 editorial-card rounded-[1.5rem] bg-black/60 backdrop-blur-md" style="transition-delay: 200ms;">
-                        <div class="lightbox-trigger w-full aspect-[4/3] rounded-xl overflow-hidden media-zoom border border-white/5" data-media="backups.png"></div>
+                        <div class="lightbox-trigger w-full aspect-[4/3] rounded-xl overflow-hidden cursor-pointer media-zoom border border-white/5" data-media="backups.png"></div>
                         <div class="px-2 pt-3 pb-1">
                             <h4 class="text-white text-sm font-bold tracking-wide flex items-center gap-2"><i class="fas fa-database text-brand/70"></i> System Backups</h4>
                             <p class="text-[11px] text-gray-500 mt-1">Automated CRON jobs archiving MongoDB instances off-site.</p>
@@ -373,7 +366,7 @@
 
                     <!-- Row 3 (2 Items) -->
                     <div class="md:col-span-6 reveal-up flex flex-col p-3 editorial-card rounded-[2rem] bg-black/60 backdrop-blur-md">
-                        <div class="lightbox-trigger w-full aspect-[16/10] rounded-[1.5rem] overflow-hidden media-zoom border border-white/5" data-media="store_management.png"></div>
+                        <div class="lightbox-trigger w-full aspect-[16/10] rounded-[1.5rem] overflow-hidden cursor-pointer media-zoom border border-white/5" data-media="store_management.png"></div>
                         <div class="px-3 pt-4 pb-2">
                             <h4 class="text-white font-bold tracking-wide flex items-center gap-2 mb-1"><i class="fas fa-store text-brand/70"></i> Store Management</h4>
                             <p class="text-xs text-gray-400 font-light leading-relaxed">Full CRUD (Create, Read, Update, Delete) interface for digital products, managing stock, discounts, and automated Stripe pricing integration.</p>
@@ -381,7 +374,7 @@
                     </div>
 
                     <div class="md:col-span-6 reveal-up flex flex-col p-3 editorial-card rounded-[2rem] bg-black/60 backdrop-blur-md" style="transition-delay: 100ms;">
-                        <div class="lightbox-trigger w-full aspect-[16/10] rounded-[1.5rem] overflow-hidden media-zoom border border-white/5" data-media="business_manager.png"></div>
+                        <div class="lightbox-trigger w-full aspect-[16/10] rounded-[1.5rem] overflow-hidden cursor-pointer media-zoom border border-white/5" data-media="business_manager.png"></div>
                         <div class="px-3 pt-4 pb-2">
                             <h4 class="text-white font-bold tracking-wide flex items-center gap-2 mb-1"><i class="fas fa-briefcase text-brand/70"></i> Businesses Manager</h4>
                             <p class="text-xs text-gray-400 font-light leading-relaxed">In-depth economy oversight. Allows admins to audit business transactions, adjust corporate vaults, and manage faction leaders.</p>
@@ -390,7 +383,7 @@
 
                     <!-- Row 4 (3 Items) -->
                     <div class="md:col-span-4 reveal-up flex flex-col p-3 editorial-card rounded-[1.5rem] bg-black/60 backdrop-blur-md">
-                        <div class="lightbox-trigger w-full aspect-[4/3] rounded-xl overflow-hidden media-zoom border border-white/5" data-media="departments_config.png"></div>
+                        <div class="lightbox-trigger w-full aspect-[4/3] rounded-xl overflow-hidden cursor-pointer media-zoom border border-white/5" data-media="departments_config.png"></div>
                         <div class="px-2 pt-3 pb-1">
                             <h4 class="text-white text-sm font-bold tracking-wide flex items-center gap-2"><i class="fas fa-shield-alt text-brand/70"></i> Depts Config</h4>
                             <p class="text-[11px] text-gray-500 mt-1">Dynamic rank, vehicle, and loadout JSON management.</p>
@@ -398,7 +391,7 @@
                     </div>
 
                     <div class="md:col-span-4 reveal-up flex flex-col p-3 editorial-card rounded-[1.5rem] bg-black/60 backdrop-blur-md" style="transition-delay: 100ms;">
-                        <div class="lightbox-trigger w-full aspect-[4/3] rounded-xl overflow-hidden media-zoom border border-white/5" data-media="underground_log.png"></div>
+                        <div class="lightbox-trigger w-full aspect-[4/3] rounded-xl overflow-hidden cursor-pointer media-zoom border border-white/5" data-media="underground_log.png"></div>
                         <div class="px-2 pt-3 pb-1">
                             <h4 class="text-white text-sm font-bold tracking-wide flex items-center gap-2"><i class="fas fa-skull text-brand/70"></i> Underground Log</h4>
                             <p class="text-[11px] text-gray-500 mt-1">Encrypted audit trails for illegal faction operations.</p>
@@ -406,7 +399,7 @@
                     </div>
 
                     <div class="md:col-span-4 reveal-up flex flex-col p-3 editorial-card rounded-[1.5rem] bg-black/60 backdrop-blur-md" style="transition-delay: 200ms;">
-                        <div class="lightbox-trigger w-full aspect-[4/3] rounded-xl overflow-hidden media-zoom border border-white/5" data-media="team.png"></div>
+                        <div class="lightbox-trigger w-full aspect-[4/3] rounded-xl overflow-hidden cursor-pointer media-zoom border border-white/5" data-media="team.png"></div>
                         <div class="px-2 pt-3 pb-1">
                             <h4 class="text-white text-sm font-bold tracking-wide flex items-center gap-2"><i class="fas fa-users-cog text-brand/70"></i> Team CRP Panel</h4>
                             <p class="text-[11px] text-gray-500 mt-1">Super-admin controls restricted strictly to core developers.</p>
@@ -441,29 +434,33 @@
 
     <!-- Universal Media Engine & GSAP Logic -->
     <script>
-        // Custom Cinematic Cursor Logic
-        const cursorDot = document.getElementById('cursor-dot');
-        const cursorRing = document.getElementById('cursor-ring');
+        // Smooth Hardware-Accelerated Cursor Logic
+        const cursorCore = document.getElementById('cursor-core');
+        const cursorGlow = document.getElementById('cursor-glow');
         let mouseX = window.innerWidth / 2, mouseY = window.innerHeight / 2;
-        let ringX = mouseX, ringY = mouseY;
+        let coreX = mouseX, coreY = mouseY;
+        let glowX = mouseX, glowY = mouseY;
         
         window.addEventListener('mousemove', (e) => {
             mouseX = e.clientX; mouseY = e.clientY;
-            cursorDot.style.left = `${mouseX}px`; cursorDot.style.top = `${mouseY}px`;
         }, { passive: true });
         
         function animateCursor() {
-            ringX += (mouseX - ringX) * 0.15; ringY += (mouseY - ringY) * 0.15;
-            cursorRing.style.left = `${ringX}px`; cursorRing.style.top = `${ringY}px`;
+            // Snappy tracking for the core dot
+            coreX += (mouseX - coreX) * 0.25; 
+            coreY += (mouseY - coreY) * 0.25;
+            
+            // Smooth lagging trail for the ambient glow
+            glowX += (mouseX - glowX) * 0.15; 
+            glowY += (mouseY - glowY) * 0.15;
+            
+            // GPU-accelerated transforms
+            cursorCore.style.transform = `translate3d(calc(-50% + ${coreX}px), calc(-50% + ${coreY}px), 0)`;
+            cursorGlow.style.transform = `translate3d(calc(-50% + ${glowX}px), calc(-50% + ${glowY}px), 0)`;
+            
             requestAnimationFrame(animateCursor);
         }
         animateCursor();
-
-        // Bind custom cursor hover states to media triggers
-        document.querySelectorAll('.lightbox-trigger').forEach(el => {
-            el.addEventListener('mouseenter', () => document.body.classList.add('hover-media'));
-            el.addEventListener('mouseleave', () => document.body.classList.remove('hover-media'));
-        });
 
         // 3D Interactive Hover Effect for Editorial Cards
         document.querySelectorAll('.editorial-card').forEach(card => {
@@ -531,8 +528,6 @@
 
         // 2. Lightbox Functions
         function openLightbox(src) {
-            document.body.classList.remove('hover-media'); // Hide custom view cursor
-            
             const lightbox = document.getElementById('lightbox');
             const container = document.getElementById('lightbox-media-container');
             
