@@ -443,284 +443,206 @@
                 <div class="w-full flex flex-col gap-6 gs-reveal mt-10">
                     <h2 class="font-display text-4xl lg:text-5xl text-white font-bold tracking-tight drop-shadow-md px-4 mb-4">Selected Architectures</h2>
                     
-                    <!-- NEW BENTO GRID LAYOUT (8 CARDS) -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
+                    <!-- NEW VERTICAL IFRAME LAYOUT -->
+                    <div class="flex flex-col gap-24 w-full mt-6">
                         
-                        <!-- 1. E-Commerce (Span 2) -->
-                        <div onclick="openPreviewModal('ecommerce.html', 'E-Commerce')" class="w-full h-[350px] md:h-[400px] md:col-span-2 lg:col-span-2 relative group cursor-pointer hover-3d transform-style-3d border border-white/10 shadow-2xl rounded-[2.5rem] overflow-hidden strict-clip">
-                            <div class="absolute inset-0 bg-zinc-950"></div>
-                            <div class="absolute inset-0 bg-gradient-to-r from-[#020202] via-[#020202]/80 to-transparent z-10"></div>
-                            <div class="absolute inset-0 bg-gradient-to-t from-orange-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 z-10 pointer-events-none"></div>
-                            
-                            <div class="absolute right-0 top-0 bottom-0 w-1/2 flex items-center justify-center pointer-events-none transform-style-3d z-0 translate-x-12 opacity-60 group-hover:opacity-100 transition-all duration-700">
-                                <div class="w-48 h-64 border border-orange-500/40 bg-orange-500/20 rounded-2xl backdrop-blur-sm transform rotate-[-5deg] group-hover:rotate-[-15deg] group-hover:-translate-x-8 transition-all duration-700 shadow-[0_0_40px_rgba(249,115,22,0.3)]"></div>
-                                <div class="w-40 h-56 border border-white/20 bg-white/10 rounded-2xl backdrop-blur-md absolute transform rotate-[5deg] group-hover:rotate-[10deg] group-hover:translate-x-12 group-hover:translate-y-4 transition-all duration-700 shadow-2xl"></div>
-                                <div class="w-32 h-12 border border-orange-400/50 bg-orange-400/30 rounded-xl backdrop-blur-lg absolute bottom-1/4 transform group-hover:translate-y-8 group-hover:translate-z-40 transition-all duration-700 shadow-[0_0_30px_rgba(249,115,22,0.4)]"></div>
+                        <!-- 1. E-Commerce -->
+                        <div class="w-full flex flex-col gap-6">
+                            <div class="px-4 md:px-8 flex justify-between items-end">
+                                <div>
+                                    <h3 class="font-display text-4xl md:text-5xl font-black text-white tracking-tighter mb-2 drop-shadow-2xl">E-Commerce.</h3>
+                                    <p class="text-orange-400 text-lg font-light drop-shadow-md">High-conversion storefronts engineered for scale.</p>
+                                </div>
+                                <button onclick="openPreviewModal('ecommerce.html', 'E-Commerce')" class="hidden md:flex px-6 py-3 bg-white/5 border border-white/10 hover:bg-white/10 text-white text-xs font-bold uppercase tracking-widest rounded-xl transition-colors items-center gap-2 cursor-pointer">
+                                    Fullscreen <i class="fas fa-expand text-orange-500"></i>
+                                </button>
                             </div>
-                            
-                            <div class="absolute left-8 md:left-16 bottom-10 md:bottom-16 z-30 translate-z-40 pointer-events-none">
-                                 <h3 class="font-display text-4xl md:text-5xl lg:text-[4.5rem] font-black text-white tracking-tighter mb-2 group-hover:translate-x-6 transition-transform duration-700 ease-out drop-shadow-2xl">E-Commerce.</h3>
-                                 <p class="text-orange-400 text-lg font-light group-hover:translate-x-6 transition-transform duration-700 delay-75 ease-out drop-shadow-md max-w-sm">High-conversion storefronts engineered for scale.</p>
-                                 <div class="mt-6 opacity-0 group-hover:opacity-100 group-hover:translate-x-6 transition-all duration-700 delay-150 pointer-events-auto">
-                                    <span class="px-6 py-3 bg-white text-black text-sm font-bold uppercase tracking-widest rounded-full flex items-center gap-2 w-max shadow-lg">
-                                        <i class="fas fa-eye text-orange-500"></i> Open Prototype
-                                    </span>
-                                 </div>
+                            <div class="w-full h-[500px] md:h-[700px] rounded-[2.5rem] border border-white/10 overflow-hidden relative shadow-2xl bg-zinc-950">
+                                <div class="absolute inset-0 flex flex-col items-center justify-center text-gray-500 z-0">
+                                    <i class="fas fa-circle-notch fa-spin text-4xl mb-4 text-orange-500/50"></i>
+                                    <span class="text-xs uppercase tracking-widest font-bold">Mounting Architecture...</span>
+                                </div>
+                                <iframe data-src="ecommerce.html" class="lazy-iframe absolute inset-0 w-full h-full z-10 transition-opacity duration-700 opacity-0" frameborder="0" onload="this.classList.remove('opacity-0')"></iframe>
                             </div>
                         </div>
 
-                        <!-- 2. Enterprise SaaS (Span 1) -->
-                        <div onclick="openPreviewModal('enterprise.html', 'Enterprise SaaS')" class="w-full h-[350px] md:h-[400px] md:col-span-1 lg:col-span-1 relative group cursor-pointer hover-3d transform-style-3d border border-white/10 shadow-2xl rounded-[2.5rem] overflow-hidden strict-clip">
-                            <div class="absolute inset-0 bg-zinc-950"></div>
-                            <div class="absolute inset-0 bg-gradient-to-l from-[#020202] via-[#020202]/80 to-transparent z-10"></div>
-                            <div class="absolute inset-0 bg-gradient-to-t from-cyan-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 z-10 pointer-events-none"></div>
-                            
-                            <!-- UPGRADED ENTERPRISE ICONS -->
-                            <div class="absolute right-0 top-0 w-full h-full flex items-center justify-end pr-8 pointer-events-none transform-style-3d z-0 translate-x-8 opacity-80 group-hover:opacity-100 transition-all duration-700">
-                                <div class="w-14 h-32 border border-cyan-500/50 bg-cyan-500/30 rounded-xl backdrop-blur-sm transform group-hover:-translate-y-6 group-hover:translate-z-20 transition-all duration-700 shadow-[0_0_40px_rgba(6,182,212,0.4)] flex items-end justify-center pb-3">
-                                    <div class="w-6 h-16 bg-cyan-300/60 rounded-md"></div>
+                        <!-- 2. Enterprise SaaS -->
+                        <div class="w-full flex flex-col gap-6">
+                            <div class="px-4 md:px-8 flex justify-between items-end">
+                                <div>
+                                    <h3 class="font-display text-4xl md:text-5xl font-black text-white tracking-tighter mb-2 drop-shadow-2xl">Enterprise SaaS.</h3>
+                                    <p class="text-cyan-400 text-lg font-light drop-shadow-md">Administrative dashboards & scalable data tools.</p>
                                 </div>
-                                <div class="w-20 h-44 border border-white/30 bg-white/20 rounded-xl backdrop-blur-md transform group-hover:-translate-y-12 group-hover:translate-z-40 transition-all duration-700 delay-75 shadow-2xl -ml-6 mt-12 flex flex-col items-center justify-center gap-3">
-                                    <i class="fas fa-chart-pie text-white/90 text-4xl drop-shadow-lg"></i>
-                                    <div class="w-10 h-2 bg-white/50 rounded-full"></div>
-                                </div>
-                                <div class="w-14 h-28 border border-cyan-400/60 bg-cyan-400/40 rounded-xl backdrop-blur-lg transform group-hover:translate-y-4 group-hover:translate-z-30 transition-all duration-700 delay-150 shadow-[0_0_30px_rgba(6,182,212,0.5)] -ml-6 flex items-start justify-center pt-4">
-                                    <i class="fas fa-server text-cyan-100 text-2xl drop-shadow-md"></i>
-                                </div>
+                                <button onclick="openPreviewModal('enterprise.html', 'Enterprise SaaS')" class="hidden md:flex px-6 py-3 bg-white/5 border border-white/10 hover:bg-white/10 text-white text-xs font-bold uppercase tracking-widest rounded-xl transition-colors items-center gap-2 cursor-pointer">
+                                    Fullscreen <i class="fas fa-expand text-cyan-500"></i>
+                                </button>
                             </div>
-                            
-                            <div class="absolute left-8 bottom-8 z-30 translate-z-40 pointer-events-none pr-8">
-                                 <h3 class="font-display text-3xl md:text-4xl font-black text-white tracking-tighter mb-2 group-hover:translate-x-4 transition-transform duration-700 ease-out drop-shadow-2xl">Enterprise<br>SaaS.</h3>
-                                 <p class="text-cyan-400 text-sm font-light group-hover:translate-x-4 transition-transform duration-700 delay-75 ease-out drop-shadow-md">Administrative dashboards & scalable data tools.</p>
-                                 <div class="mt-4 opacity-0 group-hover:opacity-100 group-hover:translate-x-4 transition-all duration-700 delay-150 pointer-events-auto">
-                                    <span class="px-4 py-2 bg-white text-black text-[10px] font-bold uppercase tracking-widest rounded-full flex items-center gap-2 w-max shadow-lg">
-                                        <i class="fas fa-eye text-cyan-500"></i> Prototype
-                                    </span>
-                                 </div>
+                            <div class="w-full h-[500px] md:h-[700px] rounded-[2.5rem] border border-white/10 overflow-hidden relative shadow-2xl bg-zinc-950">
+                                <div class="absolute inset-0 flex flex-col items-center justify-center text-gray-500 z-0">
+                                    <i class="fas fa-circle-notch fa-spin text-4xl mb-4 text-cyan-500/50"></i>
+                                    <span class="text-xs uppercase tracking-widest font-bold">Mounting Architecture...</span>
+                                </div>
+                                <iframe data-src="enterprise.html" class="lazy-iframe absolute inset-0 w-full h-full z-10 transition-opacity duration-700 opacity-0" frameborder="0" onload="this.classList.remove('opacity-0')"></iframe>
                             </div>
                         </div>
 
-                        <!-- 3. Crypto Exchange (Span 1) -->
-                        <div onclick="openPreviewModal('crypto.html', 'Crypto Exchange')" class="w-full h-[350px] md:h-[400px] md:col-span-1 lg:col-span-1 relative group cursor-pointer hover-3d transform-style-3d border border-white/10 shadow-2xl rounded-[2.5rem] overflow-hidden strict-clip">
-                            <div class="absolute inset-0 bg-zinc-950"></div>
-                            <div class="absolute inset-0 bg-gradient-to-r from-[#020202] via-[#020202]/80 to-transparent z-10"></div>
-                            <div class="absolute inset-0 bg-gradient-to-b from-blue-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 z-10 pointer-events-none"></div>
-                            
-                            <div class="absolute right-0 top-0 w-full h-full flex items-center justify-end pr-8 pointer-events-none transform-style-3d z-0 translate-x-8 opacity-60 group-hover:opacity-100 transition-all duration-700">
-                                <div class="w-8 h-24 border border-blue-500/40 bg-blue-500/20 rounded-lg backdrop-blur-md transform group-hover:-translate-y-6 group-hover:translate-z-20 transition-all duration-700 relative flex justify-center items-center shadow-[0_0_30px_rgba(59,130,246,0.3)]">
-                                    <div class="absolute top-[-15px] w-[3px] h-[15px] bg-blue-300/80 rounded-t-full"></div><div class="absolute bottom-[-20px] w-[3px] h-[20px] bg-blue-300/80 rounded-b-full"></div>
+                        <!-- 3. Crypto Exchange -->
+                        <div class="w-full flex flex-col gap-6">
+                            <div class="px-4 md:px-8 flex justify-between items-end">
+                                <div>
+                                    <h3 class="font-display text-4xl md:text-5xl font-black text-white tracking-tighter mb-2 drop-shadow-2xl">Crypto Exchange.</h3>
+                                    <p class="text-blue-400 text-lg font-light drop-shadow-md">High-frequency trading & Web3 wallet integrations.</p>
                                 </div>
-                                <div class="w-12 h-40 border border-white/20 bg-white/10 rounded-lg backdrop-blur-lg transform group-hover:-translate-y-12 group-hover:translate-z-40 transition-all duration-700 delay-75 shadow-2xl ml-6 relative flex justify-center items-center">
-                                    <div class="absolute top-[-30px] w-[3px] h-[30px] bg-white/50 rounded-t-full"></div><div class="absolute bottom-[-15px] w-[3px] h-[15px] bg-white/50 rounded-b-full"></div>
-                                </div>
-                                <div class="w-8 h-32 border border-blue-400/50 bg-blue-400/30 rounded-lg backdrop-blur-xl transform group-hover:translate-y-4 group-hover:translate-z-30 transition-all duration-700 delay-150 shadow-[0_0_30px_rgba(59,130,246,0.4)] ml-6 relative flex justify-center items-center">
-                                    <div class="absolute top-[-20px] w-[3px] h-[20px] bg-blue-300/80 rounded-t-full"></div><div class="absolute bottom-[-30px] w-[3px] h-[30px] bg-blue-300/80 rounded-b-full"></div>
-                                </div>
+                                <button onclick="openPreviewModal('crypto.html', 'Crypto Exchange')" class="hidden md:flex px-6 py-3 bg-white/5 border border-white/10 hover:bg-white/10 text-white text-xs font-bold uppercase tracking-widest rounded-xl transition-colors items-center gap-2 cursor-pointer">
+                                    Fullscreen <i class="fas fa-expand text-blue-500"></i>
+                                </button>
                             </div>
-                            
-                            <div class="absolute left-8 bottom-8 z-30 translate-z-40 pointer-events-none pr-8">
-                                 <h3 class="font-display text-3xl md:text-4xl font-black text-white tracking-tighter mb-2 group-hover:translate-x-4 transition-transform duration-700 ease-out drop-shadow-2xl">Crypto<br>Exchange.</h3>
-                                 <p class="text-blue-400 text-sm font-light group-hover:translate-x-4 transition-transform duration-700 delay-75 ease-out drop-shadow-md">High-frequency trading & Web3 wallet integrations.</p>
-                                 <div class="mt-4 opacity-0 group-hover:opacity-100 group-hover:translate-x-4 transition-all duration-700 delay-150 pointer-events-auto">
-                                    <span class="px-4 py-2 bg-white text-black text-[10px] font-bold uppercase tracking-widest rounded-full flex items-center gap-2 w-max shadow-lg">
-                                        <i class="fas fa-eye text-blue-500"></i> Prototype
-                                    </span>
-                                 </div>
+                            <div class="w-full h-[500px] md:h-[700px] rounded-[2.5rem] border border-white/10 overflow-hidden relative shadow-2xl bg-zinc-950">
+                                <div class="absolute inset-0 flex flex-col items-center justify-center text-gray-500 z-0">
+                                    <i class="fas fa-circle-notch fa-spin text-4xl mb-4 text-blue-500/50"></i>
+                                    <span class="text-xs uppercase tracking-widest font-bold">Mounting Architecture...</span>
+                                </div>
+                                <iframe data-src="crypto.html" class="lazy-iframe absolute inset-0 w-full h-full z-10 transition-opacity duration-700 opacity-0" frameborder="0" onload="this.classList.remove('opacity-0')"></iframe>
                             </div>
                         </div>
 
-                        <!-- 4. Game Sites (Span 2) -->
-                        <div onclick="openPreviewModal('games.html', 'Game Sites')" class="w-full h-[350px] md:h-[400px] md:col-span-2 lg:col-span-2 relative group cursor-pointer hover-3d transform-style-3d border border-white/10 shadow-2xl rounded-[2.5rem] overflow-hidden strict-clip">
-                            <div class="absolute inset-0 bg-zinc-950"></div>
-                            <div class="absolute inset-0 bg-gradient-to-r from-[#020202] via-[#020202]/80 to-transparent z-10"></div>
-                            <div class="absolute inset-0 bg-gradient-to-t from-rose-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 z-10 pointer-events-none"></div>
-                            
-                            <div class="absolute right-0 top-0 bottom-0 w-1/2 flex items-center justify-center gap-6 md:gap-10 pointer-events-none transform-style-3d z-0 translate-x-12 opacity-60 group-hover:opacity-100 transition-all duration-700">
-                                <div class="w-28 h-28 rounded-full border-[4px] border-rose-500/40 bg-rose-500/20 border-dashed backdrop-blur-sm transform group-hover:rotate-180 group-hover:translate-y-8 group-hover:translate-z-20 transition-all duration-1000 shadow-[0_0_40px_rgba(225,29,72,0.3)]"></div>
-                                <div class="w-24 h-24 bg-white/10 border border-white/20 rounded-2xl transform rotate-45 group-hover:rotate-90 group-hover:-translate-y-12 group-hover:translate-z-40 transition-all duration-700 delay-75 shadow-2xl backdrop-blur-lg flex items-center justify-center">
-                                    <div class="w-12 h-12 bg-rose-500/40 rounded-full blur-[2px]"></div>
+                        <!-- 4. Game Sites -->
+                        <div class="w-full flex flex-col gap-6">
+                            <div class="px-4 md:px-8 flex justify-between items-end">
+                                <div>
+                                    <h3 class="font-display text-4xl md:text-5xl font-black text-white tracking-tighter mb-2 drop-shadow-2xl">Game Sites.</h3>
+                                    <p class="text-rose-400 text-lg font-light drop-shadow-md">Secure multiplayer platforms & probability logic.</p>
                                 </div>
-                                <div class="w-20 h-20 rounded-full border-4 border-rose-400/50 bg-rose-400/30 backdrop-blur-xl transform group-hover:-translate-x-12 group-hover:translate-z-30 transition-all duration-700 delay-150 shadow-[0_0_30px_rgba(225,29,72,0.4)] flex items-center justify-center">
-                                    <div class="w-8 h-8 border-2 border-rose-200/80 rounded-full border-dashed"></div>
-                                </div>
+                                <button onclick="openPreviewModal('games.html', 'Game Sites')" class="hidden md:flex px-6 py-3 bg-white/5 border border-white/10 hover:bg-white/10 text-white text-xs font-bold uppercase tracking-widest rounded-xl transition-colors items-center gap-2 cursor-pointer">
+                                    Fullscreen <i class="fas fa-expand text-rose-500"></i>
+                                </button>
                             </div>
-                            
-                            <div class="absolute left-8 md:left-16 bottom-10 md:bottom-16 z-30 translate-z-40 pointer-events-none">
-                                 <h3 class="font-display text-4xl md:text-5xl lg:text-[4.5rem] font-black text-white tracking-tighter mb-2 group-hover:translate-x-6 transition-transform duration-700 ease-out drop-shadow-2xl">Game Sites.</h3>
-                                 <p class="text-rose-400 text-lg font-light group-hover:translate-x-6 transition-transform duration-700 delay-75 ease-out drop-shadow-md max-w-sm">Secure multiplayer platforms & probability logic.</p>
-                                 <div class="mt-6 opacity-0 group-hover:opacity-100 group-hover:translate-x-6 transition-all duration-700 delay-150 pointer-events-auto">
-                                    <span class="px-6 py-3 bg-white text-black text-sm font-bold uppercase tracking-widest rounded-full flex items-center gap-2 w-max shadow-lg">
-                                        <i class="fas fa-gamepad text-rose-500"></i> Open Prototype
-                                    </span>
-                                 </div>
+                            <div class="w-full h-[500px] md:h-[700px] rounded-[2.5rem] border border-white/10 overflow-hidden relative shadow-2xl bg-zinc-950">
+                                <div class="absolute inset-0 flex flex-col items-center justify-center text-gray-500 z-0">
+                                    <i class="fas fa-circle-notch fa-spin text-4xl mb-4 text-rose-500/50"></i>
+                                    <span class="text-xs uppercase tracking-widest font-bold">Mounting Architecture...</span>
+                                </div>
+                                <iframe data-src="games.html" class="lazy-iframe absolute inset-0 w-full h-full z-10 transition-opacity duration-700 opacity-0" frameborder="0" onload="this.classList.remove('opacity-0')"></iframe>
                             </div>
                         </div>
 
-                        <!-- 5. Command Center / Security Dashboard (Span 2) -->
-                        <div onclick="openPreviewModal('security.html', 'Command Center')" class="w-full h-[350px] md:h-[400px] md:col-span-2 lg:col-span-2 relative group cursor-pointer hover-3d transform-style-3d border border-white/10 shadow-2xl rounded-[2.5rem] overflow-hidden strict-clip">
-                            <div class="absolute inset-0 bg-zinc-950"></div>
-                            <div class="absolute inset-0 bg-gradient-to-r from-[#020202] via-[#020202]/80 to-transparent z-10"></div>
-                            <div class="absolute inset-0 bg-gradient-to-t from-teal-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 z-10 pointer-events-none"></div>
-                            
-                            <div class="absolute right-0 top-0 bottom-0 w-1/2 flex flex-col items-center justify-center gap-4 pointer-events-none transform-style-3d z-0 translate-x-12 opacity-60 group-hover:opacity-100 transition-all duration-700">
-                                <!-- Telemetry Window -->
-                                <div class="w-48 h-28 border border-teal-500/40 bg-teal-500/10 rounded-xl backdrop-blur-md transform group-hover:-translate-y-8 group-hover:-translate-x-6 group-hover:translate-z-20 transition-all duration-700 shadow-[0_0_40px_rgba(20,184,166,0.3)] flex flex-col p-4 justify-center gap-3">
-                                    <div class="flex items-center gap-2">
-                                        <div class="w-2 h-2 rounded-full bg-teal-400 animate-pulse shadow-[0_0_10px_rgba(45,212,191,1)]"></div>
-                                        <span class="text-[9px] font-mono text-teal-300 tracking-widest uppercase">10 PC ENDPOINTS LIVE</span>
-                                    </div>
-                                    <div class="w-full h-1 bg-teal-500/30 rounded-full overflow-hidden"><div class="w-3/4 h-full bg-teal-400"></div></div>
-                                    <div class="w-full h-1 bg-teal-500/30 rounded-full overflow-hidden"><div class="w-1/2 h-full bg-teal-400"></div></div>
+                        <!-- 5. Command Center -->
+                        <div class="w-full flex flex-col gap-6">
+                            <div class="px-4 md:px-8 flex justify-between items-end">
+                                <div>
+                                    <h3 class="font-display text-4xl md:text-5xl font-black text-white tracking-tighter mb-2 drop-shadow-2xl">Command Center.</h3>
+                                    <p class="text-teal-400 text-lg font-light drop-shadow-md">Encrypted endpoint telemetry, live terminal grids & remote camera feeds.</p>
                                 </div>
-                                <!-- Encrypted Camera Feed Mock -->
-                                <div class="w-36 h-36 border border-white/20 bg-white/10 rounded-2xl backdrop-blur-xl absolute transform rotate-[5deg] group-hover:rotate-0 group-hover:translate-x-12 group-hover:translate-y-8 group-hover:translate-z-40 transition-all duration-700 shadow-2xl flex flex-col items-center justify-center relative overflow-hidden">
-                                    <div class="absolute inset-0 m-2 border-2 border-teal-500/40 border-dashed rounded-xl"></div>
-                                    <i class="fas fa-camera text-white/60 text-3xl mb-2 drop-shadow-md"></i>
-                                    <span class="text-[8px] font-mono text-teal-200 tracking-widest">FEED SECURE</span>
-                                </div>
+                                <button onclick="openPreviewModal('security.html', 'Command Center')" class="hidden md:flex px-6 py-3 bg-white/5 border border-white/10 hover:bg-white/10 text-white text-xs font-bold uppercase tracking-widest rounded-xl transition-colors items-center gap-2 cursor-pointer">
+                                    Fullscreen <i class="fas fa-expand text-teal-500"></i>
+                                </button>
                             </div>
-
-                            <div class="absolute left-8 md:left-16 bottom-10 md:bottom-16 z-30 translate-z-40 pointer-events-none">
-                                 <h3 class="font-display text-4xl md:text-5xl lg:text-[4.5rem] font-black text-white tracking-tighter mb-2 group-hover:translate-x-6 transition-transform duration-700 ease-out drop-shadow-2xl">Command<br>Center.</h3>
-                                 <p class="text-teal-400 text-lg font-light group-hover:translate-x-6 transition-transform duration-700 delay-75 ease-out drop-shadow-md max-w-sm">Encrypted endpoint telemetry, live terminal grids & remote camera feeds.</p>
-                                 <div class="mt-6 opacity-0 group-hover:opacity-100 group-hover:translate-x-6 transition-all duration-700 delay-150 pointer-events-auto">
-                                    <span class="px-6 py-3 bg-white text-black text-sm font-bold uppercase tracking-widest rounded-full flex items-center gap-2 w-max shadow-lg">
-                                        <i class="fas fa-shield-alt text-teal-500"></i> Open Terminal
-                                    </span>
-                                 </div>
+                            <div class="w-full h-[500px] md:h-[700px] rounded-[2.5rem] border border-white/10 overflow-hidden relative shadow-2xl bg-zinc-950">
+                                <div class="absolute inset-0 flex flex-col items-center justify-center text-gray-500 z-0">
+                                    <i class="fas fa-circle-notch fa-spin text-4xl mb-4 text-teal-500/50"></i>
+                                    <span class="text-xs uppercase tracking-widest font-bold">Mounting Architecture...</span>
+                                </div>
+                                <iframe data-src="security.html" class="lazy-iframe absolute inset-0 w-full h-full z-10 transition-opacity duration-700 opacity-0" frameborder="0" onload="this.classList.remove('opacity-0')"></iframe>
                             </div>
                         </div>
 
-                        <!-- 6. Social Platforms (Span 1) -->
-                        <div onclick="openPreviewModal('social.html', 'Social Platforms')" class="w-full h-[350px] md:h-[400px] md:col-span-1 lg:col-span-1 relative group cursor-pointer hover-3d transform-style-3d border border-white/10 shadow-2xl rounded-[2.5rem] overflow-hidden strict-clip">
-                            <div class="absolute inset-0 bg-zinc-950"></div>
-                            <div class="absolute inset-0 bg-gradient-to-l from-[#020202] via-[#020202]/80 to-transparent z-10"></div>
-                            <div class="absolute inset-0 bg-gradient-to-b from-pink-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 z-10 pointer-events-none"></div>
-                            
-                            <!-- UPGRADED SOCIAL ICONS -->
-                            <div class="absolute right-0 top-0 w-full h-full flex items-center justify-end pr-8 pointer-events-none transform-style-3d z-0 translate-x-8 opacity-80 group-hover:opacity-100 transition-all duration-700">
-                                <div class="absolute w-24 h-24 border border-pink-500/50 bg-pink-500/30 rounded-full backdrop-blur-md transform group-hover:-translate-x-12 group-hover:-translate-y-8 transition-all duration-700 shadow-[0_0_40px_rgba(236,72,153,0.4)] flex items-center justify-center">
-                                    <i class="fas fa-heart text-pink-200 text-4xl drop-shadow-lg"></i>
+                        <!-- 6. Social Platforms -->
+                        <div class="w-full flex flex-col gap-6">
+                            <div class="px-4 md:px-8 flex justify-between items-end">
+                                <div>
+                                    <h3 class="font-display text-4xl md:text-5xl font-black text-white tracking-tighter mb-2 drop-shadow-2xl">Social Platforms.</h3>
+                                    <p class="text-pink-400 text-lg font-light drop-shadow-md">Real-time feeds & active user databases.</p>
                                 </div>
-                                <div class="absolute w-32 h-32 border border-white/30 bg-white/20 rounded-full backdrop-blur-lg transform group-hover:translate-x-8 group-hover:translate-y-4 group-hover:translate-z-30 transition-all duration-700 shadow-2xl flex items-center justify-center">
-                                    <i class="fas fa-comment-dots text-white/90 text-5xl drop-shadow-xl"></i>
-                                </div>
-                                <div class="absolute w-16 h-16 border border-pink-400/60 bg-pink-400/40 rounded-full backdrop-blur-xl transform group-hover:-translate-x-6 group-hover:translate-y-20 group-hover:translate-z-40 transition-all duration-700 shadow-xl flex items-center justify-center">
-                                    <i class="fas fa-share text-pink-100 text-2xl drop-shadow-md"></i>
-                                </div>
+                                <button onclick="openPreviewModal('social.html', 'Social Platforms')" class="hidden md:flex px-6 py-3 bg-white/5 border border-white/10 hover:bg-white/10 text-white text-xs font-bold uppercase tracking-widest rounded-xl transition-colors items-center gap-2 cursor-pointer">
+                                    Fullscreen <i class="fas fa-expand text-pink-500"></i>
+                                </button>
                             </div>
-                            
-                            <div class="absolute left-8 bottom-8 z-30 translate-z-40 pointer-events-none pr-8">
-                                 <h3 class="font-display text-3xl md:text-4xl font-black text-white tracking-tighter mb-2 group-hover:translate-x-4 transition-transform duration-700 ease-out drop-shadow-2xl">Social<br>Platforms.</h3>
-                                 <p class="text-pink-400 text-sm font-light group-hover:translate-x-4 transition-transform duration-700 delay-75 ease-out drop-shadow-md">Real-time feeds & active user databases.</p>
-                                 <div class="mt-4 opacity-0 group-hover:opacity-100 group-hover:translate-x-4 transition-all duration-700 delay-150 pointer-events-auto">
-                                    <span class="px-4 py-2 bg-white text-black text-[10px] font-bold uppercase tracking-widest rounded-full flex items-center gap-2 w-max shadow-lg">
-                                        <i class="fas fa-eye text-pink-500"></i> Prototype
-                                    </span>
-                                 </div>
+                            <div class="w-full h-[500px] md:h-[700px] rounded-[2.5rem] border border-white/10 overflow-hidden relative shadow-2xl bg-zinc-950">
+                                <div class="absolute inset-0 flex flex-col items-center justify-center text-gray-500 z-0">
+                                    <i class="fas fa-circle-notch fa-spin text-4xl mb-4 text-pink-500/50"></i>
+                                    <span class="text-xs uppercase tracking-widest font-bold">Mounting Architecture...</span>
+                                </div>
+                                <iframe data-src="social.html" class="lazy-iframe absolute inset-0 w-full h-full z-10 transition-opacity duration-700 opacity-0" frameborder="0" onload="this.classList.remove('opacity-0')"></iframe>
                             </div>
                         </div>
 
-                        <!-- 7. Media Streaming (Span 1) -->
-                        <div onclick="openPreviewModal('media.html', 'Streaming Platforms')" class="w-full h-[350px] md:h-[400px] md:col-span-1 lg:col-span-1 relative group cursor-pointer hover-3d transform-style-3d border border-white/10 shadow-2xl rounded-[2.5rem] overflow-hidden strict-clip">
-                            <div class="absolute inset-0 bg-zinc-950"></div>
-                            <div class="absolute inset-0 bg-gradient-to-r from-[#020202] via-[#020202]/80 to-transparent z-10"></div>
-                            <div class="absolute inset-0 bg-gradient-to-b from-violet-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 z-10 pointer-events-none"></div>
-                            
-                            <div class="absolute right-0 top-0 w-full h-full flex items-center justify-end pr-8 pointer-events-none transform-style-3d z-0 translate-x-8 opacity-60 group-hover:opacity-100 transition-all duration-700">
-                                <div class="absolute w-12 h-32 border border-violet-500/40 bg-violet-500/20 rounded-xl backdrop-blur-sm transform group-hover:-translate-x-12 group-hover:-translate-y-8 transition-all duration-700 shadow-[0_0_40px_rgba(139,92,246,0.3)] flex flex-col justify-evenly items-center py-4">
-                                    <div class="w-4 h-1 bg-violet-300/50 rounded-full"></div><div class="w-6 h-1 bg-violet-300/50 rounded-full"></div><div class="w-3 h-1 bg-violet-300/50 rounded-full"></div>
+                        <!-- 7. Media Streaming -->
+                        <div class="w-full flex flex-col gap-6">
+                            <div class="px-4 md:px-8 flex justify-between items-end">
+                                <div>
+                                    <h3 class="font-display text-4xl md:text-5xl font-black text-white tracking-tighter mb-2 drop-shadow-2xl">Media Streaming.</h3>
+                                    <p class="text-violet-400 text-lg font-light drop-shadow-md">VOD delivery, custom players & scalable CDNs.</p>
                                 </div>
-                                <div class="absolute w-28 h-28 border border-white/20 bg-white/10 rounded-2xl backdrop-blur-lg transform group-hover:translate-x-6 group-hover:translate-y-6 group-hover:translate-z-30 transition-all duration-700 shadow-2xl flex items-center justify-center">
-                                    <i class="fas fa-play text-white/70 text-3xl ml-1 drop-shadow-md"></i>
-                                </div>
+                                <button onclick="openPreviewModal('media.html', 'Media Streaming')" class="hidden md:flex px-6 py-3 bg-white/5 border border-white/10 hover:bg-white/10 text-white text-xs font-bold uppercase tracking-widest rounded-xl transition-colors items-center gap-2 cursor-pointer">
+                                    Fullscreen <i class="fas fa-expand text-violet-500"></i>
+                                </button>
                             </div>
-                            
-                            <div class="absolute left-8 bottom-8 z-30 translate-z-40 pointer-events-none pr-8">
-                                 <h3 class="font-display text-3xl md:text-4xl font-black text-white tracking-tighter mb-2 group-hover:translate-x-4 transition-transform duration-700 ease-out drop-shadow-2xl">Media<br>Streaming.</h3>
-                                 <p class="text-violet-400 text-sm font-light group-hover:translate-x-4 transition-transform duration-700 delay-75 ease-out drop-shadow-md">VOD delivery, custom players & scalable CDNs.</p>
-                                 <div class="mt-4 opacity-0 group-hover:opacity-100 group-hover:translate-x-4 transition-all duration-700 delay-150 pointer-events-auto">
-                                    <span class="px-4 py-2 bg-white text-black text-[10px] font-bold uppercase tracking-widest rounded-full flex items-center gap-2 w-max shadow-lg">
-                                        <i class="fas fa-play text-violet-500"></i> Prototype
-                                    </span>
-                                 </div>
+                            <div class="w-full h-[500px] md:h-[700px] rounded-[2.5rem] border border-white/10 overflow-hidden relative shadow-2xl bg-zinc-950">
+                                <div class="absolute inset-0 flex flex-col items-center justify-center text-gray-500 z-0">
+                                    <i class="fas fa-circle-notch fa-spin text-4xl mb-4 text-violet-500/50"></i>
+                                    <span class="text-xs uppercase tracking-widest font-bold">Mounting Architecture...</span>
+                                </div>
+                                <iframe data-src="media.html" class="lazy-iframe absolute inset-0 w-full h-full z-10 transition-opacity duration-700 opacity-0" frameborder="0" onload="this.classList.remove('opacity-0')"></iframe>
                             </div>
                         </div>
 
-                        <!-- 8. Corporate Sites (Span 2) -->
-                        <div onclick="openPreviewModal('corporate.html', 'Corporate Sites')" class="w-full h-[350px] md:h-[400px] md:col-span-2 lg:col-span-2 relative group cursor-pointer hover-3d transform-style-3d border border-white/10 shadow-2xl rounded-[2.5rem] overflow-hidden strict-clip">
-                            <div class="absolute inset-0 bg-zinc-950"></div>
-                            <div class="absolute inset-0 bg-gradient-to-r from-[#020202] via-[#020202]/80 to-transparent z-10"></div>
-                            <div class="absolute inset-0 bg-gradient-to-b from-emerald-500/15 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 z-10 pointer-events-none"></div>
-                            
-                            <div class="absolute right-0 top-0 bottom-0 w-1/2 flex flex-col items-center justify-center gap-6 pointer-events-none transform-style-3d z-0 opacity-60 group-hover:opacity-100 transition-all duration-700 p-12">
-                                <div class="w-full max-w-[240px] h-[2px] bg-gradient-to-r from-transparent via-emerald-500/60 to-transparent transform group-hover:scale-x-150 transition-all duration-700"></div>
-                                <div class="w-full max-w-[320px] h-40 border border-white/20 bg-white/10 rounded-2xl backdrop-blur-lg transform group-hover:scale-105 group-hover:translate-z-30 transition-all duration-700 shadow-2xl"></div>
-                                <div class="w-full max-w-[180px] h-[2px] bg-gradient-to-r from-transparent via-emerald-500/60 to-transparent transform group-hover:scale-x-150 transition-all duration-700 delay-100"></div>
+                        <!-- 8. Corporate Sites -->
+                        <div class="w-full flex flex-col gap-6">
+                            <div class="px-4 md:px-8 flex justify-between items-end">
+                                <div>
+                                    <h3 class="font-display text-4xl md:text-5xl font-black text-white tracking-tighter mb-2 drop-shadow-2xl">Corporate Sites.</h3>
+                                    <p class="text-emerald-400 text-lg font-light drop-shadow-md">High-end enterprise layouts that command authority.</p>
+                                </div>
+                                <button onclick="openPreviewModal('corporate.html', 'Corporate Sites')" class="hidden md:flex px-6 py-3 bg-white/5 border border-white/10 hover:bg-white/10 text-white text-xs font-bold uppercase tracking-widest rounded-xl transition-colors items-center gap-2 cursor-pointer">
+                                    Fullscreen <i class="fas fa-expand text-emerald-500"></i>
+                                </button>
                             </div>
-
-                            <div class="absolute left-8 md:left-16 bottom-10 md:bottom-16 z-30 translate-z-40 pointer-events-none">
-                                 <h3 class="font-display text-4xl md:text-5xl lg:text-[4.5rem] font-black text-white tracking-tighter mb-2 group-hover:translate-x-6 transition-transform duration-700 ease-out drop-shadow-2xl">Corporate Sites.</h3>
-                                 <p class="text-emerald-400 text-lg font-light group-hover:translate-x-6 transition-transform duration-700 delay-75 ease-out drop-shadow-md max-w-sm">High-end enterprise layouts that command authority.</p>
-                                 <div class="mt-6 opacity-0 group-hover:opacity-100 group-hover:translate-x-6 transition-all duration-700 delay-150 pointer-events-auto">
-                                    <span class="px-6 py-3 bg-white text-black text-sm font-bold uppercase tracking-widest rounded-full flex items-center gap-2 w-max shadow-lg">
-                                        <i class="fas fa-eye text-emerald-500"></i> Open Prototype
-                                    </span>
-                                 </div>
+                            <div class="w-full h-[500px] md:h-[700px] rounded-[2.5rem] border border-white/10 overflow-hidden relative shadow-2xl bg-zinc-950">
+                                <div class="absolute inset-0 flex flex-col items-center justify-center text-gray-500 z-0">
+                                    <i class="fas fa-circle-notch fa-spin text-4xl mb-4 text-emerald-500/50"></i>
+                                    <span class="text-xs uppercase tracking-widest font-bold">Mounting Architecture...</span>
+                                </div>
+                                <iframe data-src="corporate.html" class="lazy-iframe absolute inset-0 w-full h-full z-10 transition-opacity duration-700 opacity-0" frameborder="0" onload="this.classList.remove('opacity-0')"></iframe>
                             </div>
                         </div>
 
-                        <!-- 9. Creator Platforms (Span 1) -->
-                        <div onclick="openPreviewModal('creator.html', 'Creator Platforms')" class="w-full h-[350px] md:h-[400px] md:col-span-1 lg:col-span-1 relative group cursor-pointer hover-3d transform-style-3d border border-white/10 shadow-2xl rounded-[2.5rem] overflow-hidden strict-clip">
-                            <div class="absolute inset-0 bg-zinc-950"></div>
-                            <div class="absolute inset-0 bg-gradient-to-r from-[#020202] via-[#020202]/80 to-transparent z-10"></div>
-                            <div class="absolute inset-0 bg-gradient-to-b from-fuchsia-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 z-10 pointer-events-none"></div>
-
-                            <div class="absolute right-0 top-0 w-full h-full flex items-center justify-end pr-8 pointer-events-none transform-style-3d z-0 translate-x-8 opacity-60 group-hover:opacity-100 transition-all duration-700">
-                                <div class="w-12 h-32 border border-fuchsia-500/40 bg-fuchsia-500/20 rounded-xl backdrop-blur-sm transform group-hover:-translate-y-6 group-hover:translate-z-20 transition-all duration-700 shadow-[0_0_30px_rgba(217,70,239,0.3)] flex flex-col justify-end p-2 pb-4">
-                                    <i class="fas fa-lock text-fuchsia-300 text-lg drop-shadow-md text-center"></i>
+                        <!-- 9. Creator Platforms -->
+                        <div class="w-full flex flex-col gap-6">
+                            <div class="px-4 md:px-8 flex justify-between items-end">
+                                <div>
+                                    <h3 class="font-display text-4xl md:text-5xl font-black text-white tracking-tighter mb-2 drop-shadow-2xl">Creator Platforms.</h3>
+                                    <p class="text-fuchsia-400 text-lg font-light drop-shadow-md">Subscription tiers & secure media paywalls.</p>
                                 </div>
-                                <div class="w-20 h-40 border border-white/20 bg-white/10 rounded-2xl backdrop-blur-lg transform group-hover:-translate-y-12 group-hover:translate-z-40 transition-all duration-700 delay-75 shadow-2xl ml-4 relative flex items-center justify-center">
-                                    <i class="fas fa-star text-white/80 text-4xl drop-shadow-lg"></i>
-                                </div>
+                                <button onclick="openPreviewModal('creator.html', 'Creator Platforms')" class="hidden md:flex px-6 py-3 bg-white/5 border border-white/10 hover:bg-white/10 text-white text-xs font-bold uppercase tracking-widest rounded-xl transition-colors items-center gap-2 cursor-pointer">
+                                    Fullscreen <i class="fas fa-expand text-fuchsia-500"></i>
+                                </button>
                             </div>
-
-                            <div class="absolute left-8 bottom-8 z-30 translate-z-40 pointer-events-none pr-8">
-                                 <h3 class="font-display text-3xl md:text-4xl font-black text-white tracking-tighter mb-2 group-hover:translate-x-4 transition-transform duration-700 ease-out drop-shadow-2xl">Creator<br>Platforms.</h3>
-                                 <p class="text-fuchsia-400 text-sm font-light group-hover:translate-x-4 transition-transform duration-700 delay-75 ease-out drop-shadow-md">Subscription tiers & secure media paywalls.</p>
-                                 <div class="mt-4 opacity-0 group-hover:opacity-100 group-hover:translate-x-4 transition-all duration-700 delay-150 pointer-events-auto">
-                                    <span class="px-4 py-2 bg-white text-black text-[10px] font-bold uppercase tracking-widest rounded-full flex items-center gap-2 w-max shadow-lg">
-                                        <i class="fas fa-lock text-fuchsia-500"></i> Prototype
-                                    </span>
-                                 </div>
+                            <div class="w-full h-[500px] md:h-[700px] rounded-[2.5rem] border border-white/10 overflow-hidden relative shadow-2xl bg-zinc-950">
+                                <div class="absolute inset-0 flex flex-col items-center justify-center text-gray-500 z-0">
+                                    <i class="fas fa-circle-notch fa-spin text-4xl mb-4 text-fuchsia-500/50"></i>
+                                    <span class="text-xs uppercase tracking-widest font-bold">Mounting Architecture...</span>
+                                </div>
+                                <iframe data-src="creator.html" class="lazy-iframe absolute inset-0 w-full h-full z-10 transition-opacity duration-700 opacity-0" frameborder="0" onload="this.classList.remove('opacity-0')"></iframe>
                             </div>
                         </div>
 
-                        <!-- 10. FinTech & Escrow (Span 2) -->
-                        <div onclick="openPreviewModal('fintech.html', 'FinTech Dashboards')" class="w-full h-[350px] md:h-[400px] md:col-span-2 lg:col-span-2 relative group cursor-pointer hover-3d transform-style-3d border border-white/10 shadow-2xl rounded-[2.5rem] overflow-hidden strict-clip">
-                            <div class="absolute inset-0 bg-zinc-950"></div>
-                            <div class="absolute inset-0 bg-gradient-to-r from-[#020202] via-[#020202]/80 to-transparent z-10"></div>
-                            <div class="absolute inset-0 bg-gradient-to-t from-amber-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 z-10 pointer-events-none"></div>
-
-                            <div class="absolute right-0 top-0 bottom-0 w-1/2 flex items-center justify-center gap-6 pointer-events-none transform-style-3d z-0 translate-x-12 opacity-60 group-hover:opacity-100 transition-all duration-700">
-                                <div class="w-48 h-28 rounded-2xl border border-amber-500/40 bg-amber-500/20 backdrop-blur-md transform rotate-[-5deg] group-hover:rotate-[-10deg] group-hover:-translate-x-8 group-hover:-translate-y-4 transition-all duration-700 shadow-[0_0_40px_rgba(245,158,11,0.3)] p-4 flex flex-col justify-between">
-                                    <div class="w-8 h-6 bg-amber-400/50 rounded-md"></div>
-                                    <div class="w-24 h-2 bg-amber-400/30 rounded-full"></div>
+                        <!-- 10. FinTech & Escrow -->
+                        <div class="w-full flex flex-col gap-6">
+                            <div class="px-4 md:px-8 flex justify-between items-end">
+                                <div>
+                                    <h3 class="font-display text-4xl md:text-5xl font-black text-white tracking-tighter mb-2 drop-shadow-2xl">FinTech Dashboards.</h3>
+                                    <p class="text-amber-400 text-lg font-light drop-shadow-md">High-frequency escrows, secure APIs & virtual cards.</p>
                                 </div>
-                                <div class="w-32 h-48 border border-white/20 bg-white/10 rounded-2xl backdrop-blur-lg absolute transform rotate-[5deg] group-hover:rotate-[15deg] group-hover:translate-x-16 group-hover:translate-y-8 group-hover:translate-z-40 transition-all duration-700 shadow-2xl flex flex-col items-center justify-center gap-3">
-                                    <i class="fas fa-wallet text-white/80 text-4xl drop-shadow-md"></i>
-                                    <div class="w-12 h-1 bg-white/30 rounded-full"></div>
-                                </div>
+                                <button onclick="openPreviewModal('fintech.html', 'FinTech Dashboards')" class="hidden md:flex px-6 py-3 bg-white/5 border border-white/10 hover:bg-white/10 text-white text-xs font-bold uppercase tracking-widest rounded-xl transition-colors items-center gap-2 cursor-pointer">
+                                    Fullscreen <i class="fas fa-expand text-amber-500"></i>
+                                </button>
                             </div>
-
-                            <div class="absolute left-8 md:left-16 bottom-10 md:bottom-16 z-30 translate-z-40 pointer-events-none">
-                                 <h3 class="font-display text-4xl md:text-5xl lg:text-[4.5rem] font-black text-white tracking-tighter mb-2 group-hover:translate-x-6 transition-transform duration-700 ease-out drop-shadow-2xl">FinTech<br>Ledgers.</h3>
-                                 <p class="text-amber-400 text-lg font-light group-hover:translate-x-6 transition-transform duration-700 delay-75 ease-out drop-shadow-md max-w-sm">High-frequency escrows, secure APIs & virtual cards.</p>
-                                 <div class="mt-6 opacity-0 group-hover:opacity-100 group-hover:translate-x-6 transition-all duration-700 delay-150 pointer-events-auto">
-                                    <span class="px-6 py-3 bg-white text-black text-sm font-bold uppercase tracking-widest rounded-full flex items-center gap-2 w-max shadow-lg">
-                                        <i class="fas fa-credit-card text-amber-500"></i> Open Prototype
-                                    </span>
-                                 </div>
+                            <div class="w-full h-[500px] md:h-[700px] rounded-[2.5rem] border border-white/10 overflow-hidden relative shadow-2xl bg-zinc-950">
+                                <div class="absolute inset-0 flex flex-col items-center justify-center text-gray-500 z-0">
+                                    <i class="fas fa-circle-notch fa-spin text-4xl mb-4 text-amber-500/50"></i>
+                                    <span class="text-xs uppercase tracking-widest font-bold">Mounting Architecture...</span>
+                                </div>
+                                <iframe data-src="fintech.html" class="lazy-iframe absolute inset-0 w-full h-full z-10 transition-opacity duration-700 opacity-0" frameborder="0" onload="this.classList.remove('opacity-0')"></iframe>
                             </div>
                         </div>
 
@@ -1480,6 +1402,28 @@
             });
 
             updateLiveClock(); setInterval(updateLiveClock, 1000);
+
+            const iframeObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    const iframe = entry.target;
+                    if (entry.isIntersecting) {
+                        if (!iframe.src || iframe.src === window.location.href || iframe.src === '') {
+                            iframe.src = iframe.dataset.src;
+                        }
+                    } else {
+                        if (iframe.src && iframe.src !== window.location.href && iframe.src !== '') {
+                            iframe.removeAttribute('src'); 
+                            iframe.classList.add('opacity-0');
+                        }
+                    }
+                });
+            }, {
+                rootMargin: "50% 0px 50% 0px"
+            });
+
+            document.querySelectorAll('.lazy-iframe').forEach(iframe => {
+                iframeObserver.observe(iframe);
+            });
             
             // GSAP Initial Reveal
             gsap.to("#main-container", { opacity: 1, scale: 1, duration: 1.5, ease: "expo.out", delay: 0.2 });
